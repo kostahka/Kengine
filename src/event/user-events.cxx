@@ -29,11 +29,11 @@ void handle_user_event(SDL_UserEvent u_event)
     {
 #ifdef ENGINE_DEV
         case (int)user_events::file_modified:
-            user_event_func func =
-                reinterpret_cast<user_event_func>(u_event.data1);
-            func(u_event.data2);
+            reinterpret_cast<user_event_func>(u_event.data1)(u_event.data2);
             break;
 #endif
+        default:
+            break;
     }
 };
 

@@ -44,7 +44,7 @@ struct gl_render_points : public gl_render_primitive
 
         program->set_uniform_matrix4fv("projection", current_game->projection);
         program->set_uniform_matrix4fv("view", current_game->view);
-        vao->draw_points(m_count);
+        vao->draw_points(static_cast<int>(m_count));
         m_count = 0;
     };
 
@@ -89,7 +89,7 @@ struct gl_render_lines : public gl_render_primitive
 
         program->set_uniform_matrix4fv("projection", current_game->projection);
         program->set_uniform_matrix4fv("view", current_game->view);
-        vao->draw_lines(m_count);
+        vao->draw_lines(static_cast<int>(m_count));
         m_count = 0;
     };
 
@@ -134,7 +134,7 @@ struct gl_render_triangles : public gl_render_primitive
 
         program->set_uniform_matrix4fv("projection", current_game->projection);
         program->set_uniform_matrix4fv("view", current_game->view);
-        vao->draw_triangles(m_count / 3);
+        vao->draw_triangles(static_cast<int>(m_count) / 3);
         m_count = 0;
     };
 

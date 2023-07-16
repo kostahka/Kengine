@@ -1,6 +1,5 @@
 #include "Kengine/engine.hxx"
 
-#include <SDL_video.h>
 #include <exception>
 #include <iostream>
 #include <streambuf>
@@ -15,7 +14,13 @@
 #include <syncstream>
 #endif
 
+#ifdef ENGINE_DEV
+#include "Kengine/file-last-modify-listener.hxx"
+#include <filesystem>
+#endif
+
 #include <SDL3/SDL.h>
+
 #include <imgui.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_sdl3.h>
@@ -469,7 +474,7 @@ public:
         catch (const std::exception* ex)
         {
             std::cerr << "Failed to copy from [" << lib_name << "] to ["
-                      << tmp_lib_name << "]" << std::endl;
+                      << tmp_lib_name << "]: " << ex->what() << std::endl;
             return false;
         }
 
