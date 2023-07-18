@@ -44,7 +44,7 @@ jobs:
     - name: Setup Linux dependencies
       if: runner.os == 'Linux'
       run: |
-        sudo apt=get update
+        sudo apt-get update
         sudo apt-get install build-essential git \
             pkg-config cmake ninja-build gnome-desktop-testing libasound2-dev libpulse-dev \
             libaudio-dev libjack-dev libsndio-dev libsamplerate0-dev libx11-dev libxext-dev \
@@ -77,7 +77,7 @@ jobs:
       run: |
         if ! test -d SDL; then
             git clone https://github.com/libsdl-org/SDL SDL3 
-            cd SDL
+            cd SDL3
             if ! test -d build; then
                 mkdir build
                 cd build
