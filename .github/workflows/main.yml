@@ -1,0 +1,104 @@
+name: Build
+
+on: [push, pull_request]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  Build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: Windows (mingw32),              os: windows-latest, shell: 'msys2 {0}', msystem: mingw32, msys-env: mingw-w64-i686, artifact: 'Kengine-mingw32' }
+          - { name: Windows (mingw64),              os: windows-latest, shell: 'msys2 {0}', msystem: mingw64, msys-env: mingw-w64-x86_64, artifact: 'Kengine-mingw64' }
+          - { name: Windows (clang32),              os: windows-latest, shell: 'msys2 {0}', msystem: clang32, msys-env: mingw-w64-clang-i686, artifact: 'Kengine-msys2-clang32' }
+          - { name: Windows (clang64),              os: windows-latest, shell: 'msys2 {0}', msystem: clang64, msys-env: mingw-w64-clang-x86_64, artifact: 'Kengine-msys2-clang64' }
+          - { name: Windows (ucrt64),               os: windows-latest, shell: 'msys2 {0}', msystem: ucrt64,  msys-env: mingw-w64-ucrt-x86_64, artifact: 'Kengine-msys2-ucrt64' }
+          - { name: Ubuntu 20.04,                   os: ubuntu-20.04,   shell: sh, artifact: 'Kengine-ubuntu20.04' }
+          - { name: Ubuntu 22.04,                   os: ubuntu-22.04,   shell: sh, artifact: 'Kengine-ubuntu22.04' }
+#          - { name: MacOS (Framework),              os: macos-latest,   shell: sh,    cmake: '-DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" -DSDL_CLANG_TIDY=OFF', skip_test_pkgconfig: true, artifact: 'Kengine-macos-framework' }
+          - { name: MacOS (GNU prefix),             os: macos-latest,   shell: sh,    cmake: '-DCMAKE_OSX_ARCHITECTURES="x86_64" -DCLANG_TIDY_BINARY="$(brew --prefix llvm)/bin/clang-tidy"', artifact: 'Kengine-macos-gnu' }
+
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
+
+    steps:
+    - name: Setup MSYS2
+      if: matrix.shell == 'msys2 {0}'
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: ${{ matrix.msystem }}
+        install: >-
+          ${{ matrix.msys-env }}-cc
+          ${{ matrix.msys-env }}-cmake
+          ${{ matrix.msys-env }}-ninja
+          ${{ matrix.msys-env }}-pkg-config
+          ${{ matrix.msys-env }}-clang-tools-extra
+          
+    - name: Setup Linux dependencies
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt=get update
+        sudo apt-get install build-essential git \
+            pkg-config cmake ninja-build gnome-desktop-testing libasound2-dev libpulse-dev \
+            libaudio-dev libjack-dev libsndio-dev libsamplerate0-dev libx11-dev libxext-dev \
+            libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libwayland-dev \
+            libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
+            libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev fcitx-libs-dev
+            
+    - name: Setup extra Ubuntu 22.04 dependencies
+      if: matrix.os == 'ubuntu-22.04'
+      run: |
+        sudo apt-get install libpipewire-0.3-dev libdecor-0-dev
+        
+    - name: Setup Macos dependencies
+      if: runner.os == 'macOS'
+      run: |
+        brew install ninja pkg-config llvm
+    
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+        
+    - name: Cache SDL3
+      uses: actions/cache@v3
+      with:
+        path: |
+          SDL3
+        key: ubuntu-sdl3
+        
+    - name: Install SDL3
+      run: |
+        if ! test -d SDL; then
+            git clone https://github.com/libsdl-org/SDL SDL3 
+            cd SDL
+            if ! test -d build; then
+                mkdir build
+                cd build
+                cmake .. -G Ninja -DSDL_STATIC_PIC=ON -DSDL_STATIC=ON
+                cmake --build .
+                sudo cmake --install .
+            fi
+        fi
+        
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+#    - name: Test
+#      working-directory: ${{github.workspace}}/build
+#      run: ctest -C ${{env.BUILD_TYPE}}
+
+#    - uses: actions/upload-artifacts@v3
+#      with:
+#        if-no-files-found: error
+#        name: ${{ matrix.artifact }}
+#        path: build/kengine*
