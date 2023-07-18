@@ -72,7 +72,7 @@ jobs:
       with:
         path: |
           SDL3
-        key: ubuntu-sdl3
+        key: sdl3-${{ matrix.artifact }}
         
     - name: Clone and build SDL3
       run: |
