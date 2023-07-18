@@ -11,7 +11,6 @@
 #include <android/log.h>
 #else
 #include <glad/glad.h>
-#include <syncstream>
 #endif
 
 #ifdef ENGINE_DEV
@@ -44,9 +43,7 @@ void APIENTRY debug_message(GLenum        source,
                             const GLchar* message,
                             const void*   userParam)
 {
-    std::osyncstream sync_err(std::cerr);
-    sync_err.write(message, length);
-    sync_err << std::endl;
+    std::cerr.write(message, length);
 }
 #endif
 
@@ -225,7 +222,6 @@ public:
             {
                 glEnable(GL_DEBUG_OUTPUT);
                 glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-                glDisable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
                 glDebugMessageCallback(&debug_message, nullptr);
                 glDebugMessageControl(GL_DONT_CARE,
                                       GL_DONT_CARE,
