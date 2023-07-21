@@ -157,6 +157,8 @@ add_library(Kengine::kengine-static ALIAS kengine-static)
 add_library(Kengine::kengine-shared ALIAS kengine-shared)
 add_executable(Kengine::kengine-dev ALIAS kengine-dev)
 
-install(TARGETS kengine-static kengine-shared kengine-dev
-        DESTINATION ${CMAKE_BINARY_DIR}/dist
+install(
+    TARGETS kengine-static kengine-shared kengine-dev
+    DESTINATION ${CMAKE_BINARY_DIR}/dist
+    COMPONENT Kengine
 )
