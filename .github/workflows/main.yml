@@ -76,7 +76,7 @@ jobs:
         
     - name: Clone and build SDL3
       run: |
-        if ! test -d SDL; then
+        if ! test -d SDL3; then
             git clone https://github.com/libsdl-org/SDL SDL3 
             if ! test -d SDL3/build; then
                 mkdir SDL3/build
