@@ -111,7 +111,7 @@ jobs:
 #      working-directory: ${{github.workspace}}/build
 #      run: ctest -C ${{env.BUILD_TYPE}}
 
-    - uses: actions/upload-artifacts@v3
+    - uses: actions/upload-artifact@v3
       with:
         if-no-files-found: error
         name: ${{ matrix.artifact }}
