@@ -41,7 +41,7 @@ jobs:
             if ! test -d SDL3/build; then
                 mkdir SDL3/build
                 cmake -S SDL3 -B SDL3/build -DSDL_STATIC_PIC=ON -DSDL_STATIC=ON -DCMAKE_INSTALL_PREFIX=prefix
-                cmake --build SDL3/build --parallel
+                cmake --build SDL3/build --config ${{env.BUILD_TYPE}} --parallel
             fi
         fi
       shell: bash
