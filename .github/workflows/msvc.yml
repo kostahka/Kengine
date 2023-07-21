@@ -40,7 +40,7 @@ jobs:
             git clone https://github.com/libsdl-org/SDL SDL3 
             if ! test -d SDL3/build; then
                 mkdir SDL3/build
-                cmake -S SDL3/ -B SDL3/build -G Ninja -DSDL_STATIC_PIC=ON -DSDL_STATIC=ON
+                cmake -S SDL3/ -B SDL3/build -DSDL_STATIC_PIC=ON -DSDL_STATIC=ON
                 cmake --build SDL3/build/ --parallel
             fi
         fi
