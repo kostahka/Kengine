@@ -103,9 +103,9 @@ jobs:
       run: |
         cmake --build build --config ${{env.BUILD_TYPE}} --verbose --parallel
 
-    - name: Install
+    - name: Install Kengine
       run: |
-        cmake --install build
+        cmake --install build --component Kengine
 
 #    - name: Test
 #      working-directory: ${{github.workspace}}/build
@@ -115,4 +115,4 @@ jobs:
       with:
         if-no-files-found: error
         name: ${{ matrix.artifact }}
-        path: build/*
+        path: build/dist/*
