@@ -1,5 +1,4 @@
-#ifndef ENGINE_H_
-#define ENGINE_H_
+#pragma once
 
 #include "Kengine/event/event.hxx"
 #include "Kengine/io/input.hxx"
@@ -18,14 +17,6 @@ namespace Kengine
 
 class game;
 class engine;
-
-struct rect
-{
-    float x;
-    float y;
-    float w;
-    float h;
-};
 
 // game configuratiions
 struct game_configuration
@@ -107,5 +98,3 @@ public:
 }; // namespace Kengine
 
 extern "C" Kengine::game* create_game(Kengine::engine*);
-
-#endif // ENGINE_H_

@@ -15,6 +15,13 @@ set(KENGINE_SOURCES
     event/user-events.cxx
     file-last-modify-listener.cxx
     handle-file-modify.hxx
+    imgui-impl/imgui_impl_opengl3.cpp
+    imgui-impl/imgui_impl_opengl3.h
+    imgui-impl/imgui_impl_opengl3_loader.h
+    imgui-impl/imgui_impl_sdl3.cpp
+    imgui-impl/imgui_impl_sdl3.h
+    imgui-impl/imgui_impl_sdlrenderer3.cpp
+    imgui-impl/imgui_impl_sdlrenderer3.h
     io/file-manager.cxx
     io/input.cxx
     render/animation.cxx
@@ -54,129 +61,102 @@ set(KENGINE_HEADERS
 )
 
 set(KENGINE_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/../include)
+set(IMGUI_IMPL_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/imgui-impl)
 
-# Develop engine target
-if(ANDROID)
-    add_library(kengine SHARED ${KENGINE_SOURCES} ${KENGINE_HEADERS})
-else()
-    add_executable(kengine ${KENGINE_SOURCES} ${KENGINE_HEADERS})
-endif()
-
-#Link external libs
-target_link_libraries(
-    kengine
-    PRIVATE SDL3::SDL3-static
-    PRIVATE efsw
-    PRIVATE glad
-    PUBLIC imgui
-    PUBLIC glm::glm
-    PUBLIC box2d
-)
-if(ANDROID)
-    target_link_libraries(
-        engine
-        PUBLIC android
-               log
-               EGL
-               GLESv3
-    )
-endif()
-
-# Compile definitions
-target_compile_definitions(
-    kengine
-    PUBLIC ENGINE_DEV
-    PUBLIC ENGINE_GAME_LIB_NAME="${ENGINE_GAME_LIB_NAME}"
-    PUBLIC IMGUI_IMPL_OPENGL_ES3
-)
-if(WIN32)
-    target_compile_definitions(
-        kengine PRIVATE "-DE_DECLSPEC=__declspec(dllexport)"
-    )
-else()
-    target_compile_definitions(kengine PRIVATE "-DE_DECLSPEC=")
-endif()
-
-# Include dirs
-target_include_directories(kengine PUBLIC ${KENGINE_INCLUDE_DIR})
-
-# Enable exports for game library to link
-set_target_properties(kengine PROPERTIES ENABLE_EXPORTS ON)
-
-# Shared engine lib
-add_library(kengine-shared SHARED ${KENGINE_SOURCES} ${KENGINE_HEADERS})
+# Kengine interfaces
+add_library(kengine-private INTERFACE)
+add_library(kengine-public INTERFACE)
 
 # Link external libs
 target_link_libraries(
-    kengine-shared
-    PRIVATE SDL3::SDL3-static
-    PRIVATE efsw
-    PRIVATE glad
-    PUBLIC imgui
-    PUBLIC glm::glm
-    PUBLIC box2d
+    kengine-private
+    INTERFACE SDL3::SDL3-static
+    INTERFACE efsw
+    INTERFACE glad
+)
+target_link_libraries(
+    kengine-public
+    INTERFACE imgui
+    INTERFACE glm::glm
+    INTERFACE box2d
 )
 if(ANDROID)
     target_link_libraries(
-        kengine-shared
-        PUBLIC android
-               log
-               EGL
-               GLESv3
+        kengine-public
+        INTERFACE android
+                  log
+                  EGL
+                  GLESv3
     )
 endif()
 
 # Compile definitions
-target_compile_definitions(kengine-shared PUBLIC IMGUI_IMPL_OPENGL_ES3)
+target_compile_definitions(kengine-public INTERFACE IMGUI_IMPL_OPENGL_ES3)
 if(WIN32)
     target_compile_definitions(
-        kengine-shared PRIVATE "-DE_DECLSPEC=__declspec(dllexport)"
+        kengine-private INTERFACE "-DE_DECLSPEC=__declspec(dllexport)"
     )
 else()
-    target_compile_definitions(kengine-shared PRIVATE "-DE_DECLSPEC=")
+    target_compile_definitions(kengine-private INTERFACE "-DE_DECLSPEC=")
 endif()
 
 # Include dirs
-target_include_directories(kengine-shared PUBLIC ${KENGINE_INCLUDE_DIR})
+target_include_directories(kengine-public INTERFACE ${KENGINE_INCLUDE_DIR})
+target_include_directories(kengine-private INTERFACE ${IMGUI_IMPL_INCLUDE_DIR})
 
-# PIC for shared lib
-set_property(TARGET kengine-shared PROPERTY POSITION_INDEPENDENT_CODE ON)
+# <<
+# Develop engine target
+# <<
+if(ANDROID)
+    add_library(kengine-dev SHARED ${KENGINE_SOURCES} ${KENGINE_HEADERS})
+else()
+    add_executable(kengine-dev ${KENGINE_SOURCES} ${KENGINE_HEADERS})
+endif()
 
+target_link_libraries(
+    kengine-dev
+    PUBLIC kengine-public
+    PRIVATE kengine-private
+)
+
+target_compile_definitions(
+    kengine-dev
+    PUBLIC ENGINE_DEV
+    PUBLIC ENGINE_GAME_LIB_NAME="${ENGINE_GAME_LIB_NAME}"
+)
+
+# Enable exports for game library to link
+set_target_properties(kengine-dev PROPERTIES ENABLE_EXPORTS ON)
+
+# <<
+# Shared engine lib
+# <<
+add_library(kengine-shared SHARED ${KENGINE_SOURCES} ${KENGINE_HEADERS})
+
+target_link_libraries(
+    kengine-shared
+    PUBLIC kengine-public
+    PRIVATE kengine-private
+)
+
+# <<
 # Static engine lib
+# <<
 add_library(kengine-static STATIC ${KENGINE_SOURCES} ${KENGINE_HEADERS})
 
-#Link external libs
 target_link_libraries(
     kengine-static
-    PRIVATE SDL3::SDL3-static
-    PRIVATE efsw
-    PRIVATE glad
-    PUBLIC imgui
-    PUBLIC glm::glm
-    PUBLIC box2d
+    PUBLIC kengine-public
+    PRIVATE kengine-private
 )
-if(ANDROID)
-    target_link_libraries(
-        kengine-static
-        PUBLIC android
-               log
-               EGL
-               GLESv3
-    )
-endif()
-
-# Compile definitions
-target_compile_definitions(kengine-static PUBLIC IMGUI_IMPL_OPENGL_ES3)
-if(WIN32)
-    target_compile_definitions(
-        kengine-static PRIVATE "-DE_DECLSPEC=__declspec(dllexport)"
-    )
-else()
-    target_compile_definitions(kengine-static PRIVATE "-DE_DECLSPEC=")
-endif()
-
-# Include dirs
-target_include_directories(kengine-static PUBLIC ${KENGINE_INCLUDE_DIR})
 
 # PIC for static lib
 set_property(TARGET kengine-static PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+add_library(Kengine::kengine-static ALIAS kengine-static)
+add_library(Kengine::kengine-shared ALIAS kengine-shared)
+add_executable(Kengine::kengine-dev ALIAS kengine-dev)
+
+install(TARGETS kengine-static kengine-shared kengine-dev
+        DESTINATION ${CMAKE_BINARY_DIR}/dist
+)

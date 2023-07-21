@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.5)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-project(Kengine VERSION 0.0.1)
+project(Kengine VERSION 0.0.0)
 
 # Options for Kengine. You develop your game with hot-reload by setting
 # ENGINE_DEV=On and setting ENGINE_GAME_LIB_NAME to name of your game target. In
