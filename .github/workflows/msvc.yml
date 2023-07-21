@@ -1,0 +1,73 @@
+name: Build (MSVC)
+
+on: [push, pull_request]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  Build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: Windows (x64),          flags: -A x64, artifact: 'Kengine-VC-x64' }
+          - { name: Windows (x86),          flags: -A Win32, artifact: 'Kengine-VC-x86' }
+          - { name: Windows static VCRT (x64), flags: -A x64, artifact: 'Kengine-VC-static-VCRT-x64' }
+          - { name: Windows static VCRT (x86), flags: -A Win32, artifact: 'Kengine-VC-static-VCRT-x86' }
+          - { name: Windows (clang-cl x64), flags: -T ClangCL -A x64, artifact: 'Kengine-clang-cl-x64' }
+          - { name: Windows (clang-cl x86), flags: -T ClangCL -A Win32, artifact: 'Kengine-clang-cl-x86' }
+          - { name: Windows (ARM),          flags: -A ARM, artifact: 'Kengine-VC-arm32' }
+          - { name: Windows (ARM64),        flags: -A ARM64, artifact: 'Kengine-VC-arm64' }
+    name: ${{ matrix.name }}
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+        
+    - name: Cache SDL3
+      uses: actions/cache@v3
+      with:
+        path: |
+          SDL3
+        key: sdl3-${{ matrix.artifact }}
+        
+    - name: Clone and build SDL3
+      run: |
+        if ! test -d SDL3; then
+            git clone https://github.com/libsdl-org/SDL SDL3 
+            if ! test -d SDL3/build; then
+                mkdir SDL3/build
+                cmake -S SDL3/ -B SDL3/build -G Ninja -DSDL_STATIC_PIC=ON -DSDL_STATIC=ON
+                cmake --build SDL3/build/ --parallel
+            fi
+        fi
+      shell: bash
+    
+    - name: Install SDL3
+      run: |
+        cmake --install SDL3/build
+        
+    - name: Configure CMake
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{ matrix.flags }}
+    
+    - name: Build
+      run: |
+        cmake --build build --config ${{env.BUILD_TYPE}} --verbose --parallel
+    
+    - name: Install Kengine
+      run: |
+        cmake --install build --component Kengine
+
+#    - name: Test
+#      working-directory: ${{github.workspace}}/build
+#      run: ctest -C ${{env.BUILD_TYPE}}
+
+    - uses: actions/upload-artifact@v3
+      with:
+        if-no-files-found: error
+        name: ${{ matrix.artifact }}
+        path: build/dist/*
