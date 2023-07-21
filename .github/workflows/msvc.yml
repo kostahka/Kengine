@@ -48,8 +48,8 @@ jobs:
     
     - name: Install SDL3
       run: |
-        cmake --install SDL3/build
         echo "SDL3_DIR=$Env:GITHUB_WORKSPACE/prefix" >> $Env:GITHUB_ENV
+        cmake --install SDL3/build
         
     - name: Configure CMake
       run: |
