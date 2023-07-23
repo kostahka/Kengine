@@ -1,5 +1,6 @@
 #include "opengl.hxx"
 
+#include <algorithm>
 #include <iostream>
 #include <vector>
 
