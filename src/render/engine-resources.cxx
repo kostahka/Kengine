@@ -1,12 +1,13 @@
 #include "Kengine/render/engine-resources.hxx"
+
 namespace Kengine
 {
-namespace e_resources
-{
+    namespace e_resources
+    {
 
-void init()
-{
-    global_sprite_program = create_shader_program_from_code(R"(
+        void init()
+        {
+            global_sprite_program = create_shader_program_from_code(R"(
                 #version 300 es
                 precision mediump float;
 
@@ -24,7 +25,7 @@ void init()
                     gl_Position = projection * view * model * vec4(a_position, 1.0);
                 }
 )",
-                                                            R"(
+                                                                    R"(
                 #version 300 es
                 precision mediump float;
 
@@ -38,7 +39,7 @@ void init()
                     fragColor = texture(s_texture, v_tex_coord);
                 }
 )");
-    local_sprite_program  = create_shader_program_from_code(R"(
+            local_sprite_program  = create_shader_program_from_code(R"(
                 #version 300 es
                 precision mediump float;
 
@@ -55,7 +56,7 @@ void init()
                     gl_Position = projection * model * vec4(a_position, 1.0);
                 }
 )",
-                                                           R"(
+                                                                   R"(
                 #version 300 es
                 precision mediump float;
 
@@ -69,7 +70,7 @@ void init()
                     fragColor = texture(s_texture, v_tex_coord);
                 }
 )");
-    points_program        = create_shader_program_from_code(R"(
+            points_program        = create_shader_program_from_code(R"(
                 #version 300 es
                 precision mediump float;
 
@@ -88,7 +89,7 @@ void init()
                     gl_PointSize = v_size;
                 }
 )",
-                                                     R"(
+                                                             R"(
                 #version 300 es
                 precision mediump float;
 
@@ -101,7 +102,7 @@ void init()
                     fragColor = f_color;
                 }
 )");
-    lines_program         = create_shader_program_from_code(R"(
+            lines_program         = create_shader_program_from_code(R"(
                 #version 300 es
                 precision mediump float;
 
@@ -118,7 +119,7 @@ void init()
                     gl_Position = projection * view * vec4(v_position, 1.0);
                 }
 )",
-                                                    R"(
+                                                            R"(
                 #version 300 es
                 precision mediump float;
 
@@ -131,11 +132,11 @@ void init()
                     fragColor = f_color;
                 }
 )");
-};
+        };
 
-shader_program* local_sprite_program{ nullptr };
-shader_program* global_sprite_program{ nullptr };
-shader_program* points_program{ nullptr };
-shader_program* lines_program{ nullptr };
-} // namespace e_resources
+        shader_program *local_sprite_program{ nullptr };
+        shader_program *global_sprite_program{ nullptr };
+        shader_program *points_program{ nullptr };
+        shader_program *lines_program{ nullptr };
+    } // namespace e_resources
 } // namespace Kengine

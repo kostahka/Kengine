@@ -9,6 +9,7 @@ set(KENGINE_SOURCES
     audio/audio.cxx
     audio/audio.hxx
     engine.cxx
+    engine.hxx
     event/event-engine.hxx
     event/event.cxx
     event/handle-user-event.hxx
@@ -24,6 +25,10 @@ set(KENGINE_SOURCES
     imgui-impl/imgui_impl_sdlrenderer3.h
     io/file-manager.cxx
     io/input.cxx
+    opengl/opengl-debug.cxx
+    opengl/opengl-debug.hxx
+    opengl/opengl.cxx
+    opengl/opengl.hxx
     render/animation.cxx
     render/b2GLDraw.cxx
     render/draw-primitives.cxx
@@ -35,7 +40,8 @@ set(KENGINE_SOURCES
     render/sprite.cxx
     render/texture.cxx
     render/vertex-array-object.cxx
-    transform3d.cxx
+    window/window.cxx
+    window/window.hxx
 )
 
 set(KENGINE_HEADERS
@@ -45,19 +51,22 @@ set(KENGINE_HEADERS
     ../include/Kengine/event/event.hxx
     ../include/Kengine/event/user-events.hxx
     ../include/Kengine/file-last-modify-listener.hxx
+    ../include/Kengine/game.hxx
     ../include/Kengine/io/file-manager.hxx
     ../include/Kengine/io/input.hxx
     ../include/Kengine/render/animation.hxx
     ../include/Kengine/render/b2GLDraw.hxx
-    ../include/Kengine/render/color.hxx
     ../include/Kengine/render/draw-primitives.hxx
     ../include/Kengine/render/engine-resources.hxx
     ../include/Kengine/render/shader-program.hxx
     ../include/Kengine/render/sprite.hxx
     ../include/Kengine/render/texture.hxx
     ../include/Kengine/render/vertex-array-object.hxx
-    ../include/Kengine/render/vertex.hxx
-    ../include/Kengine/transform3d.hxx
+    ../include/Kengine/units/rect.hxx
+    ../include/Kengine/units/transform.hxx
+    ../include/Kengine/units/vector.hxx
+    ../include/Kengine/units/vertex.hxx
+    ../include/Kengine/window/window.hxx
 )
 
 set(KENGINE_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/../include)

@@ -4,5 +4,5 @@
 
 namespace Kengine
 {
-void handle_user_event(SDL_UserEvent);
+    void handle_user_event(SDL_UserEvent);
 };

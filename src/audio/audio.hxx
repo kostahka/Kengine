@@ -5,5 +5,5 @@
 
 namespace Kengine::audio
 {
-bool init();
+    bool init();
 } // namespace Kengine::audio

@@ -18,37 +18,37 @@ public:
     void Create();
     void Destroy();
 
-    void DrawPolygon(const b2Vec2*  vertices,
+    void DrawPolygon(const b2Vec2  *vertices,
                      int32          vertexCount,
-                     const b2Color& color) override;
+                     const b2Color &color) override;
 
-    void DrawSolidPolygon(const b2Vec2*  vertices,
+    void DrawSolidPolygon(const b2Vec2  *vertices,
                           int32          vertexCount,
-                          const b2Color& color) override;
+                          const b2Color &color) override;
 
-    void DrawCircle(const b2Vec2&  center,
+    void DrawCircle(const b2Vec2  &center,
                     float          radius,
-                    const b2Color& color) override;
+                    const b2Color &color) override;
 
-    void DrawSolidCircle(const b2Vec2&  center,
+    void DrawSolidCircle(const b2Vec2  &center,
                          float          radius,
-                         const b2Vec2&  axis,
-                         const b2Color& color) override;
+                         const b2Vec2  &axis,
+                         const b2Color &color) override;
 
-    void DrawSegment(const b2Vec2&  p1,
-                     const b2Vec2&  p2,
-                     const b2Color& color) override;
+    void DrawSegment(const b2Vec2  &p1,
+                     const b2Vec2  &p2,
+                     const b2Color &color) override;
 
-    void DrawTransform(const b2Transform& xf) override;
+    void DrawTransform(const b2Transform &xf) override;
 
-    void DrawPoint(const b2Vec2& p, float size, const b2Color& color) override;
+    void DrawPoint(const b2Vec2 &p, float size, const b2Color &color) override;
 
-    void DrawAABB(b2AABB* aabb, const b2Color& color);
+    void DrawAABB(b2AABB *aabb, const b2Color &color);
 
     void Draw();
 
 private:
-    Kengine::gl_render_primitive* r_points;
-    Kengine::gl_render_primitive* r_lines;
-    Kengine::gl_render_primitive* r_triangles;
+    Kengine::gl_render_primitive *r_points;
+    Kengine::gl_render_primitive *r_lines;
+    Kengine::gl_render_primitive *r_triangles;
 };

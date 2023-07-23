@@ -5,12 +5,12 @@
 #include <stdlib.h>
 
 #ifdef __ANDROID__
-#include <GLES3/gl3.h>
+ #include <GLES3/gl3.h>
 #else
-#include "glad/glad.h"
+ #include "glad/glad.h"
 #endif
 
-inline Kengine::transform3d vec_to_tr(const b2Vec2 v)
+inline Kengine::vec vec_to_tr(const b2Vec2 v)
 {
     return { v.x, v.y, 10 };
 }
@@ -61,9 +61,9 @@ void b2GLDraw::Destroy()
 }
 
 //
-void b2GLDraw::DrawPolygon(const b2Vec2*  vertices,
+void b2GLDraw::DrawPolygon(const b2Vec2  *vertices,
                            int32          vertexCount,
-                           const b2Color& color)
+                           const b2Color &color)
 {
     b2Vec2 p1 = vertices[vertexCount - 1];
     for (int32 i = 0; i < vertexCount; ++i)
@@ -76,19 +76,19 @@ void b2GLDraw::DrawPolygon(const b2Vec2*  vertices,
 }
 
 //
-void b2GLDraw::DrawSolidPolygon(const b2Vec2*  vertices,
+void b2GLDraw::DrawSolidPolygon(const b2Vec2  *vertices,
                                 int32          vertexCount,
-                                const b2Color& color)
+                                const b2Color &color)
 {
-    Kengine::color fillColor{
+    Kengine::vec4 fillColor{
         0.5f * color.r, 0.5f * color.g, 0.5f * color.b, 0.5f
     };
 
-    const b2Vec2& v1 = vertices[0];
+    const b2Vec2 &v1 = vertices[0];
     for (int32 i = 1; i < vertexCount - 1; ++i)
     {
-        const b2Vec2& v2 = vertices[i];
-        const b2Vec2& v3 = vertices[i + 1];
+        const b2Vec2 &v2 = vertices[i];
+        const b2Vec2 &v3 = vertices[i + 1];
 
         r_triangles->vertex(vec_to_tr(v1), fillColor);
         r_triangles->vertex(vec_to_tr(v2), fillColor);
@@ -106,9 +106,9 @@ void b2GLDraw::DrawSolidPolygon(const b2Vec2*  vertices,
 }
 
 //
-void b2GLDraw::DrawCircle(const b2Vec2&  center,
+void b2GLDraw::DrawCircle(const b2Vec2  &center,
                           float          radius,
-                          const b2Color& color)
+                          const b2Color &color)
 {
     const float k_segments  = 16.0f;
     const float k_increment = 2.0f * b2_pi / k_segments;
@@ -131,19 +131,19 @@ void b2GLDraw::DrawCircle(const b2Vec2&  center,
 }
 
 //
-void b2GLDraw::DrawSolidCircle(const b2Vec2&  center,
+void b2GLDraw::DrawSolidCircle(const b2Vec2  &center,
                                float          radius,
-                               const b2Vec2&  axis,
-                               const b2Color& color)
+                               const b2Vec2  &axis,
+                               const b2Color &color)
 {
-    const float    k_segments  = 16.0f;
-    const float    k_increment = 2.0f * b2_pi / k_segments;
-    float          sinInc      = sinf(k_increment);
-    float          cosInc      = cosf(k_increment);
-    b2Vec2         v0          = center;
-    b2Vec2         r1(cosInc, sinInc);
-    b2Vec2         v1 = center + radius * r1;
-    Kengine::color fillColor{
+    const float   k_segments  = 16.0f;
+    const float   k_increment = 2.0f * b2_pi / k_segments;
+    float         sinInc      = sinf(k_increment);
+    float         cosInc      = cosf(k_increment);
+    b2Vec2        v0          = center;
+    b2Vec2        r1(cosInc, sinInc);
+    b2Vec2        v1 = center + radius * r1;
+    Kengine::vec4 fillColor{
         0.5f * color.r, 0.5f * color.g, 0.5f * color.b, 0.5f
     };
     for (int32 i = 0; i < k_segments; ++i)
@@ -182,21 +182,21 @@ void b2GLDraw::DrawSolidCircle(const b2Vec2&  center,
 }
 
 //
-void b2GLDraw::DrawSegment(const b2Vec2&  p1,
-                           const b2Vec2&  p2,
-                           const b2Color& color)
+void b2GLDraw::DrawSegment(const b2Vec2  &p1,
+                           const b2Vec2  &p2,
+                           const b2Color &color)
 {
     r_lines->vertex(vec_to_tr(p1), { color.r, color.g, color.b, color.a });
     r_lines->vertex(vec_to_tr(p2), { color.r, color.g, color.b, color.a });
 }
 
 //
-void b2GLDraw::DrawTransform(const b2Transform& xf)
+void b2GLDraw::DrawTransform(const b2Transform &xf)
 {
-    const float    k_axisScale = 0.4f;
-    Kengine::color red{ 1.0f, 0.0f, 0.0f };
-    Kengine::color green{ 0.0f, 1.0f, 0.0f };
-    b2Vec2         p1 = xf.p, p2;
+    const float   k_axisScale = 0.4f;
+    Kengine::vec4 red{ 1.0f, 0.0f, 0.0f };
+    Kengine::vec4 green{ 0.0f, 1.0f, 0.0f };
+    b2Vec2        p1 = xf.p, p2;
 
     r_lines->vertex(vec_to_tr(p1), red);
     p2 = p1 + k_axisScale * xf.q.GetXAxis();
@@ -208,14 +208,14 @@ void b2GLDraw::DrawTransform(const b2Transform& xf)
 }
 
 //
-void b2GLDraw::DrawPoint(const b2Vec2& p, float size, const b2Color& color)
+void b2GLDraw::DrawPoint(const b2Vec2 &p, float size, const b2Color &color)
 {
     r_points->vertex(
         vec_to_tr(p), { color.r, color.g, color.b, color.a }, size);
 }
 
 //
-void b2GLDraw::DrawAABB(b2AABB* aabb, const b2Color& c)
+void b2GLDraw::DrawAABB(b2AABB *aabb, const b2Color &c)
 {
     b2Vec2 p1 = aabb->lowerBound;
     b2Vec2 p2 = b2Vec2(aabb->upperBound.x, aabb->lowerBound.y);
@@ -234,6 +234,7 @@ void b2GLDraw::DrawAABB(b2AABB* aabb, const b2Color& c)
     r_lines->vertex(vec_to_tr(p4), { c.r, c.g, c.b, c.a });
     r_lines->vertex(vec_to_tr(p1), { c.r, c.g, c.b, c.a });
 }
+
 void b2GLDraw::Draw()
 {
     r_lines->draw();

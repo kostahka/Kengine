@@ -1,21 +1,20 @@
 #include "Kengine/engine.hxx"
+#include "engine.hxx"
 
-#include <exception>
 #include <iostream>
 #include <streambuf>
-#include <string_view>
 
 #ifdef __ANDROID__
-#include <GLES3/gl3.h>
-#include <SDL3/SDL_main.h>
-#include <android/log.h>
+ #include <GLES3/gl3.h>
+ #include <SDL3/SDL_main.h>
+ #include <android/log.h>
 #else
-#include <glad/glad.h>
+ #include <glad/glad.h>
 #endif
 
 #ifdef ENGINE_DEV
-#include "Kengine/file-last-modify-listener.hxx"
-#include <filesystem>
+ #include "Kengine/file-last-modify-listener.hxx"
+ #include <filesystem>
 #endif
 
 #include <SDL3/SDL.h>
@@ -25,93 +24,84 @@
 #include <imgui_impl_sdl3.h>
 
 #include "Kengine/render/engine-resources.hxx"
+#include "Kengine/window/window.hxx"
 #include "audio/audio.hxx"
 #include "event/event-engine.hxx"
 #include "event/handle-user-event.hxx"
 #include "render/opengl-error.hxx"
+#include "window/window.hxx"
 
 namespace Kengine
 {
 
-class engine_impl;
-#ifndef __ANDROID__
-void APIENTRY debug_message(GLenum        source,
-                            GLenum        type,
-                            GLuint        id,
-                            GLenum        severity,
-                            GLsizei       length,
-                            const GLchar* message,
-                            const void*   userParam)
-{
-    std::cerr.write(message, length);
-}
-#endif
-
-bool gl_extension_support(const char* name)
-{
-    GLint n = 0;
-    glGetIntegerv(GL_NUM_EXTENSIONS, &n);
-    for (GLint i = 0; i < n; i++)
-    {
-        const char* extension = (const char*)glGetStringi(GL_EXTENSIONS, i);
-        if (!strcmp(name, extension))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
 #ifdef ENGINE_DEV
-void reload_game(void* data);
+    void reload_game(void *data);
 #endif
 
-class android_redirected_buf : public std::streambuf
-{
-public:
-    android_redirected_buf() = default;
-
-private:
-    // This android_redirected_buf buffer has no buffer. So every character
-    // "overflows" and can be put directly into the teed buffers.
-    int overflow(int c) override
+    class android_redirected_buf : public std::streambuf
     {
-        if (c == EOF)
+    public:
+        android_redirected_buf() = default;
+
+    private:
+        // This android_redirected_buf buffer has no buffer. So every character
+        // "overflows" and can be put directly into the teed buffers.
+        int overflow(int c) override
         {
-            return !EOF;
-        }
-        else
-        {
-            if (c == '\n')
+            if (c == EOF)
             {
-#ifdef __ANDROID__
-                // android log function add '\n' on every print itself
-                __android_log_print(
-                    ANDROID_LOG_ERROR, "Kengine", "%s", message.c_str());
-#else
-                std::printf("%s\n", message.c_str()); // TODO test only
-#endif
-                message.clear();
+                return !EOF;
             }
             else
             {
-                message.push_back(static_cast<char>(c));
+                if (c == '\n')
+                {
+#ifdef __ANDROID__
+                    // android log function add '\n' on every print itself
+                    __android_log_print(
+                        ANDROID_LOG_ERROR, "Kengine", "%s", message.c_str());
+#else
+                    std::printf("%s\n", message.c_str()); // TODO test only
+#endif
+                    message.clear();
+                }
+                else
+                {
+                    message.push_back(static_cast<char>(c));
+                }
+                return c;
             }
-            return c;
         }
-    }
 
-    int sync() override { return 0; }
+        int sync() override { return 0; }
 
-    std::string message;
-};
+        std::string message;
+    };
 
-class engine_impl : public engine
-{
-public:
-    static engine* instance;
+    game *e_game = nullptr;
 
-    std::string_view initialize() override
+#ifdef ENGINE_DEV
+    std::string lib_name     = "";
+    std::string tmp_lib_name = "";
+    void       *lib_handle   = nullptr;
+#endif
+
+    // Time from init SDL in milliseconds
+    std::chrono::high_resolution_clock::time_point update_time;
+    std::chrono::high_resolution_clock::time_point render_time;
+    std::chrono::high_resolution_clock::time_point start_time;
+    std::chrono::high_resolution_clock::time_point current_time;
+
+    std::basic_streambuf<char> *cout_buf{ nullptr };
+    std::basic_streambuf<char> *cerr_buf{ nullptr };
+    std::basic_streambuf<char> *clog_buf{ nullptr };
+
+    engine_configuration configuration{
+        std::chrono::milliseconds{ 1000 / 60 },
+        std::chrono::milliseconds{ 1000 / 90 },
+    };
+
+    std::string_view initialize()
     {
         cout_buf = std::cout.rdbuf();
         cerr_buf = std::cerr.rdbuf();
@@ -129,126 +119,17 @@ public:
                       << std::endl;
             return "sdl init fail";
         }
-#ifdef __ANDROID__
-        window = SDL_CreateWindow("Engine init", 600, 400, SDL_WINDOW_OPENGL);
-#else
-        window = SDL_CreateWindow(
-            "Engine init", 600, 400, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
-#endif
 
-        if (window == nullptr)
-        {
-            std::cerr << "Error to create window. Error: " << SDL_GetError()
-                      << std::endl;
-            SDL_Quit();
-            return "failed to create window";
-        }
+        window::initialize();
 
-        int gl_major_version = 3;
-        int gl_minor_version = 0;
-        int gl_profile       = SDL_GL_CONTEXT_PROFILE_ES;
-
-        // Could not create GL context: The operation completed successfully.
-        // TODO: What is happening?
-        // #ifndef NDEBUG
-        //         gl_minor_version = 3;
-        //         gl_major_version = 2;
-        //         SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS,
-        //         SDL_GL_CONTEXT_DEBUG_FLAG);
-        // #endif
-
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, gl_major_version);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, gl_minor_version);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, gl_profile);
-
-        context = SDL_GL_CreateContext(window);
-        if (context == nullptr)
-        {
-            std::cerr << "Failed to create GL context. Error: "
-                      << SDL_GetError() << std::endl;
-            return "failed to create context";
-        }
-
-        if (SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,
-                                &gl_major_version) ||
-            SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,
-                                &gl_minor_version) ||
-            SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, &gl_profile))
-        {
-            std::cerr << "Failed to get GL versions. Error: " << SDL_GetError()
-                      << std::endl;
-            return "failed to get GL versions";
-        }
-
-        if (gl_major_version < 3 || gl_minor_version < 0)
-        {
-            std::cerr << "Open GL context version is low. Minimum required: 3.0"
-                      << std::endl;
-            return "open gl version is low";
-        }
-
-        std::clog << "Open GL version: " << gl_major_version << "."
-                  << gl_minor_version << std::endl;
-
-#ifndef __ANDROID__
-        auto load_gl_func = [](const char* func_name)
-        { return reinterpret_cast<void*>(SDL_GL_GetProcAddress(func_name)); };
-
-        if (gladLoadGLES2Loader(load_gl_func) == 0)
-        {
-            std::cerr << "Failed to initialize glad" << std::endl;
-            return "failed to init glad";
-        }
-
-        GLint n = 0;
-        glGetIntegerv(GL_NUM_EXTENSIONS, &n);
-
-        for (GLint i = 0; i < n; i++)
-        {
-            const char* extension = (const char*)glGetStringi(GL_EXTENSIONS, i);
-            std::clog << "Ext " << i << ": " << extension << "\n";
-        }
-#ifndef NDEBUG
-        int flags;
-        glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-
-        if ((((gl_major_version == 3 && gl_minor_version >= 2) ||
-              (gl_major_version > 3)) &&
-             gl_profile == SDL_GL_CONTEXT_PROFILE_ES) ||
-            (((gl_major_version == 4 && gl_minor_version >= 3) ||
-              (gl_major_version > 4)) &&
-             gl_profile == SDL_GL_CONTEXT_PROFILE_CORE))
-            if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
-            {
-                glEnable(GL_DEBUG_OUTPUT);
-                glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-                glDebugMessageCallback(&debug_message, nullptr);
-                glDebugMessageControl(GL_DONT_CARE,
-                                      GL_DONT_CARE,
-                                      GL_DONT_CARE,
-                                      0,
-                                      nullptr,
-                                      GL_TRUE);
-                glDebugMessageControl(GL_DONT_CARE,
-                                      GL_DONT_CARE,
-                                      GL_DEBUG_SEVERITY_NOTIFICATION,
-                                      0,
-                                      nullptr,
-                                      GL_FALSE);
-            }
-#endif
-#endif
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_ALWAYS);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         std::cout << "Init engine resource..." << std::endl;
         e_resources::init();
 
         IMGUI_CHECKVERSION();
 
         ImGui::CreateContext();
-        ImGui_ImplSDL3_InitForOpenGL(window, context);
+        ImGui_ImplSDL3_InitForOpenGL(window::get_sdl_window(),
+                                     window::get_context());
         ImGui_ImplOpenGL3_Init("#version 300 es");
 
         audio::init();
@@ -256,17 +137,13 @@ public:
         return "good";
     };
 
-    std::string_view uninitialize() override
+    std::string_view shutdown()
     {
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplSDL3_Shutdown();
         ImGui::DestroyContext();
 
-        if (context)
-            SDL_GL_DeleteContext(context);
-
-        if (window)
-            SDL_DestroyWindow(window);
+        window::shutdown();
 
         SDL_Quit();
 
@@ -277,41 +154,13 @@ public:
         return "good";
     };
 
-    std::string_view start_game_loop() override
+    std::string_view start_game_loop()
     {
         if (e_game == nullptr)
             return "game not set";
 
-        SDL_SetWindowTitle(window, e_game->name.c_str());
-
-#ifdef __ANDROID__
-        // {
-        //     const SDL_DisplayMode* display_mode =
-        //     SDL_GetCurrentDisplayMode(1); if (!display_mode)
-        //     {
-        //         std::cerr << "can't get current display mode: "
-        //                   << SDL_GetError() << std::endl;
-        //     }
-        //     e_game->configuration.screen_width  = display_mode->screen_w;
-        //     e_game->configuration.screen_height = display_mode->screen_h;
-        // }
-
-        SDL_GetWindowSize(window,
-                          &e_game->configuration.screen_width,
-                          &e_game->configuration.screen_height);
-#else
-        SDL_SetWindowSize(window,
-                          e_game->configuration.screen_width,
-                          e_game->configuration.screen_height);
-#endif
-        SDL_GetWindowSizeInPixels(window,
-                                  &e_game->configuration.pixels_width,
-                                  &e_game->configuration.pixels_height);
-
-        glViewport(0,
-                   0,
-                   e_game->configuration.pixels_width,
-                   e_game->configuration.pixels_height);
+        const auto w_pixels_size = window::get_size_in_pixels();
+        glViewport(0, 0, w_pixels_size.x, w_pixels_size.y);
 #ifdef ENGINE_DEV
         file_last_modify_listener::get_instance()->start_files_watch();
 #endif
@@ -328,22 +177,27 @@ public:
             file_last_modify_listener::get_instance()
                 ->handle_file_modify_listeners();
 #endif
-            continue_loop = event::poll_events(e_game, window);
+            continue_loop =
+                event::poll_events(e_game, window::get_sdl_window());
 
             current_time = std::chrono::high_resolution_clock::now();
 
             auto update_delta_time = current_time - update_time;
             if (update_delta_time > configuration.update_delta_time)
             {
-                e_game->on_update(duration_cast<std::chrono::milliseconds>(
-                    update_delta_time));
+                const int delta_ms = static_cast<int>(
+                    duration_cast<std::chrono::milliseconds>(update_delta_time)
+                        .count());
+                e_game->on_update(delta_ms);
                 update_time = current_time;
             }
             auto render_delta_time = current_time - render_time;
             if (render_delta_time > configuration.render_delta_time)
             {
-                e_game->on_render(duration_cast<std::chrono::milliseconds>(
-                    render_delta_time));
+                const int delta_ms = static_cast<int>(
+                    duration_cast<std::chrono::milliseconds>(render_delta_time)
+                        .count());
+                e_game->on_render(delta_ms);
                 render_time = current_time;
             }
         }
@@ -351,9 +205,12 @@ public:
         return "good";
     };
 
-    void set_game(game* e_game) override { this->e_game = e_game; }
+    void set_game(game *g)
+    {
+        e_game = g;
+    }
 
-    void set_cursor_visible(bool visible) override
+    void set_cursor_visible(bool visible)
     {
         int failure;
         if (visible)
@@ -375,15 +232,15 @@ public:
         }
     };
 
-    void clear_color(color col) override
+    void clear_color(vec4 col)
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         gl_get_error(__LINE__, __FILE__);
-        glClearColor(col.r, col.g, col.b, col.a);
+        glClearColor(col.x, col.y, col.z, col.w);
         gl_get_error(__LINE__, __FILE__);
     };
 
-    void draw_imgui() override
+    void draw_imgui()
     {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL3_NewFrame();
@@ -393,55 +250,32 @@ public:
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     };
 
-    void swap_buffers() override
+    void swap_buffers()
     {
-        SDL_GL_SwapWindow(window);
+        SDL_GL_SwapWindow(window::get_sdl_window());
         gl_get_error(__LINE__, __FILE__);
     };
 
-    std::chrono::duration<int, std::milli> get_time() override
+    std::chrono::duration<int, std::milli> get_time()
     {
         return std::chrono::duration_cast<std::chrono::milliseconds>(
             current_time - start_time);
     };
 
-    void quit() override
+    void quit()
     {
-        auto* quit = new SDL_Event();
+        auto *quit = new SDL_Event();
         quit->type = SDL_EVENT_QUIT;
         SDL_PushEvent(quit);
     };
 
 #ifdef ENGINE_DEV
     std::string_view dev_initialization(std::string lib_name,
-                                        std::string tmp_lib_name) override
+                                        std::string tmp_lib_name)
     {
-        this->lib_name     = lib_name;
-        this->tmp_lib_name = tmp_lib_name;
+        lib_name     = lib_name;
+        tmp_lib_name = tmp_lib_name;
         return "good";
-    };
-
-    std::string_view start_dev_game_loop() override
-    {
-        if (lib_name == "" || tmp_lib_name == "")
-            return "no dev init";
-
-        load_e_game();
-
-        auto file_listener = file_last_modify_listener::get_instance();
-        file_listener->add_file(lib_name, &reload_game, nullptr);
-
-        auto loop_return_code = start_game_loop();
-
-        return loop_return_code;
-    };
-
-    bool reload_e_game()
-    {
-        bool result = load_e_game();
-        if (result)
-            e_game->on_start();
-        return false;
     };
 
     bool load_e_game()
@@ -467,7 +301,7 @@ public:
         {
             copy_file(lib_name, tmp_lib_name);
         }
-        catch (const std::exception* ex)
+        catch (const std::exception *ex)
         {
             std::cerr << "Failed to copy from [" << lib_name << "] to ["
                       << tmp_lib_name << "]: " << ex->what() << std::endl;
@@ -499,7 +333,7 @@ public:
         create_game_ptr create_game_func =
             reinterpret_cast<create_game_ptr>(create_game_func_ptr);
 
-        game* new_game = create_game_func(this);
+        game *new_game = create_game_func();
 
         if (new_game == nullptr)
         {
@@ -512,59 +346,47 @@ public:
         return true;
     };
 
-    std::string lib_name     = "";
-    std::string tmp_lib_name = "";
-    void*       lib_handle   = nullptr;
+    std::string_view start_dev_game_loop()
+    {
+        if (lib_name == "" || tmp_lib_name == "")
+            return "no dev init";
+
+        load_e_game();
+
+        auto file_listener = file_last_modify_listener::get_instance();
+        file_listener->add_file(lib_name, &reload_game, nullptr);
+
+        auto loop_return_code = start_game_loop();
+
+        return loop_return_code;
+    };
+
+    bool reload_e_game()
+    {
+        bool result = load_e_game();
+        if (result)
+            e_game->on_start();
+        return false;
+    };
 
 #endif
-
-private:
-    // Engine
-    SDL_Window*   window  = nullptr;
-    SDL_GLContext context = nullptr;
-
-    // Time from init SDL in milliseconds
-    std::chrono::high_resolution_clock::time_point update_time;
-    std::chrono::high_resolution_clock::time_point render_time;
-    std::chrono::high_resolution_clock::time_point start_time;
-    std::chrono::high_resolution_clock::time_point current_time;
-
-    std::basic_streambuf<char>* cout_buf{ nullptr };
-    std::basic_streambuf<char>* cerr_buf{ nullptr };
-    std::basic_streambuf<char>* clog_buf{ nullptr };
 
     android_redirected_buf logcat;
-};
-
-engine* engine_impl::instance = nullptr;
-
-engine::~engine() = default;
 
 #ifdef ENGINE_DEV
-void reload_game(void* data)
-{
-    auto engine_instance =
-        reinterpret_cast<engine_impl*>(engine_impl::instance);
-    engine_instance->reload_e_game();
-};
+    void reload_game(void *data)
+    {
+        reload_e_game();
+    };
 #endif
 
-engine* engine::instance()
-{
-    if (engine_impl::instance == nullptr)
-        engine_impl::instance = new engine_impl();
-
-    return engine_impl::instance;
-}
 } // namespace Kengine
 
 #ifdef ENGINE_DEV
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
-    using namespace Kengine;
-    engine* engine = engine::instance();
 
-    if (engine->initialize() != "good")
+    if (Kengine::initialize() != "good")
         return EXIT_FAILURE;
     using namespace std::string_literals;
     std::string game_name = ENGINE_GAME_LIB_NAME;
@@ -574,10 +396,10 @@ int main(int argc, char* argv[])
 
     std::string tmp_lib_name = "./temp.dll";
 
-    engine->dev_initialization(lib_name, tmp_lib_name);
+    Kengine::dev_initialization(lib_name, tmp_lib_name);
 
-    engine->start_dev_game_loop();
-    engine->uninitialize();
+    Kengine::start_dev_game_loop();
+    Kengine::shutdown();
 
     return EXIT_SUCCESS;
 };

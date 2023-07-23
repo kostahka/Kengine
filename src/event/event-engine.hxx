@@ -6,5 +6,5 @@
 
 namespace Kengine::event
 {
-bool poll_events(game* game, SDL_Window* window);
+    bool poll_events(game *game, SDL_Window *window);
 }
