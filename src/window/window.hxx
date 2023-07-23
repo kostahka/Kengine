@@ -14,8 +14,8 @@ namespace Kengine::window
     void end_render();
     void shutdown();
 
-    extern inline SDL_Window   *get_sdl_window();
-    extern inline SDL_GLContext get_context();
+    SDL_Window   *get_sdl_window();
+    SDL_GLContext get_context();
 
     void update_sizes();
 } // namespace Kengine::window
