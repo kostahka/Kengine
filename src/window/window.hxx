@@ -9,7 +9,7 @@ typedef void *SDL_GLContext;
 
 namespace Kengine::window
 {
-    bool initialize(std::string_view name = "", ivec2 size = { 0, 0 });
+    bool initialize(std::string_view name = "");
     void begin_render();
     void end_render();
     void shutdown();

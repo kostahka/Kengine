@@ -3,9 +3,7 @@
 
 #include <algorithm>
 #include <chrono>
-#ifdef ENGINE_DEV
- #include <efsw/efsw.hpp>
-#endif
+#include <efsw/efsw.hpp>
 #include <filesystem>
 #include <vector>
 
@@ -13,7 +11,6 @@
 
 namespace Kengine
 {
-#ifdef ENGINE_DEV
     struct file_modify_listener_info
     {
         std::string          file_name;
@@ -130,5 +127,4 @@ namespace Kengine
             instance = new file_last_modify_listener_impl();
         return instance;
     };
-#endif
 }; // namespace Kengine

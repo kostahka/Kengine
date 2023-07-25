@@ -13,7 +13,6 @@
 #endif
 
 #ifdef ENGINE_DEV
- #include "Kengine/file-last-modify-listener.hxx"
  #include <filesystem>
 #endif
 
@@ -23,10 +22,11 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_sdl3.h>
 
+#include "Kengine/file-last-modify-listener.hxx"
 #include "Kengine/render/engine-resources.hxx"
 #include "Kengine/window/window.hxx"
 #include "audio/audio.hxx"
-#include "event/event-engine.hxx"
+#include "event/event.hxx"
 #include "event/handle-user-event.hxx"
 #include "render/opengl-error.hxx"
 #include "window/window.hxx"
@@ -154,31 +154,30 @@ namespace Kengine
         return "good";
     };
 
+    void render(int delta_ms)
+    {
+        window::begin_render();
+        e_game->on_render(delta_ms);
+        window::end_render();
+    }
+
     std::string_view start_game_loop()
     {
         if (e_game == nullptr)
             return "game not set";
 
-        const auto w_pixels_size = window::get_size_in_pixels();
-        glViewport(0, 0, w_pixels_size.x, w_pixels_size.y);
-#ifdef ENGINE_DEV
-        file_last_modify_listener::get_instance()->start_files_watch();
-#endif
         bool continue_loop = true;
-
-        e_game->on_start();
-
         start_time = render_time = update_time =
             std::chrono::high_resolution_clock::now();
 
+        file_last_modify_listener::get_instance()->start_files_watch();
+        e_game->on_start();
+
         while (continue_loop)
         {
-#ifdef ENGINE_DEV
             file_last_modify_listener::get_instance()
                 ->handle_file_modify_listeners();
-#endif
-            continue_loop =
-                event::poll_events(e_game, window::get_sdl_window());
+            continue_loop = event::poll_events(e_game);
 
             current_time = std::chrono::high_resolution_clock::now();
 
@@ -197,7 +196,7 @@ namespace Kengine
                 const int delta_ms = static_cast<int>(
                     duration_cast<std::chrono::milliseconds>(render_delta_time)
                         .count());
-                e_game->on_render(delta_ms);
+
                 render_time = current_time;
             }
         }
@@ -232,14 +231,6 @@ namespace Kengine
         }
     };
 
-    void clear_color(vec4 col)
-    {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        gl_get_error(__LINE__, __FILE__);
-        glClearColor(col.x, col.y, col.z, col.w);
-        gl_get_error(__LINE__, __FILE__);
-    };
-
     void draw_imgui()
     {
         ImGui_ImplOpenGL3_NewFrame();
@@ -248,12 +239,6 @@ namespace Kengine
         e_game->on_imgui_render();
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    };
-
-    void swap_buffers()
-    {
-        SDL_GL_SwapWindow(window::get_sdl_window());
-        gl_get_error(__LINE__, __FILE__);
     };
 
     std::chrono::duration<int, std::milli> get_time()

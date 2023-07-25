@@ -4,9 +4,7 @@ namespace Kengine
 {
     enum class user_events
     {
-#ifdef ENGINE_DEV
         file_modified = 0,
-#endif
     };
 
     using user_event_func = void (*)(void *data);

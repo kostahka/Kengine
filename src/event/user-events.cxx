@@ -27,11 +27,9 @@ namespace Kengine
     {
         switch (u_event.code)
         {
-#ifdef ENGINE_DEV
             case (int)user_events::file_modified:
                 reinterpret_cast<user_event_func>(u_event.data1)(u_event.data2);
                 break;
-#endif
             default:
                 break;
         }

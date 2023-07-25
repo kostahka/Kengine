@@ -13,6 +13,8 @@
 
 namespace Kengine::window
 {
+    options start_options;
+
     ivec2 size{ 0, 0 };
     ivec2 size_in_pixels{ 0, 0 };
 
@@ -49,7 +51,7 @@ namespace Kengine::window
         return size;
     }
 
-    void set_size(ivec2 s)
+    void set_size(ivec2 &s)
     {
         SDL_SetWindowSize(window, s.x, s.y);
         update_sizes();
@@ -73,9 +75,22 @@ namespace Kengine::window
             SDL_RaiseWindow(window);
     }
 
-    bool initialize(std::string_view name, ivec2 size)
+    void set_options(options &o)
+    {
+        start_options = o;
+    }
+
+    bool initialize(std::string_view name)
     {
         bool result = true;
+
+        size = start_options.size;
+
+        gl_major_version = start_options.gl_major_version;
+        gl_minor_version = start_options.gl_minor_version;
+        gl_profile = start_options.gl_profile_es ? SDL_GL_CONTEXT_PROFILE_ES
+                                                 : SDL_GL_CONTEXT_PROFILE_CORE;
+        gl_debug   = start_options.gl_debug;
 
         if (!window)
         {
@@ -162,6 +177,11 @@ namespace Kengine::window
             glDepthFunc(GL_ALWAYS);
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+            glClearColor(start_options.clear_color.x,
+                         start_options.clear_color.y,
+                         start_options.clear_color.z,
+                         start_options.clear_color.w);
         }
 
         update_sizes();
@@ -171,11 +191,13 @@ namespace Kengine::window
     void begin_render()
     {
         // TODO
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
     void end_render()
     {
         // TODO
+        SDL_GL_SwapWindow(window);
     }
 
     void shutdown()
@@ -201,5 +223,15 @@ namespace Kengine::window
     SDL_GLContext get_context()
     {
         return context;
+    }
+
+    void set_color(vec4 &col)
+    {
+        glClearColor(col.x, col.y, col.z, col.w);
+    }
+
+    void warp_mouse(float x, float y)
+    {
+        SDL_WarpMouseInWindow(window, x, y);
     }
 } // namespace Kengine::window

@@ -8,17 +8,6 @@
 
 namespace Kengine
 {
-
-    // game configuratiions
-    struct game_configuration
-    {
-        // window sizes
-        int screen_width;
-        int screen_height;
-        int pixels_width;
-        int pixels_height;
-    };
-
     // Engine configuration
     struct engine_configuration
     {
@@ -34,8 +23,6 @@ namespace Kengine
     std::string_view start_game_loop();
 
     void                                   set_cursor_visible(bool visible);
-    void                                   clear_color(vec4);
-    void                                   swap_buffers();
     void                                   draw_imgui();
     std::chrono::duration<int, std::milli> get_time();
 

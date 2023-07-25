@@ -1,9 +1,10 @@
 #include "Kengine/event/event.hxx"
+#include "event.hxx"
 
 #include "../engine.hxx"
 #include "../window/window.hxx"
 #include "Kengine/engine.hxx"
-#include "event-engine.hxx"
+#include "Kengine/window/window.hxx"
 #include "handle-user-event.hxx"
 #include "imgui_impl_sdl3.h"
 
@@ -14,7 +15,7 @@
 
 namespace Kengine::event
 {
-    bool poll_events(game *game, SDL_Window *window)
+    bool poll_events(game *game)
     {
         bool      no_quit = true;
         SDL_Event sdl_event;
@@ -23,8 +24,7 @@ namespace Kengine::event
         {
             game_event event{ event::type::unknown };
 
-            int screen_width;
-            int screen_height;
+            ivec2 window_size;
 
             switch (sdl_event.type)
             {
@@ -69,33 +69,28 @@ namespace Kengine::event
                     input::mouse::y = sdl_event.button.y;
                     break;
                 case SDL_EVENT_FINGER_MOTION:
-                    SDL_GetWindowSize(window, &screen_width, &screen_height);
+                    window_size           = window::get_size_in_pixels();
                     event.g_type          = type::touch_move_event;
                     event.touch.touch_id  = sdl_event.tfinger.touchId;
                     event.touch.finger_id = sdl_event.tfinger.fingerId;
-                    event.touch.x         = sdl_event.tfinger.x * screen_width;
-                    event.touch.y         = sdl_event.tfinger.y * screen_height;
+                    event.touch.x         = sdl_event.tfinger.x * window_size.x;
+                    event.touch.y         = sdl_event.tfinger.y * window_size.y;
                     event.touch.pressed   = true;
                     break;
                 case SDL_EVENT_FINGER_UP:
                 case SDL_EVENT_FINGER_DOWN:
-                    SDL_GetWindowSize(window, &screen_width, &screen_height);
+                    window_size           = window::get_size_in_pixels();
                     event.g_type          = type::touch_event;
                     event.touch.touch_id  = sdl_event.tfinger.touchId;
                     event.touch.finger_id = sdl_event.tfinger.fingerId;
-                    event.touch.x         = sdl_event.tfinger.x * screen_width;
-                    event.touch.y         = sdl_event.tfinger.y * screen_height;
+                    event.touch.x         = sdl_event.tfinger.x * window_size.x;
+                    event.touch.y         = sdl_event.tfinger.y * window_size.y;
                     event.touch.pressed =
                         sdl_event.type == SDL_EVENT_FINGER_DOWN;
 
-                    std::cout << "Finger #" << event.touch.finger_id << " "
-                              << (event.touch.pressed ? "pressed" : "unpressed")
-                              << std::endl;
-                    if (sdl_event.type == SDL_EVENT_FINGER_DOWN)
-                        SDL_WarpMouseInWindow(
-                            window,
-                            sdl_event.tfinger.x * screen_width,
-                            sdl_event.tfinger.y * screen_height);
+                    if (event.touch.pressed)
+                        window::warp_mouse(sdl_event.tfinger.x * window_size.x,
+                                           sdl_event.tfinger.y * window_size.y);
                     break;
                 case SDL_EVENT_QUIT:
                     event.g_type = type::quit;
@@ -113,10 +108,6 @@ namespace Kengine::event
             if (event.g_type != type::unknown)
                 Kengine::e_game->on_event(event);
         }
-
-        // SDL_PumpEvents();
-        // input::keyboard::update();
-        // input::mouse::update();
 
         return no_quit;
     };

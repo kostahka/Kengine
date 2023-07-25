@@ -10,7 +10,7 @@ set(KENGINE_SOURCES
     audio/audio.hxx
     engine.cxx
     engine.hxx
-    event/event-engine.hxx
+    event/event.hxx
     event/event.cxx
     event/handle-user-event.hxx
     event/user-events.cxx
