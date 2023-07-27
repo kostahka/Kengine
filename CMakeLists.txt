@@ -62,7 +62,7 @@ option(SPDLOG_NO_THREAD_ID ON)
 option(SPDLOG_NO_TLS ON)
 option(SPDLOG_NO_ATOMIC_LEVELS ON)
 add_subdirectory(external/spdlog)
-
+set_property(TARGET spdlog PROPERTY POSITION_INDEPENDENT_CODE ON)
 # Kengine source
 add_subdirectory(src)
 

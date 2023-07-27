@@ -32,8 +32,10 @@ int main()
     Kengine::set_game(demo_g);
 
     Kengine::window::options w_options;
-    w_options.gl_major_version = 3;
-    w_options.gl_minor_version = 0;
+    w_options.gl_major_version = 4;
+    w_options.gl_minor_version = 3;
+    w_options.gl_profile_es    = false;
+    w_options.gl_debug         = true;
     Kengine::window::set_start_options(w_options);
 
     Kengine::initialize();

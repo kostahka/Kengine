@@ -118,7 +118,6 @@ namespace Kengine::window
 
             if (gl_debug)
             {
-                KENGINE_INFO("GL debug enabled");
                 SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS,
                                     SDL_GL_CONTEXT_DEBUG_FLAG);
             }
@@ -126,6 +125,8 @@ namespace Kengine::window
             KENGINE_INFO("GL required version: {}.{}",
                          gl_major_version,
                          gl_minor_version);
+            KENGINE_INFO("GL required profile: {}",
+                         start_options.gl_profile_es ? "ES" : "Core");
 
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, gl_major_version);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, gl_minor_version);
@@ -160,6 +161,8 @@ namespace Kengine::window
                 KENGINE_INFO("Open GL version: {}.{}",
                              gl_major_version_returned,
                              gl_minor_version_returned);
+                KENGINE_INFO("Open GL profile: {}",
+                             start_options.gl_profile_es ? "ES" : "Core");
 
                 if (gl_major_version_returned < gl_major_version ||
                     gl_minor_version_returned < gl_minor_version ||
@@ -176,8 +179,9 @@ namespace Kengine::window
             Kengine::opengl::initialize();
 
             if (gl_debug)
-                Kengine::opengl_debug::initialize(
-                    gl_major_version, gl_minor_version, gl_profile);
+                if (Kengine::opengl_debug::initialize(
+                        gl_major_version, gl_minor_version, gl_profile))
+                    KENGINE_INFO("GL debug enabled");
 
             glEnable(GL_DEPTH_TEST);
             glDepthFunc(GL_ALWAYS);
