@@ -10,8 +10,8 @@ set(KENGINE_SOURCES
     audio/audio.hxx
     engine.cxx
     engine.hxx
-    event/event.hxx
     event/event.cxx
+    event/event.hxx
     event/handle-user-event.hxx
     event/user-events.cxx
     file-last-modify-listener.cxx
@@ -25,6 +25,8 @@ set(KENGINE_SOURCES
     imgui-impl/imgui_impl_sdlrenderer3.h
     io/file-manager.cxx
     io/input.cxx
+    log/log.cxx
+    log/log.hxx
     opengl/opengl-debug.cxx
     opengl/opengl-debug.hxx
     opengl/opengl.cxx
@@ -54,6 +56,7 @@ set(KENGINE_HEADERS
     ../include/Kengine/game.hxx
     ../include/Kengine/io/file-manager.hxx
     ../include/Kengine/io/input.hxx
+    ../include/Kengine/log/log.hxx
     ../include/Kengine/render/animation.hxx
     ../include/Kengine/render/b2GLDraw.hxx
     ../include/Kengine/render/draw-primitives.hxx
@@ -75,6 +78,7 @@ set(IMGUI_IMPL_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/imgui-impl)
 # Kengine interfaces
 add_library(kengine-private INTERFACE)
 add_library(kengine-public INTERFACE)
+add_library(kengine-interface INTERFACE)
 
 # Link external libs
 target_link_libraries(
@@ -88,6 +92,7 @@ target_link_libraries(
     INTERFACE imgui
     INTERFACE glm::glm
     INTERFACE box2d
+    INTERFACE spdlog
 )
 if(ANDROID)
     target_link_libraries(
@@ -105,8 +110,11 @@ if(WIN32)
     target_compile_definitions(
         kengine-private INTERFACE "-DE_DECLSPEC=__declspec(dllexport)"
     )
+    target_compile_definitions(
+        kengine-interface INTERFACE "-DE_DECLSPEC=__declspec(dllimport)"
+    )
 else()
-    target_compile_definitions(kengine-private INTERFACE "-DE_DECLSPEC=")
+    target_compile_definitions(kengine-public INTERFACE "-DE_DECLSPEC=")
 endif()
 
 # Include dirs
@@ -126,6 +134,7 @@ target_link_libraries(
     kengine-dev
     PUBLIC kengine-public
     PRIVATE kengine-private
+    INTERFACE kengine-interface
 )
 
 target_compile_definitions(
@@ -146,6 +155,7 @@ target_link_libraries(
     kengine-shared
     PUBLIC kengine-public
     PRIVATE kengine-private
+    INTERFACE kengine-interface
 )
 
 # <<
@@ -157,6 +167,7 @@ target_link_libraries(
     kengine-static
     PUBLIC kengine-public
     PRIVATE kengine-private
+    INTERFACE kengine-interface
 )
 
 # PIC for static lib

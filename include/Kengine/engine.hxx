@@ -19,7 +19,7 @@ namespace Kengine
 
     std::string_view initialize();
     std::string_view shutdown();
-    void             set_game(game *);
+    void             set_game(game*);
     std::string_view start_game_loop();
 
     void                                   set_cursor_visible(bool visible);
@@ -30,5 +30,5 @@ namespace Kengine
 }; // namespace Kengine
 
 #ifdef ENGINE_DEV
-extern "C" Kengine::game *create_game();
+extern "C" Kengine::game* create_game();
 #endif

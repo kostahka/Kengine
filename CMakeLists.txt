@@ -9,19 +9,17 @@ project(Kengine VERSION 0.0.0)
 # ENGINE_DEV=On and setting ENGINE_GAME_LIB_NAME to name of your game target. In
 # this case you need to build your game as shared lib and engine will build as
 # executable.
-set(KENGINE_DEV
-    OFF
-    CACHE BOOL "engine load game dll with hot reload"
-)
+option(KENGINE_DEV "engine load game dll with hot reload" OFF)
 set(KENGINE_GAME_LIB_NAME
     ""
     CACHE STRING "game lib name to load"
 )
+option(KENGINE_DEMO_GAME "Build demo game" ON)
 
 # SDL3. For android provide sdl3.dir in local.properties in android-project
 if(SDL3_SRC_DIR AND ANDROID)
-    option(SDL_STATIC ON)
-    option(SDL_STATIC_PIC ON)
+    set(SDL_STATIC ON)
+    set(SDL_STATIC_PIC ON)
     add_subdirectory(
         # Specifies the directory of the CMakeLists.txt file.
         ${SDL3_SRC_DIR}
@@ -57,5 +55,19 @@ add_subdirectory(external/imgui-src)
 # GLAD - for loading OpenGL functions
 add_subdirectory(external/glad)
 
+# SPDLOG
+option(SPDLOG_BUILD_PIC ON)
+option(SPDLOG_NO_EXCEPTIONS ON)
+option(SPDLOG_NO_THREAD_ID ON)
+option(SPDLOG_NO_TLS ON)
+option(SPDLOG_NO_ATOMIC_LEVELS ON)
+add_subdirectory(external/spdlog)
+
 # Kengine source
 add_subdirectory(src)
+
+# Demo game
+if(KENGINE_DEMO_GAME)
+    message(STATUS "Configuring demo game for Kengine.")
+    add_subdirectory(demo-game)
+endif()

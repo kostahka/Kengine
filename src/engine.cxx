@@ -1,15 +1,8 @@
 #include "Kengine/engine.hxx"
 #include "engine.hxx"
 
-#include <iostream>
-#include <streambuf>
-
 #ifdef __ANDROID__
- #include <GLES3/gl3.h>
  #include <SDL3/SDL_main.h>
- #include <android/log.h>
-#else
- #include <glad/glad.h>
 #endif
 
 #ifdef ENGINE_DEV
@@ -23,11 +16,14 @@
 #include <imgui_impl_sdl3.h>
 
 #include "Kengine/file-last-modify-listener.hxx"
+#include "Kengine/log/log.hxx"
 #include "Kengine/render/engine-resources.hxx"
 #include "Kengine/window/window.hxx"
 #include "audio/audio.hxx"
 #include "event/event.hxx"
 #include "event/handle-user-event.hxx"
+#include "log/log.hxx"
+#include "opengl/opengl.hxx"
 #include "render/opengl-error.hxx"
 #include "window/window.hxx"
 
@@ -35,55 +31,15 @@ namespace Kengine
 {
 
 #ifdef ENGINE_DEV
-    void reload_game(void *data);
+    void reload_game(void* data);
 #endif
 
-    class android_redirected_buf : public std::streambuf
-    {
-    public:
-        android_redirected_buf() = default;
-
-    private:
-        // This android_redirected_buf buffer has no buffer. So every character
-        // "overflows" and can be put directly into the teed buffers.
-        int overflow(int c) override
-        {
-            if (c == EOF)
-            {
-                return !EOF;
-            }
-            else
-            {
-                if (c == '\n')
-                {
-#ifdef __ANDROID__
-                    // android log function add '\n' on every print itself
-                    __android_log_print(
-                        ANDROID_LOG_ERROR, "Kengine", "%s", message.c_str());
-#else
-                    std::printf("%s\n", message.c_str()); // TODO test only
-#endif
-                    message.clear();
-                }
-                else
-                {
-                    message.push_back(static_cast<char>(c));
-                }
-                return c;
-            }
-        }
-
-        int sync() override { return 0; }
-
-        std::string message;
-    };
-
-    game *e_game = nullptr;
+    game* e_game = nullptr;
 
 #ifdef ENGINE_DEV
     std::string lib_name     = "";
     std::string tmp_lib_name = "";
-    void       *lib_handle   = nullptr;
+    void*       lib_handle   = nullptr;
 #endif
 
     // Time from init SDL in milliseconds
@@ -92,10 +48,6 @@ namespace Kengine
     std::chrono::high_resolution_clock::time_point start_time;
     std::chrono::high_resolution_clock::time_point current_time;
 
-    std::basic_streambuf<char> *cout_buf{ nullptr };
-    std::basic_streambuf<char> *cerr_buf{ nullptr };
-    std::basic_streambuf<char> *clog_buf{ nullptr };
-
     engine_configuration configuration{
         std::chrono::milliseconds{ 1000 / 60 },
         std::chrono::milliseconds{ 1000 / 90 },
@@ -103,26 +55,17 @@ namespace Kengine
 
     std::string_view initialize()
     {
-        cout_buf = std::cout.rdbuf();
-        cerr_buf = std::cerr.rdbuf();
-        clog_buf = std::clog.rdbuf();
-
-#ifdef __ANDROID__
-        std::cout.rdbuf(&logcat);
-        std::cerr.rdbuf(&logcat);
-        std::clog.rdbuf(&logcat);
-#endif
+        log::initialize();
 
         if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
         {
-            std::cerr << "Error to initialize SDL. Error: " << SDL_GetError()
-                      << std::endl;
+            KENGINE_FATAL("Error to initialize SDL. Error: {}", SDL_GetError());
             return "sdl init fail";
         }
 
         window::initialize();
 
-        std::cout << "Init engine resource..." << std::endl;
+        KENGINE_TRACE("Init engine resource...");
         e_resources::init();
 
         IMGUI_CHECKVERSION();
@@ -147,9 +90,7 @@ namespace Kengine
 
         SDL_Quit();
 
-        std::cout.rdbuf(cout_buf);
-        std::cerr.rdbuf(cerr_buf);
-        std::clog.rdbuf(clog_buf);
+        log::shutdown();
 
         return "good";
     };
@@ -204,7 +145,7 @@ namespace Kengine
         return "good";
     };
 
-    void set_game(game *g)
+    void set_game(game* g)
     {
         e_game = g;
     }
@@ -226,8 +167,8 @@ namespace Kengine
 
         if (failure)
         {
-            std::cerr << "Error to set cursor visibility. Error: "
-                      << SDL_GetError() << std::endl;
+            KENGINE_ERROR("Error to set cursor visibility. Error: {}",
+                          SDL_GetError());
         }
     };
 
@@ -249,7 +190,7 @@ namespace Kengine
 
     void quit()
     {
-        auto *quit = new SDL_Event();
+        auto* quit = new SDL_Event();
         quit->type = SDL_EVENT_QUIT;
         SDL_PushEvent(quit);
     };
@@ -276,8 +217,7 @@ namespace Kengine
         {
             if (!remove(tmp_lib_name))
             {
-                std::cerr << "Failed to remove temp lib [" << tmp_lib_name
-                          << "]" << std::endl;
+                KENGINE_ERROR("Failed to remove temp lib [{}]", tmp_lib_name);
                 return false;
             }
         }
@@ -286,10 +226,12 @@ namespace Kengine
         {
             copy_file(lib_name, tmp_lib_name);
         }
-        catch (const std::exception *ex)
+        catch (const std::exception* ex)
         {
-            std::cerr << "Failed to copy from [" << lib_name << "] to ["
-                      << tmp_lib_name << "]: " << ex->what() << std::endl;
+            KENGINE_ERROR("Failed to copy from [{}] to [{}]: {}",
+                          lib_name,
+                          tmp_lib_name,
+                          ex->what());
             return false;
         }
 
@@ -297,8 +239,9 @@ namespace Kengine
 
         if (lib_handle == nullptr)
         {
-            std::cerr << "Failed to load lib from [" << tmp_lib_name
-                      << "]. Error: " << SDL_GetError() << std::endl;
+            KENGINE_ERROR("Failed to load lib from [{}]. Error: {}",
+                          tmp_lib_name,
+                          SDL_GetError());
             return false;
         }
 
@@ -307,9 +250,10 @@ namespace Kengine
 
         if (create_game_func_ptr == nullptr)
         {
-            std::cerr << "Failed to load function [create_game] from ["
-                      << tmp_lib_name << "]. Error: " << SDL_GetError()
-                      << std::endl;
+            KENGINE_ERROR(
+                "Failed to load function [create_game] from [{}]. Error: {}",
+                tmp_lib_name,
+                SDL_GetError());
             return false;
         }
 
@@ -318,11 +262,11 @@ namespace Kengine
         create_game_ptr create_game_func =
             reinterpret_cast<create_game_ptr>(create_game_func_ptr);
 
-        game *new_game = create_game_func();
+        game* new_game = create_game_func();
 
         if (new_game == nullptr)
         {
-            std::cerr << "Failed to create game" << std::endl;
+            KENGINE_ERROR("Failed to create game");
             return false;
         }
 
@@ -356,10 +300,8 @@ namespace Kengine
 
 #endif
 
-    android_redirected_buf logcat;
-
 #ifdef ENGINE_DEV
-    void reload_game(void *data)
+    void reload_game(void* data)
     {
         reload_e_game();
     };
@@ -368,7 +310,7 @@ namespace Kengine
 } // namespace Kengine
 
 #ifdef ENGINE_DEV
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
 
     if (Kengine::initialize() != "good")

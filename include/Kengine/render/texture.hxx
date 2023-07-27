@@ -16,6 +16,6 @@ namespace Kengine
         [[nodiscard]] virtual intptr_t get_id() const   = 0;
     };
 
-    texture_object *create_texture(std::string texture_path);
+    texture_object* create_texture(std::string texture_path);
 
 } // namespace Kengine

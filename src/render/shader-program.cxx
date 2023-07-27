@@ -1,30 +1,19 @@
 #include "Kengine/render/shader-program.hxx"
 
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <vector>
+#include "sstream"
 
-#ifdef ENGINE_DEV
- #include "efsw/efsw.hpp"
-#endif
-#ifdef __ANDROID__
- #include <GLES3/gl3.h>
-#else
- #include "glad/glad.h"
-#endif
-
+#include "../opengl/opengl.hxx"
 #include "Kengine/file-last-modify-listener.hxx"
 #include "Kengine/io/file-manager.hxx"
+#include "Kengine/log/log.hxx"
 
 #include "glm/gtc/type_ptr.hpp"
 
 namespace Kengine
 {
 
-    GLuint create_program_from_code(const GLchar *vertex_code,
-                                    const GLchar *fragment_code)
+    GLuint create_program_from_code(const GLchar* vertex_code,
+                                    const GLchar* fragment_code)
     {
         GLuint program;
 
@@ -43,14 +32,14 @@ namespace Kengine
         {
             info_log.resize(info_len);
             glGetShaderInfoLog(vertex, info_len, nullptr, info_log.data());
-            std::cerr << "Vertex shader log: " << info_log.data() << std::endl;
+            KENGINE_DEBUG("Vertex shader log: {}", info_log.data());
         }
 
         glGetShaderiv(vertex, GL_COMPILE_STATUS, &succes);
         if (!succes)
         {
             glDeleteShader(vertex);
-            std::cerr << "Failed to compile vertex shader." << std::endl;
+            KENGINE_ERROR("Failed to compile vertex shader.");
         }
 
         fragment = glCreateShader(GL_FRAGMENT_SHADER);
@@ -62,15 +51,14 @@ namespace Kengine
         {
             info_log.resize(info_len);
             glGetShaderInfoLog(fragment, info_len, nullptr, info_log.data());
-            std::cerr << "Fragment shader log: " << info_log.data()
-                      << std::endl;
+            KENGINE_DEBUG("Fragment shader log: {}", info_log.data());
         }
 
         glGetShaderiv(fragment, GL_COMPILE_STATUS, &succes);
         if (!succes)
         {
             glDeleteShader(fragment);
-            std::cerr << "Failed to compile fragment shader." << std::endl;
+            KENGINE_ERROR("Failed to compile fragment shader.");
         }
 
         program = glCreateProgram();
@@ -85,8 +73,8 @@ namespace Kengine
             info_log.resize(info_len);
             glGetProgramInfoLog(program, info_len, nullptr, info_log.data());
             glDeleteProgram(program);
-            std::cerr << "Failed to link shader program. Log: "
-                      << info_log.data() << std::endl;
+            KENGINE_ERROR("Failed to link shader program. Log: {}",
+                          info_log.data());
         }
         glDeleteShader(vertex);
         glDeleteShader(fragment);
@@ -94,38 +82,14 @@ namespace Kengine
         return program;
     };
 
-    GLuint create_program_from_file(const GLchar *vertex_path,
-                                    const GLchar *fragment_path)
+    GLuint create_program_from_file(const GLchar* vertex_path,
+                                    const GLchar* fragment_path)
     {
         GLuint program;
 
         std::stringstream vertex_code;
 
         std::stringstream fragment_code;
-
-        /*
-            std::ifstream vertex_file;
-            std::ifstream fragment_file;
-            vertex_file.exceptions(std::ifstream::failbit);
-            fragment_file.exceptions(std::ifstream::failbit);
-
-            try
-            {
-                vertex_file.open(vertex_path);
-                vertex_code << vertex_file.rdbuf();
-                vertex_file.close();
-
-                fragment_file.open(fragment_path);
-                fragment_code << fragment_file.rdbuf();
-                fragment_file.close();
-            }
-            catch (std::ifstream::failure e)
-            {
-                std::cerr << "Failed to load vertex code from file [" <<
-           vertex_path
-                          << "]. Error: " << e.what() << std::endl;
-            }
-        */
 
         file_manager::membuf vertex_file = file_manager::load_file(vertex_path);
         file_manager::membuf fragment_file =
@@ -137,8 +101,8 @@ namespace Kengine
         std::string vertex_string_code   = vertex_code.str();
         std::string fragment_string_code = fragment_code.str();
 
-        const GLchar *vertex_shader_code   = vertex_string_code.c_str();
-        const GLchar *fragment_shader_code = fragment_string_code.c_str();
+        const GLchar* vertex_shader_code   = vertex_string_code.c_str();
+        const GLchar* fragment_shader_code = fragment_string_code.c_str();
 
         GLuint vertex, fragment;
         GLint  succes;
@@ -155,14 +119,14 @@ namespace Kengine
         {
             info_log.resize(info_len);
             glGetShaderInfoLog(vertex, info_len, nullptr, info_log.data());
-            std::cerr << "Vertex shader log: " << info_log.data() << std::endl;
+            KENGINE_DEBUG("Vertex shader log: {}", info_log.data());
         }
 
         glGetShaderiv(vertex, GL_COMPILE_STATUS, &succes);
         if (!succes)
         {
             glDeleteShader(vertex);
-            std::cerr << "Failed to compile vertex shader." << std::endl;
+            KENGINE_ERROR("Failed to compile vertex shader.");
         }
 
         fragment = glCreateShader(GL_FRAGMENT_SHADER);
@@ -174,15 +138,14 @@ namespace Kengine
         {
             info_log.resize(info_len);
             glGetShaderInfoLog(fragment, info_len, nullptr, info_log.data());
-            std::cerr << "Fragment shader log: " << info_log.data()
-                      << std::endl;
+            KENGINE_DEBUG("Fragment shader log: {}", info_log.data());
         }
 
         glGetShaderiv(fragment, GL_COMPILE_STATUS, &succes);
         if (!succes)
         {
             glDeleteShader(fragment);
-            std::cerr << "Failed to compile fragment shader." << std::endl;
+            KENGINE_ERROR("Failed to compile fragment shader.");
         }
 
         program = glCreateProgram();
@@ -197,8 +160,8 @@ namespace Kengine
             info_log.resize(info_len);
             glGetProgramInfoLog(program, info_len, nullptr, info_log.data());
             glDeleteProgram(program);
-            std::cerr << "Failed to link shader program. Log: "
-                      << info_log.data() << std::endl;
+            KENGINE_ERROR("Failed to link shader program. Log: {}",
+                          info_log.data());
         }
         glDeleteShader(vertex);
         glDeleteShader(fragment);
@@ -208,13 +171,13 @@ namespace Kengine
 
     shader_program::~shader_program() = default;
 
-    void reload_shader(void *data);
+    void reload_shader(void* data);
 
     class shader_program_impl : public shader_program
     {
     public:
-        explicit shader_program_impl(const std::string &vertex_path,
-                                     const std::string &fragment_path)
+        explicit shader_program_impl(const std::string& vertex_path,
+                                     const std::string& fragment_path)
             : vertex_path(vertex_path)
             , fragment_path(fragment_path)
         {
@@ -229,8 +192,8 @@ namespace Kengine
                                                      fragment_path.c_str());
         };
 
-        explicit shader_program_impl(const char *vertex_code,
-                                     const char *fragment_code)
+        explicit shader_program_impl(const char* vertex_code,
+                                     const char* fragment_code)
         {
             this->program =
                 create_program_from_code(vertex_code, fragment_code);
@@ -261,7 +224,7 @@ namespace Kengine
         };
 
         void set_uniform_matrix3fv(std::string      uniform_name,
-                                   const glm::mat3 &matrix) override
+                                   const glm::mat3& matrix) override
         {
             auto uniform_location =
                 glGetUniformLocation(program, uniform_name.data());
@@ -270,7 +233,7 @@ namespace Kengine
         };
 
         void set_uniform_matrix4fv(std::string      uniform_name,
-                                   const glm::mat4 &matrix) override
+                                   const glm::mat4& matrix) override
         {
             auto uniform_location =
                 glGetUniformLocation(program, uniform_name.data());
@@ -294,20 +257,20 @@ namespace Kengine
         long fragment_listener_id = 0;
     };
 
-    void reload_shader(void *data)
+    void reload_shader(void* data)
     {
-        auto shader = reinterpret_cast<shader_program_impl *>(data);
+        auto shader = reinterpret_cast<shader_program_impl*>(data);
         shader->reload_files();
     };
 
-    shader_program *create_shader_program(const std::string &vertex_path,
-                                          const std::string &fragment_path)
+    shader_program* create_shader_program(const std::string& vertex_path,
+                                          const std::string& fragment_path)
     {
         return new shader_program_impl(vertex_path, fragment_path);
     };
 
-    shader_program *create_shader_program_from_code(const char *vertex_code,
-                                                    const char *fragment_code)
+    shader_program* create_shader_program_from_code(const char* vertex_code,
+                                                    const char* fragment_code)
     {
         return new shader_program_impl(vertex_code, fragment_code);
     };

@@ -15,13 +15,13 @@ namespace Kengine
     {
         virtual void create()                     = 0;
         virtual void destroy()                    = 0;
-        virtual void vertex(const vec  &pos,
-                            const vec4 &col,
+        virtual void vertex(const vec&  pos,
+                            const vec4& col,
                             const float size = 1) = 0;
         virtual void draw()                       = 0;
 
         virtual ~gl_render_primitive();
     };
 
-    gl_render_primitive *create_primitive_render(primitive_type);
+    gl_render_primitive* create_primitive_render(primitive_type);
 } // namespace Kengine

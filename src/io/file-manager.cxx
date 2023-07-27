@@ -3,7 +3,8 @@
 #include "SDL3/SDL_filesystem.h"
 #include <SDL_error.h>
 #include <SDL_rwops.h>
-#include <iostream>
+
+#include "Kengine/log/log.hxx"
 
 namespace file_manager
 {
@@ -19,13 +20,13 @@ namespace file_manager
         , buf(std::move(buffer))
         , buf_size(size)
     {
-        char *beg_ptr = buf.get();
-        char *end_ptr = beg_ptr + buf_size;
+        char* beg_ptr = buf.get();
+        char* end_ptr = beg_ptr + buf_size;
         setg(beg_ptr, beg_ptr, end_ptr);
         setp(beg_ptr, end_ptr);
     }
 
-    membuf::membuf(membuf &&other)
+    membuf::membuf(membuf&& other)
     {
         setp(nullptr, nullptr);
         setg(nullptr, nullptr, nullptr);
@@ -56,7 +57,7 @@ namespace file_manager
         }
     }
 
-    char *membuf::begin() const
+    char* membuf::begin() const
     {
         return eback();
     }
@@ -68,19 +69,18 @@ namespace file_manager
 
     membuf load_file(std::string_view path)
     {
-        SDL_RWops *io = SDL_RWFromFile(path.data(), "rb");
+        SDL_RWops* io = SDL_RWFromFile(path.data(), "rb");
         if (nullptr == io)
         {
-            std::cerr << "Failed to load file [" << path
-                      << "]. Error: " << SDL_GetError() << std::endl;
+            KENGINE_ERROR(
+                "Failed to load file [{}]. Error: {}", path, SDL_GetError());
             return {};
         }
 
         Sint64 file_size = io->size(io);
         if (-1 == file_size)
         {
-            std::cerr << "Can't determine size of file [" << path << "]"
-                      << std::endl;
+            KENGINE_ERROR("Can't determine size of file [{}]", path);
             return {};
         }
         const size_t            size = static_cast<size_t>(file_size);
@@ -89,15 +89,13 @@ namespace file_manager
         const size_t num_readed_objects = io->read(io, mem.get(), size);
         if (num_readed_objects != size)
         {
-            std::cerr << "Can't read all content from file [" << path << "]"
-                      << std::endl;
+            KENGINE_ERROR("Can't read all content from file [{}]", path);
             return {};
         }
 
         if (0 != io->close(io))
         {
-            std::cerr << "Failed to close file [" << path << "]" << std::endl;
-            return {};
+            KENGINE_ERROR("Failed to close file [{}]", path);
         }
         return membuf(std::move(mem), size);
     };

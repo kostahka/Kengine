@@ -134,9 +134,9 @@ namespace Kengine
 )");
         };
 
-        shader_program *local_sprite_program{ nullptr };
-        shader_program *global_sprite_program{ nullptr };
-        shader_program *points_program{ nullptr };
-        shader_program *lines_program{ nullptr };
+        shader_program* local_sprite_program{ nullptr };
+        shader_program* global_sprite_program{ nullptr };
+        shader_program* points_program{ nullptr };
+        shader_program* lines_program{ nullptr };
     } // namespace e_resources
 } // namespace Kengine

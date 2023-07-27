@@ -7,10 +7,10 @@ namespace Kengine
         file_modified = 0,
     };
 
-    using user_event_func = void (*)(void *data);
+    using user_event_func = void (*)(void* data);
 
     void push_user_event(int             user_event_code,
                          user_event_func event_func,
-                         void           *data);
+                         void*           data);
 
 }; // namespace Kengine

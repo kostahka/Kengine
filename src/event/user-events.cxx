@@ -7,14 +7,14 @@ namespace Kengine
 {
     void push_user_event(int             user_event_code,
                          user_event_func event_func,
-                         void           *data)
+                         void*           data)
     {
         SDL_Event     event;
         SDL_UserEvent user_event;
 
         user_event.code  = user_event_code;
         user_event.type  = SDL_EVENT_USER;
-        user_event.data1 = reinterpret_cast<void *>(event_func);
+        user_event.data1 = reinterpret_cast<void*>(event_func);
         user_event.data2 = data;
 
         event.type = SDL_EVENT_USER;

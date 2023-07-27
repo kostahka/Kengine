@@ -11,11 +11,9 @@
 #include <SDL_events.h>
 #include <SDL_mouse.h>
 
-#include <iostream>
-
 namespace Kengine::event
 {
-    bool poll_events(game *game)
+    bool poll_events(game* game)
     {
         bool      no_quit = true;
         SDL_Event sdl_event;

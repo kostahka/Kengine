@@ -8,7 +8,7 @@ namespace Kengine::audio
     class sound_buffer
     {
     public:
-        virtual uint8_t *get_data() const   = 0;
+        virtual uint8_t* get_data() const   = 0;
         virtual uint32_t get_length() const = 0;
 
         virtual ~sound_buffer();
@@ -28,6 +28,6 @@ namespace Kengine::audio
         virtual ~sound_object();
     };
 
-    sound_buffer *create_sound_buffer(std::string_view wav_path);
-    sound_object *create_sound_object(sound_buffer *s_buff);
+    sound_buffer* create_sound_buffer(std::string_view wav_path);
+    sound_object* create_sound_object(sound_buffer* s_buff);
 } // namespace Kengine::audio

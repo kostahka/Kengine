@@ -15,7 +15,7 @@ namespace Kengine
     constexpr vec v3 = { 1, 1, 0 };
     constexpr vec v4 = { 1, 0, 0 };
 
-    void world_sprite_program_use(const glm::mat4 &model)
+    void world_sprite_program_use(const glm::mat4& model)
     {
         e_resources::global_sprite_program->use();
         e_resources::global_sprite_program->set_uniform_matrix4fv(
@@ -26,7 +26,7 @@ namespace Kengine
                                                                   model);
     }
 
-    void local_sprite_program_use(const glm::mat4 &model)
+    void local_sprite_program_use(const glm::mat4& model)
     {
         e_resources::local_sprite_program->use();
         e_resources::local_sprite_program->set_uniform_matrix4fv(
@@ -35,10 +35,10 @@ namespace Kengine
                                                                  model);
     }
 
-    sprite::sprite(texture_object *texture,
-                   const irect    &uv,
-                   const vec2     &pos,
-                   const vec2     &size,
+    sprite::sprite(texture_object* texture,
+                   const irect&    uv,
+                   const vec2&     pos,
+                   const vec2&     size,
                    bool            world_sprite,
                    float           z)
         : texture(texture)
@@ -93,24 +93,24 @@ namespace Kengine
         vao->draw_triangles(2);
     };
 
-    void sprite::set_origin(const vec2 &origin)
+    void sprite::set_origin(const vec2& origin)
     {
         this->origin = origin;
     };
 
-    void sprite::set_uv(const irect &uv)
+    void sprite::set_uv(const irect& uv)
     {
         this->uv = uv;
         set_texture_coords();
     };
 
-    void sprite::set_texture(texture_object *texture)
+    void sprite::set_texture(texture_object* texture)
     {
         this->texture = texture;
         set_texture_coords();
     };
 
-    void sprite::set_pos(const vec2 &pos)
+    void sprite::set_pos(const vec2& pos)
     {
         this->pos = pos;
     };
@@ -120,7 +120,7 @@ namespace Kengine
         this->angle = angle;
     };
 
-    void sprite::set_size(const vec2 &size)
+    void sprite::set_size(const vec2& size)
     {
         this->size = size;
     };
@@ -135,7 +135,7 @@ namespace Kengine
         return uv;
     };
 
-    texture_object *sprite::get_texture() const
+    texture_object* sprite::get_texture() const
     {
         return texture;
     };

@@ -15,12 +15,12 @@ namespace Kengine
     class animation_controller
     {
     public:
-        animation_controller(texture_object *,
-                             const vec2 &pos,
-                             const vec2 &size);
+        animation_controller(texture_object*,
+                             const vec2& pos,
+                             const vec2& size);
 
         void add_animation(std::string name,
-                           const std::vector<irect> &,
+                           const std::vector<irect>&,
                            int delta_time);
         void set_current_animation(std::string name);
 
@@ -32,10 +32,10 @@ namespace Kengine
 
         void draw(std::chrono::duration<int, std::milli> delta_time);
 
-        void set_pos(const vec2 &pos);
+        void set_pos(const vec2& pos);
         void set_angle(const float angle);
-        void set_origin(const vec2 &origin);
-        void set_size(const vec2 &size);
+        void set_origin(const vec2& origin);
+        void set_size(const vec2& size);
 
     private:
         sprite                     anim_sprite;

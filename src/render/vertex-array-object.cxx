@@ -1,10 +1,6 @@
 #include "Kengine/render/vertex-array-object.hxx"
 
-#ifdef __ANDROID__
- #include <GLES3/gl3.h>
-#else
- #include "glad/glad.h"
-#endif
+#include "../opengl/opengl.hxx"
 #include "opengl-error.hxx"
 
 namespace Kengine
@@ -13,7 +9,7 @@ namespace Kengine
     class static_vertex_array_object_impl : public static_vertex_array_object
     {
     public:
-        static_vertex_array_object_impl(const vertex_array &vertices)
+        static_vertex_array_object_impl(const vertex_array& vertices)
         {
             glGenVertexArrays(1, &VAO);
             glBindVertexArray(VAO);
@@ -30,13 +26,13 @@ namespace Kengine
                                   GL_FLOAT,
                                   GL_FALSE,
                                   sizeof(vertex),
-                                  reinterpret_cast<GLvoid *>(0));
+                                  reinterpret_cast<GLvoid*>(0));
             glEnableVertexAttribArray(0);
 
             glBindVertexArray(0);
         };
 
-        static_vertex_array_object_impl(const vertex_color_array &vertices)
+        static_vertex_array_object_impl(const vertex_color_array& vertices)
         {
             glGenVertexArrays(1, &VAO);
             glBindVertexArray(VAO);
@@ -53,20 +49,20 @@ namespace Kengine
                                   GL_FLOAT,
                                   GL_FALSE,
                                   sizeof(vertex_color),
-                                  reinterpret_cast<GLvoid *>(0));
+                                  reinterpret_cast<GLvoid*>(0));
             glVertexAttribPointer(1,
                                   4,
                                   GL_FLOAT,
                                   GL_FALSE,
                                   sizeof(vertex_color),
-                                  reinterpret_cast<GLvoid *>(sizeof(vec)));
+                                  reinterpret_cast<GLvoid*>(sizeof(vec)));
             glEnableVertexAttribArray(0);
             glEnableVertexAttribArray(1);
 
             glBindVertexArray(0);
         };
 
-        static_vertex_array_object_impl(const vertex_text2d_array &vertices)
+        static_vertex_array_object_impl(const vertex_text2d_array& vertices)
         {
             glGenVertexArrays(1, &VAO);
             glBindVertexArray(VAO);
@@ -83,13 +79,13 @@ namespace Kengine
                                   GL_FLOAT,
                                   GL_FALSE,
                                   sizeof(vertex_text2d),
-                                  reinterpret_cast<GLvoid *>(0));
+                                  reinterpret_cast<GLvoid*>(0));
             glVertexAttribPointer(1,
                                   2,
                                   GL_FLOAT,
                                   GL_FALSE,
                                   sizeof(vertex_text2d),
-                                  reinterpret_cast<GLvoid *>(sizeof(vec)));
+                                  reinterpret_cast<GLvoid*>(sizeof(vec)));
             glEnableVertexAttribArray(0);
             glEnableVertexAttribArray(1);
 
@@ -111,7 +107,7 @@ namespace Kengine
     class vertex_array_object_impl : public vertex_array_object
     {
     public:
-        vertex_array_object_impl(const vertex_text2d_array &vertices)
+        vertex_array_object_impl(const vertex_text2d_array& vertices)
         {
             glGenVertexArrays(1, &VAO);
             glBindVertexArray(VAO);
@@ -128,20 +124,20 @@ namespace Kengine
                                   GL_FLOAT,
                                   GL_FALSE,
                                   sizeof(vertex_text2d),
-                                  reinterpret_cast<GLvoid *>(0));
+                                  reinterpret_cast<GLvoid*>(0));
             glVertexAttribPointer(1,
                                   2,
                                   GL_FLOAT,
                                   GL_FALSE,
                                   sizeof(vertex_text2d),
-                                  reinterpret_cast<GLvoid *>(sizeof(vec)));
+                                  reinterpret_cast<GLvoid*>(sizeof(vec)));
             glEnableVertexAttribArray(0);
             glEnableVertexAttribArray(1);
 
             glBindVertexArray(0);
         };
 
-        vertex_array_object_impl(const vertex_color_size *vertices,
+        vertex_array_object_impl(const vertex_color_size* vertices,
                                  const size_t             v_count)
         {
             glGenVertexArrays(1, &VAO);
@@ -159,20 +155,20 @@ namespace Kengine
                                   GL_FLOAT,
                                   GL_FALSE,
                                   sizeof(vertex_color_size),
-                                  reinterpret_cast<GLvoid *>(0));
+                                  reinterpret_cast<GLvoid*>(0));
             glVertexAttribPointer(1,
                                   4,
                                   GL_FLOAT,
                                   GL_FALSE,
                                   sizeof(vertex_color_size),
-                                  reinterpret_cast<GLvoid *>(sizeof(vec)));
+                                  reinterpret_cast<GLvoid*>(sizeof(vec)));
             glVertexAttribPointer(
                 2,
                 1,
                 GL_FLOAT,
                 GL_FALSE,
                 sizeof(vertex_color_size),
-                reinterpret_cast<GLvoid *>(sizeof(vec) + sizeof(vec4)));
+                reinterpret_cast<GLvoid*>(sizeof(vec) + sizeof(vec4)));
             glEnableVertexAttribArray(0);
             glEnableVertexAttribArray(1);
             glEnableVertexAttribArray(2);
@@ -180,7 +176,7 @@ namespace Kengine
             glBindVertexArray(0);
         };
 
-        vertex_array_object_impl(const vertex_color *vertices,
+        vertex_array_object_impl(const vertex_color* vertices,
                                  const size_t        v_count)
         {
             glGenVertexArrays(1, &VAO);
@@ -198,22 +194,22 @@ namespace Kengine
                                   GL_FLOAT,
                                   GL_FALSE,
                                   sizeof(vertex_color),
-                                  reinterpret_cast<GLvoid *>(0));
+                                  reinterpret_cast<GLvoid*>(0));
             glVertexAttribPointer(1,
                                   4,
                                   GL_FLOAT,
                                   GL_FALSE,
                                   sizeof(vertex_color),
-                                  reinterpret_cast<GLvoid *>(sizeof(vec)));
+                                  reinterpret_cast<GLvoid*>(sizeof(vec)));
             glEnableVertexAttribArray(0);
             glEnableVertexAttribArray(1);
 
             glBindVertexArray(0);
         };
 
-        vertex_array_object_impl(const vec2     *vertices,
+        vertex_array_object_impl(const vec2*     vertices,
                                  const size_t    v_count,
-                                 const uint32_t *indexes,
+                                 const uint32_t* indexes,
                                  const size_t    i_count)
         {
 
@@ -232,7 +228,7 @@ namespace Kengine
                                   GL_FLOAT,
                                   GL_FALSE,
                                   sizeof(vec2),
-                                  reinterpret_cast<GLvoid *>(0));
+                                  reinterpret_cast<GLvoid*>(0));
             glEnableVertexAttribArray(0);
 
             glGenBuffers(1, &EBO);
@@ -281,7 +277,7 @@ namespace Kengine
             glDrawElements(GL_TRIANGLES,
                            count,
                            GL_UNSIGNED_INT,
-                           reinterpret_cast<void *>(offset));
+                           reinterpret_cast<void*>(offset));
             glBindVertexArray(0);
         };
 
@@ -305,7 +301,7 @@ namespace Kengine
             glBindVertexArray(0);
         }
 
-        void set_vertices(void *data, size_t offset, size_t size) override
+        void set_vertices(void* data, size_t offset, size_t size) override
         {
             glBindVertexArray(VAO);
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -313,7 +309,7 @@ namespace Kengine
             glBindVertexArray(0);
         };
 
-        void set_indexes(uint32_t *data, size_t offset, size_t size) override
+        void set_indexes(uint32_t* data, size_t offset, size_t size) override
         {
             glBindVertexArray(VAO);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -327,45 +323,45 @@ namespace Kengine
         GLuint EBO{ 0 };
     };
 
-    vertex_array_object *create_vao(const vertex_text2d_array &vertices)
+    vertex_array_object* create_vao(const vertex_text2d_array& vertices)
     {
         return new vertex_array_object_impl(vertices);
     };
 
-    vertex_array_object *create_vao(const vec2     *vertices,
+    vertex_array_object* create_vao(const vec2*     vertices,
                                     const size_t    v_count,
-                                    const uint32_t *indexes,
+                                    const uint32_t* indexes,
                                     const size_t    i_count)
     {
         return new vertex_array_object_impl(
             vertices, v_count, indexes, i_count);
     }
 
-    vertex_array_object *create_vao(const vertex_color_size *vertices,
+    vertex_array_object* create_vao(const vertex_color_size* vertices,
                                     const size_t             v_count)
     {
         return new vertex_array_object_impl(vertices, v_count);
     };
 
-    vertex_array_object *create_vao(const vertex_color *vertices,
+    vertex_array_object* create_vao(const vertex_color* vertices,
                                     const size_t        v_count)
     {
         return new vertex_array_object_impl(vertices, v_count);
     };
 
-    static_vertex_array_object *create_static_vao(
-        const vertex_color_array &vertices)
+    static_vertex_array_object* create_static_vao(
+        const vertex_color_array& vertices)
     {
         return new static_vertex_array_object_impl(vertices);
     };
 
-    static_vertex_array_object *create_static_vao(
-        const vertex_text2d_array &vertices)
+    static_vertex_array_object* create_static_vao(
+        const vertex_text2d_array& vertices)
     {
         return new static_vertex_array_object_impl(vertices);
     };
 
-    static_vertex_array_object *create_static_vao(const vertex_array &vertices)
+    static_vertex_array_object* create_static_vao(const vertex_array& vertices)
     {
         return new static_vertex_array_object_impl(vertices);
     };

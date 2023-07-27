@@ -1,11 +1,11 @@
 #include "audio.hxx"
 
 #include <algorithm>
-#include <iostream>
 #include <map>
 #include <mutex>
 
 #include "Kengine/audio/audio.hxx"
+#include "Kengine/log/log.hxx"
 
 #include "SDL3/SDL_audio.h"
 
@@ -52,7 +52,7 @@ namespace Kengine::audio
 
     static std::mutex audio_mutex;
 
-    static std::vector<sound_object_impl *> sound_buffers;
+    static std::vector<sound_object_impl*> sound_buffers;
 
     class sound_buffer_impl : public sound_buffer
     {
@@ -78,33 +78,39 @@ namespace Kengine::audio
                                 &buffer,
                                 &length))
             {
-                std::cerr << "Failed to load wav from [" << path
-                          << "] . Error: " << SDL_GetError() << std::endl;
+                KENGINE_ERROR("Failed to load wav from [{}]. Error: {}",
+                              path,
+                              SDL_GetError())
                 return;
             }
 
-            std::cout << "Audio format for: " << path << '\n'
-                      << "-format: "
-                      << get_sound_format_name(file_audio_spec.format) << '\n'
-                      << "-sample_size: "
-                      << get_sound_format_size(file_audio_spec.format) << '\n'
-                      << "-channels: "
-                      << static_cast<uint32_t>(file_audio_spec.channels) << '\n'
-                      << "-frequency: " << file_audio_spec.freq << '\n'
-                      << "-length: " << length << '\n'
-                      << "-time: "
-                      << static_cast<double>(length) /
-                             static_cast<double>((
-                                 file_audio_spec.channels *
-                                 static_cast<uint32_t>(file_audio_spec.freq) *
-                                 get_sound_format_size(file_audio_spec.format)))
-                      << "sec" << std::endl;
+            const auto wav_time =
+                static_cast<double>(length) /
+                static_cast<double>(
+                    (file_audio_spec.channels *
+                     static_cast<uint32_t>(file_audio_spec.freq) *
+                     get_sound_format_size(file_audio_spec.format)));
+
+            KENGINE_INFO("Audio format for:  {}\n"
+                         " -format: {}\n"
+                         " -sample_size: {}\n"
+                         " -channels: {}\n"
+                         " -frequency: {}\n"
+                         " -length: {}\n"
+                         " -time: {} sec",
+                         path,
+                         get_sound_format_name(file_audio_spec.format),
+                         get_sound_format_size(file_audio_spec.format),
+                         static_cast<uint32_t>(file_audio_spec.channels),
+                         file_audio_spec.freq,
+                         length,
+                         wav_time);
 
             if (file_audio_spec.channels != audio_device_spec.channels ||
                 file_audio_spec.format != audio_device_spec.format ||
                 file_audio_spec.freq != audio_device_spec.freq)
             {
-                Uint8 *output_bytes;
+                Uint8* output_bytes;
                 int    output_length;
 
                 int convert_status =
@@ -120,8 +126,9 @@ namespace Kengine::audio
                                             &output_length);
                 if (convert_status != 0)
                 {
-                    std::cerr << "Failed to convert wav audio. Error"
-                              << SDL_GetError() << std::endl;
+                    KENGINE_ERROR("Failed to convert wav audio [{}]. Error: {}",
+                                  path,
+                                  SDL_GetError());
                     return;
                 }
 
@@ -131,7 +138,7 @@ namespace Kengine::audio
             }
         };
 
-        [[nodiscard]] uint8_t *get_data() const override { return buffer; };
+        [[nodiscard]] uint8_t* get_data() const override { return buffer; };
 
         [[nodiscard]] uint32_t get_length() const override { return length; };
 
@@ -147,14 +154,14 @@ namespace Kengine::audio
             length = 0;
         };
 
-        uint8_t *buffer;
+        uint8_t* buffer;
         uint32_t length;
     };
 
     class sound_object_impl : public sound_object
     {
     public:
-        explicit sound_object_impl(sound_buffer *s_buff)
+        explicit sound_object_impl(sound_buffer* s_buff)
             : current_index(0)
             , is_playing(false)
             , looped(false)
@@ -208,7 +215,7 @@ namespace Kengine::audio
             }
         };
 
-        uint8_t   *buffer;
+        uint8_t*   buffer;
         uint32_t   length;
         uint32_t   current_index;
         bool       is_playing;
@@ -219,7 +226,7 @@ namespace Kengine::audio
 
     sound_object::~sound_object() = default;
 
-    void audio_callback(void *user_data, uint8_t *stream, int stream_size)
+    void audio_callback(void* user_data, uint8_t* stream, int stream_size)
     {
         std::lock_guard<std::mutex> lock(audio_mutex);
 
@@ -232,9 +239,9 @@ namespace Kengine::audio
                 uint32_t current_stream_index = 0;
                 while (current_stream_index != stream_size)
                 {
-                    uint8_t *current_stream = &stream[current_stream_index];
+                    uint8_t* current_stream = &stream[current_stream_index];
                     uint32_t rest = sound->length - sound->current_index;
-                    uint8_t *current_buff =
+                    uint8_t* current_buff =
                         &sound->buffer[sound->current_index];
 
                     if (rest <= static_cast<uint32_t>(stream_size) -
@@ -279,7 +286,7 @@ namespace Kengine::audio
         audio_device_spec.callback = &audio_callback;
 
         SDL_AudioSpec returned_audio_device_spec;
-        const char   *default_audio_device_name = nullptr;
+        const char*   default_audio_device_name = nullptr;
         audio_device_id = SDL_OpenAudioDevice(default_audio_device_name,
                                               0,
                                               &audio_device_spec,
@@ -290,32 +297,34 @@ namespace Kengine::audio
 
         if (audio_device_id == 0)
         {
-            std::cerr << "Failed to open audio device. Error:" << SDL_GetError()
-                      << std::endl;
+            KENGINE_ERROR("Failed to open audio device. Error: {}",
+                          SDL_GetError());
             return false;
         }
 
-        std::cout << "Audio device selected: " << '\n'
-                  << "-freq: " << audio_device_spec.freq << '\n'
-                  << "-format: "
-                  << get_sound_format_name(audio_device_spec.format) << '\n'
-                  << "-channels: "
-                  << static_cast<uint32_t>(audio_device_spec.channels) << '\n'
-                  << "-samples: " << audio_device_spec.samples << std::endl;
+        KENGINE_INFO("Audio device selected:\n"
+                     " -freq: {}\n"
+                     " -format: {}\n"
+                     " -channels: {}\n"
+                     " -samples: {}",
+                     audio_device_spec.freq,
+                     get_sound_format_name(audio_device_spec.format),
+                     static_cast<uint32_t>(audio_device_spec.channels),
+                     audio_device_spec.samples)
 
         SDL_PlayAudioDevice(audio_device_id);
 
         return true;
     }
 
-    sound_buffer *create_sound_buffer(std::string_view wav_path)
+    sound_buffer* create_sound_buffer(std::string_view wav_path)
     {
         return new sound_buffer_impl(wav_path);
     }
 
-    sound_object *create_sound_object(sound_buffer *s_buff)
+    sound_object* create_sound_object(sound_buffer* s_buff)
     {
-        sound_object_impl *s = new sound_object_impl(s_buff);
+        sound_object_impl* s = new sound_object_impl(s_buff);
         {
             std::lock_guard<std::mutex> lock(audio_mutex);
             sound_buffers.push_back(s);

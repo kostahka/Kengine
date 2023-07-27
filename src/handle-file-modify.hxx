@@ -2,5 +2,5 @@
 
 namespace Kengine
 {
-    void file_modify_event(void *data);
+    void file_modify_event(void* data);
 }; // namespace Kengine

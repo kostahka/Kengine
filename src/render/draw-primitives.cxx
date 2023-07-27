@@ -25,7 +25,7 @@ namespace Kengine
             program = nullptr;
         };
 
-        void vertex(const vec &pos, const vec4 &col, const float size) override
+        void vertex(const vec& pos, const vec4& col, const float size) override
         {
             if (m_count == max_vertices)
                 draw();
@@ -42,7 +42,7 @@ namespace Kengine
             vao->set_vertices(vertices, 0, m_count * sizeof(vertex_color_size));
 
             program->use();
-            game *current_game = Kengine::e_game;
+            game* current_game = Kengine::e_game;
 
             program->set_uniform_matrix4fv("projection",
                                            current_game->projection);
@@ -51,8 +51,8 @@ namespace Kengine
             m_count = 0;
         };
 
-        shader_program      *program;
-        vertex_array_object *vao;
+        shader_program*      program;
+        vertex_array_object* vao;
         vertex_color_size    vertices[max_vertices];
         size_t               m_count;
     };
@@ -72,7 +72,7 @@ namespace Kengine
             program = nullptr;
         };
 
-        void vertex(const vec &pos, const vec4 &col, const float size) override
+        void vertex(const vec& pos, const vec4& col, const float size) override
         {
             if (m_count == max_vertices)
                 draw();
@@ -89,7 +89,7 @@ namespace Kengine
             vao->set_vertices(vertices, 0, m_count * sizeof(vertex_color));
 
             program->use();
-            game *current_game = Kengine::e_game;
+            game* current_game = Kengine::e_game;
 
             program->set_uniform_matrix4fv("projection",
                                            current_game->projection);
@@ -98,8 +98,8 @@ namespace Kengine
             m_count = 0;
         };
 
-        shader_program      *program;
-        vertex_array_object *vao;
+        shader_program*      program;
+        vertex_array_object* vao;
         vertex_color         vertices[max_vertices];
         size_t               m_count;
     };
@@ -119,7 +119,7 @@ namespace Kengine
             program = nullptr;
         };
 
-        void vertex(const vec &pos, const vec4 &col, const float size) override
+        void vertex(const vec& pos, const vec4& col, const float size) override
         {
             if (m_count == max_vertices)
                 draw();
@@ -136,7 +136,7 @@ namespace Kengine
             vao->set_vertices(vertices, 0, m_count * sizeof(vertex_color));
 
             program->use();
-            game *current_game = Kengine::e_game;
+            game* current_game = Kengine::e_game;
 
             program->set_uniform_matrix4fv("projection",
                                            current_game->projection);
@@ -145,13 +145,13 @@ namespace Kengine
             m_count = 0;
         };
 
-        shader_program      *program;
-        vertex_array_object *vao;
+        shader_program*      program;
+        vertex_array_object* vao;
         vertex_color         vertices[max_vertices];
         size_t               m_count;
     };
 
-    gl_render_primitive *create_primitive_render(primitive_type type)
+    gl_render_primitive* create_primitive_render(primitive_type type)
     {
         switch (type)
         {

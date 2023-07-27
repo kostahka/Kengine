@@ -3,9 +3,9 @@
 namespace Kengine
 {
 
-    animation_controller::animation_controller(texture_object *texture,
-                                               const vec2     &pos,
-                                               const vec2     &size)
+    animation_controller::animation_controller(texture_object* texture,
+                                               const vec2&     pos,
+                                               const vec2&     size)
         : anim_sprite(texture, { 0, 0, 0, 0 }, pos, size)
         , anim_id()
         , animations()
@@ -18,7 +18,7 @@ namespace Kengine
     }
 
     void animation_controller::add_animation(std::string               name,
-                                             const std::vector<irect> &a,
+                                             const std::vector<irect>& a,
                                              int delta_time)
     {
         anim_id[name] = ++last_anim;
@@ -58,7 +58,7 @@ namespace Kengine
         if (play_anim)
         {
             anim_time += delta_time.count();
-            animation &current_animation = animations[current_anim];
+            animation& current_animation = animations[current_anim];
             if (anim_time > current_animation.delta_time)
             {
                 if (play_one_shot_anim &&
@@ -81,7 +81,7 @@ namespace Kengine
         anim_sprite.draw();
     }
 
-    void animation_controller::set_pos(const vec2 &pos)
+    void animation_controller::set_pos(const vec2& pos)
     {
         anim_sprite.set_pos(pos);
     }
@@ -91,12 +91,12 @@ namespace Kengine
         anim_sprite.set_angle(angle);
     }
 
-    void animation_controller::set_origin(const vec2 &origin)
+    void animation_controller::set_origin(const vec2& origin)
     {
         anim_sprite.set_origin(origin);
     }
 
-    void animation_controller::set_size(const vec2 &size)
+    void animation_controller::set_size(const vec2& size)
     {
         anim_sprite.set_size(size);
     }

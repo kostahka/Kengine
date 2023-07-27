@@ -1,7 +1,7 @@
 #pragma once
 
-#include <iostream>
 #include <memory>
+#include <streambuf>
 
 namespace file_manager
 {
@@ -10,13 +10,13 @@ namespace file_manager
     {
         membuf();
         membuf(std::unique_ptr<char[]> buffer, size_t size);
-        membuf(membuf &&other);
+        membuf(membuf&& other);
 
         pos_type seekoff(off_type               pos,
                          std::ios_base::seekdir seek_dir,
                          std::ios_base::openmode) override;
 
-        char  *begin() const;
+        char*  begin() const;
         size_t size() const;
 
     private:

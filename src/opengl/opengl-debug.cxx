@@ -1,6 +1,7 @@
 #include "opengl-debug.hxx"
 
-#include <iostream>
+#undef NDEBUG
+#include "Kengine/log/log.hxx"
 
 namespace Kengine::opengl_debug
 {
@@ -37,9 +38,10 @@ namespace Kengine::opengl_debug
                                 GLuint        id,
                                 GLenum        severity,
                                 GLsizei       length,
-                                const GLchar *message,
-                                const void   *userParam)
+                                const GLchar* message,
+                                const void*   userParam)
     {
-        std::cerr.write(message, length);
+        std::string mess(message, length);
+        KENGINE_DEBUG("{}", mess.c_str());
     }
 } // namespace Kengine::opengl_debug

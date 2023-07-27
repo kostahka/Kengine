@@ -4,5 +4,5 @@
 
 namespace Kengine
 {
-    extern game *e_game;
+    extern game* e_game;
 }

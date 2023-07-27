@@ -4,8 +4,7 @@
 #include "SDL3/SDL_render.h"
 
 #include "../opengl/opengl-debug.hxx"
-
-#include <iostream>
+#include "Kengine/log/log.hxx"
 
 #ifdef __ANDROID__
  #define SDL_WINDOW_RESIZABLE 0
@@ -18,7 +17,7 @@ namespace Kengine::window
     ivec2 size{ 0, 0 };
     ivec2 size_in_pixels{ 0, 0 };
 
-    SDL_Window   *window  = nullptr;
+    SDL_Window*   window  = nullptr;
     SDL_GLContext context = nullptr;
 
     bool gl_debug = false;
@@ -51,7 +50,7 @@ namespace Kengine::window
         return size;
     }
 
-    void set_size(ivec2 &s)
+    void set_size(ivec2& s)
     {
         SDL_SetWindowSize(window, s.x, s.y);
         update_sizes();
@@ -75,7 +74,7 @@ namespace Kengine::window
             SDL_RaiseWindow(window);
     }
 
-    void set_options(options &o)
+    void set_options(options& o)
     {
         start_options = o;
     }
@@ -101,8 +100,8 @@ namespace Kengine::window
 
             if (window == nullptr)
             {
-                std::cerr << "Error to create window. Error: " << SDL_GetError()
-                          << std::endl;
+                KENGINE_FATAL("Error to create window. Error: {}",
+                              SDL_GetError());
                 return false;
             }
         }
@@ -119,9 +118,14 @@ namespace Kengine::window
 
             if (gl_debug)
             {
+                KENGINE_INFO("GL debug enabled");
                 SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS,
                                     SDL_GL_CONTEXT_DEBUG_FLAG);
             }
+
+            KENGINE_INFO("GL required version: {}.{}",
+                         gl_major_version,
+                         gl_minor_version);
 
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, gl_major_version);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, gl_minor_version);
@@ -130,8 +134,8 @@ namespace Kengine::window
             context = SDL_GL_CreateContext(window);
             if (context == nullptr)
             {
-                std::cerr << "Failed to create GL context. Error: "
-                          << SDL_GetError() << std::endl;
+                KENGINE_FATAL("Failed to create GL context. Error: {}",
+                              SDL_GetError());
                 return false;
             }
 
@@ -148,24 +152,26 @@ namespace Kengine::window
                     SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
                                         &gl_profile_returned))
                 {
-                    std::cerr << "Failed to get GL versions. Error: "
-                              << SDL_GetError() << std::endl;
+                    KENGINE_FATAL("Failed to get GL versions. Error: {}",
+                                  SDL_GetError());
                     return false;
                 }
+
+                KENGINE_INFO("Open GL version: {}.{}",
+                             gl_major_version_returned,
+                             gl_minor_version_returned);
 
                 if (gl_major_version_returned < gl_major_version ||
                     gl_minor_version_returned < gl_minor_version ||
                     gl_profile_returned != gl_profile)
                 {
-                    std::cerr << "Open GL context version is low. Minimum "
-                                 "required: 3.0"
-                              << std::endl;
+                    KENGINE_FATAL("Open GL context version is low."
+                                  " Minimum: {}.{}",
+                                  gl_major_version,
+                                  gl_minor_version);
                     return false;
                 }
             }
-
-            std::clog << "Open GL version: " << gl_major_version << "."
-                      << gl_minor_version << std::endl;
 
             Kengine::opengl::initialize();
 
@@ -215,7 +221,7 @@ namespace Kengine::window
         }
     }
 
-    SDL_Window *get_sdl_window()
+    SDL_Window* get_sdl_window()
     {
         return window;
     }
@@ -225,7 +231,7 @@ namespace Kengine::window
         return context;
     }
 
-    void set_color(vec4 &col)
+    void set_color(vec4& col)
     {
         glClearColor(col.x, col.y, col.z, col.w);
     }
@@ -233,5 +239,10 @@ namespace Kengine::window
     void warp_mouse(float x, float y)
     {
         SDL_WarpMouseInWindow(window, x, y);
+    }
+
+    void set_start_options(options& opt)
+    {
+        start_options = opt;
     }
 } // namespace Kengine::window

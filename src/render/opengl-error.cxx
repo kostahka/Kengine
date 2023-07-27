@@ -1,44 +1,40 @@
-#ifdef __ANDROID__
- #include <GLES3/gl3.h>
-#else
- #include "glad/glad.h"
-#endif
-#include <iostream>
+#include "opengl-error.hxx"
+
+#include "../opengl/opengl.hxx"
+#include "Kengine/log/log.hxx"
 
 namespace Kengine
 {
 
-    void gl_get_error(int line, const char *file)
+    void gl_get_error(int line, const char* file)
     {
         GLenum error = glGetError();
         if (error != GL_NO_ERROR)
         {
-            std::cerr << "Error at line " << line << ", at file " << file
-                      << std::endl;
+            KENGINE_ERROR("GL error at line {}, at file {}", line, file);
             switch (error)
             {
                 case GL_INVALID_ENUM:
-                    std::cerr << "GL_INVALID_ENUM" << std::endl;
+                    KENGINE_ERROR("GL_INVALID_ENUM");
                     break;
                 case GL_INVALID_VALUE:
-                    std::cerr << "GL_INVALID_VALUE" << std::endl;
+                    KENGINE_ERROR("GL_INVALID_VALUE");
                     break;
                 case GL_INVALID_OPERATION:
-                    std::cerr << "GL_INVALID_OPERATION" << std::endl;
+                    KENGINE_ERROR("GL_INVALID_OPERATION");
                     break;
                 case GL_INVALID_FRAMEBUFFER_OPERATION:
-                    std::cerr << "GL_INVALID_FRAMEBUFFER_OPERATION"
-                              << std::endl;
+                    KENGINE_ERROR("GL_INVALID_FRAMEBUFFER_OPERATION");
                     break;
                 case GL_OUT_OF_MEMORY:
-                    std::cerr << "GL_OUT_OF_MEMORY" << std::endl;
+                    KENGINE_ERROR("GL_OUT_OF_MEMORY");
                     break;
 #ifndef __ANDROID__
                 case GL_STACK_UNDERFLOW:
-                    std::cerr << "GL_STACK_UNDERFLOW" << std::endl;
+                    KENGINE_ERROR("GL_STACK_UNDERFLOW");
                     break;
                 case GL_STACK_OVERFLOW:
-                    std::cerr << "GL_STACK_OVERFLOW" << std::endl;
+                    KENGINE_ERROR("GL_STACK_OVERFLOW");
                     break;
 #endif
             }

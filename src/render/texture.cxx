@@ -1,16 +1,12 @@
 #include "Kengine/render/texture.hxx"
+#include "../opengl/opengl.hxx"
 #include "Kengine/io/file-manager.hxx"
+#include "Kengine/log/log.hxx"
 #include "picopng.hxx"
 
-#ifdef __ANDROID__
- #include <GLES3/gl3.h>
-#else
- #include "glad/glad.h"
-#endif
 #include <cstddef>
 #include <fstream>
 #include <ios>
-#include <iostream>
 #include <vector>
 
 namespace Kengine
@@ -21,37 +17,6 @@ namespace Kengine
     public:
         texture_impl(std::string texture_path)
         {
-            /*
-                    std::vector<unsigned char> png_memory;
-
-                    std::ifstream png_file;
-
-                    png_file.exceptions(std::ifstream::failbit);
-
-                    try
-                    {
-                        png_file.open(texture_path, std::ios_base::binary);
-
-                        png_file.seekg(0, std::ios_base::end);
-                        auto png_file_end = png_file.tellg();
-                        png_file.seekg(0, std::ios_base::beg);
-
-                        png_memory.resize(static_cast<size_t>(png_file_end));
-
-                        png_file.read(reinterpret_cast<char*>(png_memory.data()),
-                                      png_file_end);
-
-                        png_file.close();
-                    }
-                    catch (std::ifstream::failure e)
-                    {
-                        std::cerr << "Failed to load texture from png file ["
-                                  << texture_path << "]. Error: " << e.what() <<
-               std::endl;
-                    }
-
-                    // loadFile(png_memory, texture_path);
-            */
             file_manager::membuf texture_file =
                 file_manager::load_file(texture_path);
 
@@ -63,11 +28,12 @@ namespace Kengine
                     image_memory,
                     image_width,
                     image_height,
-                    reinterpret_cast<unsigned char *>(texture_file.begin()),
+                    reinterpret_cast<unsigned char*>(texture_file.begin()),
                     texture_file.size(),
                     true))
             {
-                std::cerr << "Failed to decode png texture" << std::endl;
+                KENGINE_ERROR("Failed to decode png texture from [{}]",
+                              texture_path);
             }
             size = { static_cast<int>(image_width),
                      static_cast<int>(image_height) };
@@ -102,7 +68,7 @@ namespace Kengine
         GLuint texture;
     };
 
-    texture_object *create_texture(std::string texture_path)
+    texture_object* create_texture(std::string texture_path)
     {
         return new texture_impl(texture_path);
     }

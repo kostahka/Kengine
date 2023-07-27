@@ -5,7 +5,7 @@
 #include <string_view>
 
 struct SDL_Window;
-typedef void *SDL_GLContext;
+typedef void* SDL_GLContext;
 
 namespace Kengine::window
 {
@@ -14,7 +14,7 @@ namespace Kengine::window
     void end_render();
     void shutdown();
 
-    SDL_Window   *get_sdl_window();
+    SDL_Window*   get_sdl_window();
     SDL_GLContext get_context();
 
     void update_sizes();
