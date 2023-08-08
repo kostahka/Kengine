@@ -114,14 +114,10 @@ namespace Kengine::audio
                 int    output_length;
 
                 int convert_status =
-                    SDL_ConvertAudioSamples(file_audio_spec.format,
-                                            file_audio_spec.channels,
-                                            file_audio_spec.freq,
+                    SDL_ConvertAudioSamples(&file_audio_spec,
                                             buffer,
                                             static_cast<int>(length),
-                                            audio_device_spec.format,
-                                            audio_device_spec.channels,
-                                            audio_device_spec.freq,
+                                            &audio_device_spec,
                                             &output_bytes,
                                             &output_length);
                 if (convert_status != 0)
@@ -226,72 +222,70 @@ namespace Kengine::audio
 
     sound_object::~sound_object() = default;
 
-    void audio_callback(void* user_data, uint8_t* stream, int stream_size)
-    {
-        std::lock_guard<std::mutex> lock(audio_mutex);
+    // void audio_callback(void* user_data, uint8_t* stream, int stream_size)
+    // {
+    //     std::lock_guard<std::mutex> lock(audio_mutex);
 
-        std::fill_n(stream, stream_size, 0);
-        for (auto sound : sound_buffers)
-        {
-            std::lock_guard<std::mutex> lock_sound(sound->sound_mutex);
-            if (sound->is_playing)
-            {
-                uint32_t current_stream_index = 0;
-                while (current_stream_index != stream_size)
-                {
-                    uint8_t* current_stream = &stream[current_stream_index];
-                    uint32_t rest = sound->length - sound->current_index;
-                    uint8_t* current_buff =
-                        &sound->buffer[sound->current_index];
+    //     std::fill_n(stream, stream_size, 0);
+    //     for (auto sound : sound_buffers)
+    //     {
+    //         std::lock_guard<std::mutex> lock_sound(sound->sound_mutex);
+    //         if (sound->is_playing)
+    //         {
+    //             uint32_t current_stream_index = 0;
+    //             while (current_stream_index != stream_size)
+    //             {
+    //                 uint8_t* current_stream = &stream[current_stream_index];
+    //                 uint32_t rest = sound->length - sound->current_index;
+    //                 uint8_t* current_buff =
+    //                     &sound->buffer[sound->current_index];
 
-                    if (rest <= static_cast<uint32_t>(stream_size) -
-                                    current_stream_index)
-                    {
-                        SDL_MixAudioFormat(current_stream,
-                                           current_buff,
-                                           audio_device_spec.format,
-                                           rest,
-                                           sound->volume);
-                        sound->current_index = 0;
-                        if (!sound->looped)
-                        {
-                            sound->is_playing = false;
-                            break;
-                        }
-                        current_stream_index += rest;
-                    }
-                    else
-                    {
-                        SDL_MixAudioFormat(current_stream,
-                                           current_buff,
-                                           audio_device_spec.format,
-                                           stream_size - current_stream_index,
-                                           sound->volume);
-                        sound->current_index += static_cast<uint32_t>(
-                            stream_size - current_stream_index);
-                        current_stream_index += static_cast<uint32_t>(
-                            stream_size - current_stream_index);
-                    }
-                }
-            }
-        }
-    }
+    //                 if (rest <= static_cast<uint32_t>(stream_size) -
+    //                                 current_stream_index)
+    //                 {
+    //                     SDL_MixAudioFormat(current_stream,
+    //                                        current_buff,
+    //                                        audio_device_spec.format,
+    //                                        rest,
+    //                                        sound->volume);
+    //                     sound->current_index = 0;
+    //                     if (!sound->looped)
+    //                     {
+    //                         sound->is_playing = false;
+    //                         break;
+    //                     }
+    //                     current_stream_index += rest;
+    //                 }
+    //                 else
+    //                 {
+    //                     SDL_MixAudioFormat(current_stream,
+    //                                        current_buff,
+    //                                        audio_device_spec.format,
+    //                                        stream_size -
+    //                                        current_stream_index,
+    //                                        sound->volume);
+    //                     sound->current_index += static_cast<uint32_t>(
+    //                         stream_size - current_stream_index);
+    //                     current_stream_index += static_cast<uint32_t>(
+    //                         stream_size - current_stream_index);
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
     bool init()
     {
         audio_device_spec.freq     = 48000;
         audio_device_spec.format   = SDL_AUDIO_S16LSB;
         audio_device_spec.channels = 2;
-        audio_device_spec.samples  = 1024; // must be power of 2
-        audio_device_spec.callback = &audio_callback;
+        // audio_device_spec.samples  = 1024; // must be power of 2
+        // audio_device_spec.callback = &audio_callback;
 
         SDL_AudioSpec returned_audio_device_spec;
         const char*   default_audio_device_name = nullptr;
-        audio_device_id = SDL_OpenAudioDevice(default_audio_device_name,
-                                              0,
-                                              &audio_device_spec,
-                                              &returned_audio_device_spec,
-                                              SDL_AUDIO_ALLOW_ANY_CHANGE);
+        audio_device_id = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_OUTPUT,
+                                              &audio_device_spec);
 
         audio_device_spec = returned_audio_device_spec;
 
@@ -305,14 +299,12 @@ namespace Kengine::audio
         KENGINE_INFO("Audio device selected:\n"
                      " -freq: {}\n"
                      " -format: {}\n"
-                     " -channels: {}\n"
-                     " -samples: {}",
+                     " -channels: {}\n",
                      audio_device_spec.freq,
                      get_sound_format_name(audio_device_spec.format),
-                     static_cast<uint32_t>(audio_device_spec.channels),
-                     audio_device_spec.samples)
+                     static_cast<uint32_t>(audio_device_spec.channels));
 
-        SDL_PlayAudioDevice(audio_device_id);
+        // SDL_PlayAudioDevice(audio_device_id);
 
         return true;
     }
