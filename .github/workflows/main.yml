@@ -80,7 +80,11 @@ jobs:
             git clone https://github.com/libsdl-org/SDL SDL3 
             if ! test -d SDL3/build; then
                 mkdir SDL3/build
-                cmake -S SDL3/ -B SDL3/build -G Ninja -DSDL_STATIC_PIC=ON -DSDL_STATIC=ON -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+                cmake -S SDL3/ -B SDL3/build -G Ninja \ 
+                  -DSDL_STATIC_PIC=ON \
+                  -DSDL_STATIC=ON \
+                  -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+                  ${{ matrix.platform.cmake }}
                 cmake --build SDL3/build/ --parallel
             fi
         fi
@@ -97,7 +101,7 @@ jobs:
         
     - name: Configure CMake
       run: |
-        cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G Ninja
+        cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G Ninja ${{ matrix.platform.cmake }}
 
     - name: Build
       run: |
