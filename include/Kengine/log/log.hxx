@@ -2,6 +2,7 @@
 
 #include "spdlog/spdlog.h"
 
+#include <cstdlib>
 #include <memory>
 
 #if defined(NDEBUG) && !defined(ENGINE_DEV)
@@ -27,6 +28,7 @@
          Kengine::log::fatal_logger->critical(__VA_ARGS__);                    \
          Kengine::log::fatal_logger->dump_backtrace();                         \
      }
+ #define KENGINE_ASSERT(EX, ...) (void)0
 #else
  #define KENGINE_TRACE(...)                                                    \
      {                                                                         \
@@ -57,6 +59,16 @@
          Kengine::log::logger->critical(__VA_ARGS__);                          \
          Kengine::log::fatal_logger->critical(__VA_ARGS__);                    \
          Kengine::log::fatal_logger->dump_backtrace();                         \
+     }
+ #define KENGINE_ASSERT(EX, msg)                                               \
+     if (!(EX))                                                                \
+     {                                                                         \
+         Kengine::log::logger->critical(                                       \
+             "Assert fail at line {}, at file {}, message: {}",                \
+             __LINE__,                                                         \
+             __FILE__,                                                         \
+             (msg));                                                           \
+         abort();                                                              \
      }
 #endif
 

@@ -186,8 +186,8 @@ void b2GLDraw::DrawSegment(const b2Vec2&  p1,
 void b2GLDraw::DrawTransform(const b2Transform& xf)
 {
     const float   k_axisScale = 0.4f;
-    Kengine::vec4 red{ 1.0f, 0.0f, 0.0f };
-    Kengine::vec4 green{ 0.0f, 1.0f, 0.0f };
+    Kengine::vec4 red{ 1.0f, 0.0f, 0.0f, 1.0f };
+    Kengine::vec4 green{ 0.0f, 1.0f, 0.0f, 1.0f };
     b2Vec2        p1 = xf.p, p2;
 
     r_lines->vertex(vec_to_tr(p1), red);

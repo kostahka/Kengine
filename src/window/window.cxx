@@ -3,7 +3,8 @@
 
 #include "SDL3/SDL_render.h"
 
-#include "../opengl/opengl-debug.hxx"
+#include "../graphics/render-manager.hxx"
+#include "../opengl/opengl.hxx"
 #include "Kengine/log/log.hxx"
 
 #ifdef __ANDROID__
@@ -36,7 +37,8 @@ namespace Kengine::window
         }
         if (context)
         {
-            glViewport(0, 0, size_in_pixels.x, size_in_pixels.y);
+            KENGINE_GL_CHECK(
+                glViewport(0, 0, size_in_pixels.x, size_in_pixels.y));
         }
     }
 
@@ -176,38 +178,15 @@ namespace Kengine::window
                 }
             }
 
-            Kengine::opengl::initialize();
-
-            if (gl_debug)
-                if (Kengine::opengl_debug::initialize(
-                        gl_major_version, gl_minor_version, gl_profile))
-                    KENGINE_INFO("GL debug enabled");
-
-            glEnable(GL_DEPTH_TEST);
-            glDepthFunc(GL_ALWAYS);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-            glClearColor(start_options.clear_color.x,
-                         start_options.clear_color.y,
-                         start_options.clear_color.z,
-                         start_options.clear_color.w);
+            if (!graphics::render_manager::initialize())
+            {
+                KENGINE_FATAL("Failed to initialize render manager.");
+                return false;
+            }
         }
 
         update_sizes();
         return true;
-    }
-
-    void begin_render()
-    {
-        // TODO
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    }
-
-    void end_render()
-    {
-        // TODO
-        SDL_GL_SwapWindow(window);
     }
 
     void shutdown()
@@ -233,11 +212,6 @@ namespace Kengine::window
     SDL_GLContext get_context()
     {
         return context;
-    }
-
-    void set_color(vec4& col)
-    {
-        glClearColor(col.x, col.y, col.z, col.w);
     }
 
     void warp_mouse(float x, float y)

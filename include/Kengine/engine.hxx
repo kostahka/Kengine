@@ -17,14 +17,15 @@ namespace Kengine
         std::chrono::duration<int, std::milli> render_delta_time;
     };
 
-    std::string_view initialize();
-    std::string_view shutdown();
+    [[nodiscard]] bool initialize();
+
+    void             shutdown();
     void             set_game(game*);
     std::string_view start_game_loop();
 
-    void                                   set_cursor_visible(bool visible);
-    void                                   draw_imgui();
-    std::chrono::duration<int, std::milli> get_time();
+    void set_cursor_visible(bool visible);
+    void draw_imgui();
+    int  get_time_ms();
 
     void quit();
 }; // namespace Kengine

@@ -9,13 +9,17 @@ typedef void* SDL_GLContext;
 
 namespace Kengine::window
 {
-    bool initialize(std::string_view name = "");
-    void begin_render();
-    void end_render();
-    void shutdown();
+    [[nodiscard]] bool initialize(std::string_view name = "");
+    void               shutdown();
 
-    SDL_Window*   get_sdl_window();
-    SDL_GLContext get_context();
+    extern SDL_Window*   window;
+    extern SDL_GLContext context;
+
+    extern bool gl_debug;
+
+    extern int gl_major_version;
+    extern int gl_minor_version;
+    extern int gl_profile;
 
     void update_sizes();
 } // namespace Kengine::window

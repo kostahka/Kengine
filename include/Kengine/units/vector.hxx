@@ -1,46 +1,38 @@
 #pragma once
 
+#include "box2d/b2_math.h"
+#include "glm/vec2.hpp"
+#include "glm/vec3.hpp"
+#include "glm/vec4.hpp"
+
 namespace Kengine
 {
-    struct vec
-    {
-        float x;
-        float y;
-        float z;
-    };
+    typedef glm::vec3 vec;
+    // struct vec : public glm::vec3
+    // {
+    //     vec(const b2Vec3& v)
+    //         : glm::vec3(v.x, v.y, v.z){};
 
-    struct vec2
-    {
-        float x;
-        float y;
-    };
+    //     inline operator b2Vec3() { return { x, y, z }; };
+    // };
 
-    struct vec4
-    {
-        float x;
-        float y;
-        float z;
-        float w;
-    };
+    typedef glm::vec2 vec2;
+    // struct vec2 : public glm::vec2
+    // {
+    //     vec2(const b2Vec2& v)
+    //         : glm::vec2(v.x, v.y){};
 
-    struct ivec
-    {
-        int x;
-        int y;
-        int z;
-    };
+    //     inline operator b2Vec2() { return { x, y }; };
+    // };
 
-    struct ivec2
-    {
-        int x;
-        int y;
-    };
+    typedef glm::vec4 vec4;
 
-    struct ivec4
-    {
-        int x;
-        int y;
-        int z;
-        int w;
-    };
+    typedef glm::ivec3 ivec;
+    typedef glm::ivec2 ivec2;
+    typedef glm::ivec4 ivec4;
+
+    typedef glm::uvec3 uvec;
+    typedef glm::uvec2 uvec2;
+    typedef glm::uvec4 uvec4;
+
 } // namespace Kengine

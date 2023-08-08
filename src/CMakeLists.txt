@@ -15,6 +15,12 @@ set(KENGINE_SOURCES
     event/handle-user-event.hxx
     event/user-events.cxx
     file-last-modify-listener.cxx
+    graphics/element-buffer.cxx
+    graphics/raw-vertex-buffer.cxx
+    graphics/render-manager.cxx
+    graphics/render-manager.hxx
+    graphics/shader.cxx
+    graphics/vertex-array.cxx
     handle-file-modify.hxx
     imgui-impl/imgui_impl_opengl3.cpp
     imgui-impl/imgui_impl_opengl3.h
@@ -35,8 +41,6 @@ set(KENGINE_SOURCES
     render/b2GLDraw.cxx
     render/draw-primitives.cxx
     render/engine-resources.cxx
-    render/opengl-error.cxx
-    render/opengl-error.hxx
     render/picopng.hxx
     render/shader-program.cxx
     render/sprite.cxx
@@ -54,6 +58,12 @@ set(KENGINE_HEADERS
     ../include/Kengine/event/user-events.hxx
     ../include/Kengine/file-last-modify-listener.hxx
     ../include/Kengine/game.hxx
+    ../include/Kengine/graphics/element-buffer.hxx
+    ../include/Kengine/graphics/raw-vertex-buffer.hxx
+    ../include/Kengine/graphics/render-manager.hxx
+    ../include/Kengine/graphics/shader.hxx
+    ../include/Kengine/graphics/vertex-array.hxx
+    ../include/Kengine/graphics/vertex-buffer.hxx
     ../include/Kengine/io/file-manager.hxx
     ../include/Kengine/io/input.hxx
     ../include/Kengine/log/log.hxx

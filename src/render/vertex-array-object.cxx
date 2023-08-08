@@ -1,7 +1,6 @@
 #include "Kengine/render/vertex-array-object.hxx"
 
 #include "../opengl/opengl.hxx"
-#include "opengl-error.hxx"
 
 namespace Kengine
 {

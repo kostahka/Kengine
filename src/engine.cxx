@@ -22,9 +22,9 @@
 #include "audio/audio.hxx"
 #include "event/event.hxx"
 #include "event/handle-user-event.hxx"
+#include "graphics/render-manager.hxx"
 #include "log/log.hxx"
 #include "opengl/opengl.hxx"
-#include "render/opengl-error.hxx"
 #include "window/window.hxx"
 
 namespace Kengine
@@ -53,17 +53,21 @@ namespace Kengine
         std::chrono::milliseconds{ 1000 / 90 },
     };
 
-    std::string_view initialize()
+    bool initialize()
     {
         log::initialize();
 
         if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
         {
             KENGINE_FATAL("Error to initialize SDL. Error: {}", SDL_GetError());
-            return "sdl init fail";
+            return false;
         }
 
-        window::initialize();
+        if (!window::initialize())
+        {
+            KENGINE_FATAL("Error to initialize window.");
+            return false;
+        }
 
         KENGINE_TRACE("Init engine resource...");
         e_resources::init();
@@ -71,16 +75,15 @@ namespace Kengine
         IMGUI_CHECKVERSION();
 
         ImGui::CreateContext();
-        ImGui_ImplSDL3_InitForOpenGL(window::get_sdl_window(),
-                                     window::get_context());
+        ImGui_ImplSDL3_InitForOpenGL(window::window, window::context);
         ImGui_ImplOpenGL3_Init("#version 300 es");
 
         audio::init();
 
-        return "good";
+        return true;
     };
 
-    std::string_view shutdown()
+    void shutdown()
     {
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplSDL3_Shutdown();
@@ -91,21 +94,23 @@ namespace Kengine
         SDL_Quit();
 
         log::shutdown();
-
-        return "good";
     };
 
     void render(int delta_ms)
     {
-        window::begin_render();
+        graphics::render_manager::begin_render();
         e_game->on_render(delta_ms);
-        window::end_render();
+        graphics::render_manager::end_render();
+    }
+
+    void update(int delta_ms)
+    {
+        e_game->on_update(delta_ms);
     }
 
     std::string_view start_game_loop()
     {
-        if (e_game == nullptr)
-            return "game not set";
+        KENGINE_ASSERT(e_game, "Game is not set");
 
         bool continue_loop = true;
         start_time = render_time = update_time =
@@ -128,7 +133,7 @@ namespace Kengine
                 const int delta_ms = static_cast<int>(
                     duration_cast<std::chrono::milliseconds>(update_delta_time)
                         .count());
-                e_game->on_update(delta_ms);
+                update(delta_ms);
                 update_time = current_time;
             }
             auto render_delta_time = current_time - render_time;
@@ -137,6 +142,7 @@ namespace Kengine
                 const int delta_ms = static_cast<int>(
                     duration_cast<std::chrono::milliseconds>(render_delta_time)
                         .count());
+                render(delta_ms);
 
                 render_time = current_time;
             }
@@ -182,10 +188,12 @@ namespace Kengine
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     };
 
-    std::chrono::duration<int, std::milli> get_time()
+    int get_time_ms()
     {
-        return std::chrono::duration_cast<std::chrono::milliseconds>(
-            current_time - start_time);
+        return static_cast<int>(
+            std::chrono::duration_cast<std::chrono::milliseconds>(current_time -
+                                                                  start_time)
+                .count());
     };
 
     void quit()
@@ -313,7 +321,7 @@ namespace Kengine
 int main(int argc, char* argv[])
 {
 
-    if (Kengine::initialize() != "good")
+    if (!Kengine::initialize())
         return EXIT_FAILURE;
     using namespace std::string_literals;
     std::string game_name = ENGINE_GAME_LIB_NAME;

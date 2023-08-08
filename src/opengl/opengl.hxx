@@ -2,6 +2,8 @@
 
 #include "SDL3/SDL_render.h"
 
+#include "Kengine/log/log.hxx"
+
 #ifdef __ANDROID__
  #define KENGINE_GL_GLES
 #else
@@ -16,8 +18,14 @@
  #include <glad/glad.h>
 #endif
 
+#define KENGINE_GL_CHECK(EXP)                                                  \
+    EXP;                                                                       \
+    KENGINE_ASSERT(Kengine::opengl::gl_check(), "GL error")
+
 namespace Kengine::opengl
 {
-    bool initialize();
-    bool extension_support(const char *name);
+    [[nodiscard]] bool initialize();
+    [[nodiscard]] bool extension_support(const char* name);
+
+    bool gl_check();
 } // namespace Kengine::opengl

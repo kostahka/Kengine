@@ -31,6 +31,13 @@ namespace Kengine
         float size;
     };
 
+    struct vertex_text2d_color
+    {
+        vec  pos;
+        vec2 text;
+        vec4 col;
+    };
+
     using vertex2d_array      = std::vector<vec2>;
     using vertex_array        = std::vector<vertex>;
     using vertex_color_array  = std::vector<vertex_color>;

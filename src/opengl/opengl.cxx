@@ -44,4 +44,40 @@ namespace Kengine::opengl
         auto ext = std::find(gl_extensions.begin(), gl_extensions.end(), name);
         return ext != gl_extensions.end();
     }
+
+    bool gl_check()
+    {
+        GLenum error = glGetError();
+        if (error != GL_NO_ERROR)
+        {
+            switch (error)
+            {
+                case GL_INVALID_ENUM:
+                    KENGINE_ERROR("GL_INVALID_ENUM");
+                    break;
+                case GL_INVALID_VALUE:
+                    KENGINE_ERROR("GL_INVALID_VALUE");
+                    break;
+                case GL_INVALID_OPERATION:
+                    KENGINE_ERROR("GL_INVALID_OPERATION");
+                    break;
+                case GL_INVALID_FRAMEBUFFER_OPERATION:
+                    KENGINE_ERROR("GL_INVALID_FRAMEBUFFER_OPERATION");
+                    break;
+                case GL_OUT_OF_MEMORY:
+                    KENGINE_ERROR("GL_OUT_OF_MEMORY");
+                    break;
+#ifndef __ANDROID__
+                case GL_STACK_UNDERFLOW:
+                    KENGINE_ERROR("GL_STACK_UNDERFLOW");
+                    break;
+                case GL_STACK_OVERFLOW:
+                    KENGINE_ERROR("GL_STACK_OVERFLOW");
+                    break;
+#endif
+            }
+            return false;
+        }
+        return true;
+    };
 } // namespace Kengine::opengl
