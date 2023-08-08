@@ -5,6 +5,8 @@
 
 #include "glm/gtc/type_ptr.hpp"
 
+#include <sstream>
+
 namespace Kengine::graphics
 {
     static GLint             info_len;
