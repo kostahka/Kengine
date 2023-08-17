@@ -1,17 +1,12 @@
 #include "demo-game.hxx"
 
 #include "Kengine/engine.hxx"
-#include "Kengine/graphics/shader.hxx"
-#include "Kengine/graphics/vertex-array.hxx"
 #include "Kengine/log/log.hxx"
-#include "Kengine/units/vertex.hxx"
 #include "Kengine/window/window.hxx"
 
-using namespace Kengine::graphics;
+#include <stdlib.h>
 
-std::shared_ptr<vertex_buffer<Kengine::vertex_color>> vbo;
-std::shared_ptr<vertex_array>                         vao;
-std::shared_ptr<shader>                               sh;
+using namespace Kengine::graphics;
 
 void demo_game::on_start()
 {
@@ -95,23 +90,17 @@ void demo_game::on_render(int delta_ms)
 
 void demo_game::on_imgui_render() {}
 
+demo_game::~demo_game() {}
+
+Kengine::game* create_game()
+{
+    return new demo_game();
+}
+
 int main()
 {
-
-    demo_game* demo_g = new demo_game();
-    Kengine::set_game(demo_g);
-
-    Kengine::window::options w_options;
-    w_options.gl_major_version = 3;
-    w_options.gl_minor_version = 0;
-    w_options.gl_profile_es    = true;
-    w_options.gl_debug         = false;
-    Kengine::window::set_start_options(w_options);
-
-    if (Kengine::initialize())
-    {
-        Kengine::start_game_loop();
-        Kengine::shutdown();
-    }
-    return 0;
+    if (Kengine::run(&create_game))
+        return EXIT_SUCCESS;
+    else
+        return EXIT_FAILURE;
 }

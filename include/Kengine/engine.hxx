@@ -6,6 +6,9 @@
 
 #include <chrono>
 
+typedef Kengine::game*    create_game_func();
+extern "C" Kengine::game* create_game();
+
 namespace Kengine
 {
     // Engine configuration
@@ -17,11 +20,7 @@ namespace Kengine
         std::chrono::duration<int, std::milli> render_delta_time;
     };
 
-    [[nodiscard]] bool initialize();
-
-    void             shutdown();
-    void             set_game(game*);
-    std::string_view start_game_loop();
+    [[nodiscard]] bool run(create_game_func* pf_create_game);
 
     void set_cursor_visible(bool visible);
     void draw_imgui();
@@ -29,7 +28,3 @@ namespace Kengine
 
     void quit();
 }; // namespace Kengine
-
-#ifdef ENGINE_DEV
-extern "C" Kengine::game* create_game();
-#endif

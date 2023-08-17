@@ -108,7 +108,7 @@ namespace Kengine
         e_game->on_update(delta_ms);
     }
 
-    std::string_view start_game_loop()
+    void start_game_loop()
     {
         KENGINE_ASSERT(e_game, "Game is not set");
 
@@ -147,14 +147,7 @@ namespace Kengine
                 render_time = current_time;
             }
         }
-
-        return "good";
     };
-
-    void set_game(game* g)
-    {
-        e_game = g;
-    }
 
     void set_cursor_visible(bool visible)
     {
@@ -202,6 +195,27 @@ namespace Kengine
         quit->type = SDL_EVENT_QUIT;
         SDL_PushEvent(quit);
     };
+
+    bool run(create_game_func* pf_create_game)
+    {
+        bool good = false;
+        if (initialize())
+        {
+            e_game = pf_create_game();
+            KENGINE_ASSERT(e_game, "Function doesn't return game pointer");
+            if (e_game)
+            {
+                start_game_loop();
+                delete e_game;
+                e_game = nullptr;
+                good   = true;
+            }
+
+            shutdown();
+        }
+
+        return good;
+    }
 
 #ifdef ENGINE_DEV
     std::string_view dev_initialization(std::string lib_name,
@@ -293,9 +307,9 @@ namespace Kengine
         auto file_listener = file_last_modify_listener::get_instance();
         file_listener->add_file(lib_name, &reload_game, nullptr);
 
-        auto loop_return_code = start_game_loop();
+        start_game_loop();
 
-        return loop_return_code;
+        return "good";
     };
 
     bool reload_e_game()

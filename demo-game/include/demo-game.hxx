@@ -1,6 +1,11 @@
 #pragma once
 
 #include "Kengine/game.hxx"
+#include "Kengine/graphics/shader.hxx"
+#include "Kengine/graphics/vertex-array.hxx"
+#include "Kengine/units/vertex.hxx"
+
+using namespace Kengine::graphics;
 
 class demo_game : public Kengine::game
 {
@@ -8,7 +13,7 @@ public:
     demo_game()
         : Kengine::game("Demo kengine"){};
 
-    virtual ~demo_game() = default;
+    ~demo_game() override;
     void on_start() override;
     void on_event(Kengine::event::game_event) override;
     void on_update(int delta_ms) override;
@@ -19,4 +24,9 @@ public:
 
     glm::mat4 projection;
     glm::mat4 view;
+
+private:
+    std::shared_ptr<vertex_buffer<Kengine::vertex_color>> vbo{ nullptr };
+    std::shared_ptr<vertex_array>                         vao{ nullptr };
+    std::shared_ptr<shader>                               sh{ nullptr };
 };

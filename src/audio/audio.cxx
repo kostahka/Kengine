@@ -282,12 +282,9 @@ namespace Kengine::audio
         // audio_device_spec.samples  = 1024; // must be power of 2
         // audio_device_spec.callback = &audio_callback;
 
-        SDL_AudioSpec returned_audio_device_spec;
-        const char*   default_audio_device_name = nullptr;
+        const char* default_audio_device_name = nullptr;
         audio_device_id = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_OUTPUT,
                                               &audio_device_spec);
-
-        audio_device_spec = returned_audio_device_spec;
 
         if (audio_device_id == 0)
         {

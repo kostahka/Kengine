@@ -4,7 +4,7 @@
 #include "SDL3/SDL_render.h"
 
 #include "../graphics/render-manager.hxx"
-#include "../opengl/opengl.hxx"
+#include "../opengl/opengl-debug.hxx"
 #include "Kengine/log/log.hxx"
 
 #ifdef __ANDROID__
@@ -20,6 +20,9 @@ namespace Kengine::window
 
     SDL_Window*   window  = nullptr;
     SDL_GLContext context = nullptr;
+
+    SDL_DisplayID                primary_display;
+    std::vector<SDL_DisplayMode> display_modes;
 
     bool gl_debug = false;
 
@@ -95,10 +98,34 @@ namespace Kengine::window
 
         if (!window)
         {
-            window = SDL_CreateWindow(name.data(),
-                                      size.x,
-                                      size.y,
-                                      SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+            primary_display = SDL_GetPrimaryDisplay();
+            if (!primary_display)
+            {
+                KENGINE_FATAL("Failed to get primary display. Error: {}",
+                              SDL_GetError());
+                return false;
+            }
+            {
+                int                     d_modes_count;
+                const SDL_DisplayMode** modes = SDL_GetFullscreenDisplayModes(
+                    primary_display, &d_modes_count);
+                if (!modes)
+                {
+                    KENGINE_FATAL(
+                        "Failed to get display fullscreen modes. Error: {}",
+                        SDL_GetError());
+                    return false;
+                }
+                display_modes.resize(d_modes_count);
+                for (int i = 0; i < d_modes_count; i++)
+                {
+                    display_modes[i] = *modes[i];
+                }
+                SDL_free(modes);
+            }
+
+            window = SDL_CreateWindow(
+                name.data(), size.x, size.y, SDL_WINDOW_OPENGL);
 
             if (window == nullptr)
             {
@@ -177,6 +204,17 @@ namespace Kengine::window
                     return false;
                 }
             }
+
+            if (!Kengine::opengl::initialize())
+            {
+                KENGINE_FATAL("Failed to initialize opengl.");
+                return false;
+            }
+
+            if (gl_debug)
+                if (Kengine::opengl_debug::initialize(
+                        gl_major_version, gl_minor_version, gl_profile))
+                    KENGINE_INFO("GL debug enabled");
 
             if (!graphics::render_manager::initialize())
             {
