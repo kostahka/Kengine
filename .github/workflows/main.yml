@@ -19,7 +19,7 @@ jobs:
           - { name: Ubuntu 20.04,                   os: ubuntu-20.04,   shell: sh, artifact: 'Kengine-ubuntu20.04' }
           - { name: Ubuntu 22.04,                   os: ubuntu-22.04,   shell: sh, artifact: 'Kengine-ubuntu22.04' }
 #          - { name: MacOS (Framework),              os: macos-latest,   shell: sh,    cmake: '-DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" -DSDL_CLANG_TIDY=OFF', skip_test_pkgconfig: true, artifact: 'Kengine-macos-framework' }
-          - { name: MacOS (GNU prefix),             os: macos-latest,   shell: sh,    cmake: '-DCMAKE_OSX_ARCHITECTURES="x86_64" -DCLANG_TIDY_BINARY="$(brew --prefix llvm)/bin/clang-tidy"', cmake-build: '-framework CoreAudio', artifact: 'Kengine-macos-gnu' }
+          - { name: MacOS (GNU prefix),             os: macos-latest,   shell: sh,    cmake: '-DCMAKE_OSX_ARCHITECTURES="x86_64" -DCLANG_TIDY_BINARY="$(brew --prefix llvm)/bin/clang-tidy -DSDL_FRAMEWORK_COREAUDIO=On"', artifact: 'Kengine-macos-gnu' }
 
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
@@ -97,7 +97,7 @@ jobs:
         
     - name: Configure CMake
       run: |
-        cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G Ninja ${{ matrix.platform.cmake }} ${{ matrix.platform.cmake-build }}
+        cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G Ninja ${{ matrix.platform.cmake }}
 
     - name: Build
       run: |
