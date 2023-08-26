@@ -2,6 +2,8 @@
 
 #include "../opengl/opengl.hxx"
 
+#include <sstream>
+
 namespace Kengine
 {
     static GLint             info_len;
