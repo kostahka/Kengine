@@ -22,6 +22,7 @@ set(KENGINE_SOURCES
     graphics/shader.cxx
     graphics/vertex-array.cxx
     handle-file-modify.hxx
+    helpers/hash.cxx
     imgui-impl/imgui_impl_opengl3.cpp
     imgui-impl/imgui_impl_opengl3.h
     imgui-impl/imgui_impl_opengl3_loader.h
@@ -46,6 +47,9 @@ set(KENGINE_SOURCES
     render/sprite.cxx
     render/texture.cxx
     render/vertex-array-object.cxx
+    resources/resource.cxx
+    resources/shader-resource.cxx
+    string/string-id.cxx
     window/window.cxx
     window/window.hxx
 )
@@ -64,6 +68,7 @@ set(KENGINE_HEADERS
     ../include/Kengine/graphics/shader.hxx
     ../include/Kengine/graphics/vertex-array.hxx
     ../include/Kengine/graphics/vertex-buffer.hxx
+    ../include/Kengine/helpers/hash.hxx
     ../include/Kengine/io/file-manager.hxx
     ../include/Kengine/io/input.hxx
     ../include/Kengine/log/log.hxx
@@ -75,6 +80,10 @@ set(KENGINE_HEADERS
     ../include/Kengine/render/sprite.hxx
     ../include/Kengine/render/texture.hxx
     ../include/Kengine/render/vertex-array-object.hxx
+    ../include/Kengine/resources/resource.hxx
+    ../include/Kengine/resources/resource_types.hxx
+    ../include/Kengine/resources/shader-resource.hxx
+    ../include/Kengine/string/string-id.hxx
     ../include/Kengine/units/rect.hxx
     ../include/Kengine/units/transform.hxx
     ../include/Kengine/units/vector.hxx

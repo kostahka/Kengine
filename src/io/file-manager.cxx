@@ -6,7 +6,7 @@
 
 #include "Kengine/log/log.hxx"
 
-namespace file_manager
+namespace Kengine::file_manager
 {
     membuf::membuf()
         : std::streambuf()
@@ -99,4 +99,4 @@ namespace file_manager
         }
         return membuf(std::move(mem), size);
     };
-} // namespace file_manager
+} // namespace Kengine::file_manager

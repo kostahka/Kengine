@@ -3,7 +3,7 @@
 #include <memory>
 #include <streambuf>
 
-namespace file_manager
+namespace Kengine::file_manager
 {
 
     struct membuf : public std::streambuf
@@ -26,4 +26,4 @@ namespace file_manager
 
     membuf load_file(std::string_view path);
 
-} // namespace file_manager
+} // namespace Kengine::file_manager
