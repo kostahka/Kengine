@@ -7,8 +7,8 @@ namespace Kengine::hash
     constexpr std::array<unsigned long, 256> crc_table{
         []() constexpr
         {
-            std::array<unsigned long, 256> res;
-            unsigned long                  crc;
+            std::array<unsigned long, 256> res{ 0 };
+            unsigned long                  crc{ 0 };
             for (int i = 0; i < 256; i++)
             {
                 crc = i;
