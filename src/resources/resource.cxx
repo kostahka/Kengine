@@ -24,11 +24,13 @@ namespace Kengine
     resource::resource(resource_type r_type, path f_path)
         : r_type(r_type)
         , f_path(f_path)
+        , p_count(0)
     {
     }
 
     resource::resource(resource_type r_type)
         : r_type(r_type)
+        , p_count(0)
     {
     }
 

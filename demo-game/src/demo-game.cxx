@@ -34,7 +34,8 @@ void demo_game::on_start()
     vao->bind();
     vao->add_vertex_buffer(vbo);
 
-    sh = std::make_shared<shader>(R"(
+    sh = std::make_shared<shader>(
+        std::make_shared<Kengine::shader_res>(std::string_view(R"(
     #version 300 es
     precision mediump float;
 
@@ -47,8 +48,8 @@ void demo_game::on_start()
         gl_Position = vec4(v_pos, 1.0);
         vs_color = v_color;
     }
-)",
-                                  R"(
+)"),
+                                              std::string_view(R"(
     #version 300 es
     precision mediump float;
 
@@ -61,7 +62,7 @@ void demo_game::on_start()
     {
         f_color = vec4(vs_color.r, vs_color.g * (sin(float(time) / 500.0 + 1.0) / 2.0), vs_color.ba);
     }
-                             )");
+                             )")));
     sh->save_uniform_location("time");
     sh->use();
 }

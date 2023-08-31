@@ -78,7 +78,7 @@ namespace Kengine
         ImGui_ImplSDL3_InitForOpenGL(window::window, window::context);
         ImGui_ImplOpenGL3_Init("#version 300 es");
 
-        audio::init();
+        // audio::init();
 
         return true;
     };

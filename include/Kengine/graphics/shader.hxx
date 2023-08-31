@@ -7,22 +7,15 @@
 
 #include "glm/glm.hpp"
 
+#include "Kengine/resources/shader-resource.hxx"
+
 namespace Kengine::graphics
 {
     class shader
     {
     public:
-        static std::shared_ptr<shader> load_from_files(
-            std::string_view vertex_path, std::string_view fragment_path);
-        static std::shared_ptr<shader> load_from_files(
-            std::string_view vertex_path,
-            std::string_view geometry_path,
-            std::string_view fragment_path);
+        shader(const std::shared_ptr<shader_res>& shader_resource);
 
-        shader(std::string_view vertex,
-               std::string_view geometry,
-               std::string_view fragment);
-        shader(std::string_view vertex, std::string_view fragment);
         ~shader();
 
         void use();
@@ -175,13 +168,9 @@ namespace Kengine::graphics
         void save_uniform_location(std::string_view name);
 
     private:
-        uint32_t load_vertex(std::string_view vertex);
-        uint32_t load_fragment(std::string_view fragment);
-        uint32_t load_geometry(std::string_view geometry);
-
         uint32_t get_uniform_location(std::string_view name);
 
-        uint32_t program;
+        std::shared_ptr<shader_res> resource;
 
         std::unordered_map<std::string_view, uint32_t> uniform_locations;
     };

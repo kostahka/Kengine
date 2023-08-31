@@ -19,7 +19,7 @@ namespace Kengine
     {
     }
 
-    fragment_shader_res::fragment_shader_res(const string& fragment_code)
+    fragment_shader_res::fragment_shader_res(const string_view& fragment_code)
         : resource(resource_type::fragment_shader)
         , code(fragment_code)
         , fragment_id(0)
@@ -110,7 +110,7 @@ namespace Kengine
     {
     }
 
-    vertex_shader_res::vertex_shader_res(const string& vertex_code)
+    vertex_shader_res::vertex_shader_res(const string_view& vertex_code)
         : resource(resource_type::vertex_shader)
         , code(vertex_code)
         , vertex_id(0)
@@ -201,7 +201,7 @@ namespace Kengine
     {
     }
 
-    geometry_shader_res::geometry_shader_res(const string& geometry_code)
+    geometry_shader_res::geometry_shader_res(const string_view& geometry_code)
         : resource(resource_type::geometry_shader)
         , code(geometry_code)
         , geometry_id(0)
@@ -305,6 +305,47 @@ namespace Kengine
         , geometry_res(nullptr)
         , id(0)
     {
+    }
+
+    shader_res::shader_res(const string_view& vertex_code,
+                           const string_view& fragment_code)
+        : resource(resource_type::shader_program)
+        , geometry_res(nullptr)
+        , id(0)
+    {
+        vertex_res   = std::make_shared<vertex_shader_res>(vertex_code);
+        fragment_res = std::make_shared<fragment_shader_res>(fragment_code);
+    }
+
+    shader_res::shader_res(const string_view& vertex_code,
+                           const string_view& geometry_code,
+                           const string_view& fragment_code)
+        : resource(resource_type::shader_program)
+        , id(0)
+    {
+        vertex_res   = std::make_shared<vertex_shader_res>(vertex_code);
+        geometry_res = std::make_shared<geometry_shader_res>(geometry_code);
+        fragment_res = std::make_shared<fragment_shader_res>(fragment_code);
+    }
+
+    shader_res::shader_res(const path& vertex_path, const path& fragment_path)
+        : resource(resource_type::shader_program)
+        , geometry_res(nullptr)
+        , id(0)
+    {
+        vertex_res   = std::make_shared<vertex_shader_res>(vertex_path);
+        fragment_res = std::make_shared<fragment_shader_res>(fragment_path);
+    }
+
+    shader_res::shader_res(const path& vertex_path,
+                           const path& geometry_path,
+                           const path& fragment_path)
+        : resource(resource_type::shader_program)
+        , id(0)
+    {
+        vertex_res   = std::make_shared<vertex_shader_res>(vertex_path);
+        geometry_res = std::make_shared<geometry_shader_res>(geometry_path);
+        fragment_res = std::make_shared<fragment_shader_res>(fragment_path);
     }
 
     shader_res::~shader_res()

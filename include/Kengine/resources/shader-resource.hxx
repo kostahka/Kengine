@@ -4,17 +4,19 @@
 
 #include <memory>
 #include <string>
+#include <string_view>
 
 namespace Kengine
 {
     using std::shared_ptr;
     using std::string;
+    using std::string_view;
 
     class fragment_shader_res : public resource
     {
     public:
         fragment_shader_res(const path& fragment_file);
-        fragment_shader_res(const string& fragment_code);
+        fragment_shader_res(const string_view& fragment_code);
         ~fragment_shader_res();
 
         inline uint32_t get_id() const { return fragment_id; };
@@ -32,7 +34,7 @@ namespace Kengine
     {
     public:
         vertex_shader_res(const path& vertex_file);
-        vertex_shader_res(const string& vertex_code);
+        vertex_shader_res(const string_view& vertex_code);
         ~vertex_shader_res();
 
         inline uint32_t get_id() const { return vertex_id; };
@@ -50,7 +52,7 @@ namespace Kengine
     {
     public:
         geometry_shader_res(const path& geometry_file);
-        geometry_shader_res(const string& geometry_code);
+        geometry_shader_res(const string_view& geometry_code);
         ~geometry_shader_res();
 
         inline uint32_t get_id() const { return geometry_id; };
@@ -72,6 +74,18 @@ namespace Kengine
                    const shared_ptr<fragment_shader_res>&);
         shader_res(const shared_ptr<vertex_shader_res>&,
                    const shared_ptr<fragment_shader_res>&);
+
+        shader_res(const string_view& vertex_code,
+                   const string_view& fragment_code);
+        shader_res(const string_view& vertex_code,
+                   const string_view& geometry_code,
+                   const string_view& fragment_code);
+
+        shader_res(const path& vertex_path, const path& fragment_path);
+        shader_res(const path& vertex_path,
+                   const path& geometry_path,
+                   const path& fragment_path);
+
         ~shader_res();
 
         inline uint32_t get_id() const { return id; };
