@@ -1,6 +1,7 @@
 #include "Kengine/resources/shader-resource.hxx"
 
 #include "../opengl/opengl.hxx"
+#include "Kengine/io/file-manager.hxx"
 
 #include <sstream>
 
@@ -61,9 +62,12 @@ namespace Kengine
 
     void fragment_shader_res::load_data()
     {
-        std::stringstream    s_code;
-        file_manager::membuf file = file_manager::load_file(f_path.string());
-        s_code.write(file.begin(), file.size());
+        std::stringstream s_code;
+        auto              file_buf = file_manager::load_file(f_path);
+        if (file_buf == nullptr)
+            return;
+
+        s_code.write(file_buf->rbegin(), file_buf->size());
         code = s_code.str();
 
         const GLchar* shader_code = code.c_str();
@@ -152,9 +156,12 @@ namespace Kengine
 
     void vertex_shader_res::load_data()
     {
-        std::stringstream    s_code;
-        file_manager::membuf file = file_manager::load_file(f_path.string());
-        s_code.write(file.begin(), file.size());
+        std::stringstream s_code;
+        auto              file_buf = file_manager::load_file(f_path);
+        if (file_buf == nullptr)
+            return;
+
+        s_code.write(file_buf->rbegin(), file_buf->size());
         code = s_code.str();
 
         const GLchar* shader_code = code.c_str();
@@ -243,9 +250,12 @@ namespace Kengine
 
     void geometry_shader_res::load_data()
     {
-        std::stringstream    s_code;
-        file_manager::membuf file = file_manager::load_file(f_path.string());
-        s_code.write(file.begin(), file.size());
+        std::stringstream s_code;
+        auto              file_buf = file_manager::load_file(f_path);
+        if (file_buf == nullptr)
+            return;
+
+        s_code.write(file_buf->rbegin(), file_buf->size());
         code = s_code.str();
 
         const GLchar* shader_code = code.c_str();

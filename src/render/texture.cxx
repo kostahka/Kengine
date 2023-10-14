@@ -17,8 +17,7 @@ namespace Kengine
     public:
         texture_impl(std::string texture_path)
         {
-            file_manager::membuf texture_file =
-                file_manager::load_file(texture_path);
+            auto texture_file = file_manager::load_file(texture_path);
 
             std::vector<unsigned char> image_memory;
             unsigned long              image_width  = 0;
@@ -28,8 +27,8 @@ namespace Kengine
                     image_memory,
                     image_width,
                     image_height,
-                    reinterpret_cast<unsigned char*>(texture_file.begin()),
-                    texture_file.size(),
+                    reinterpret_cast<unsigned char*>(texture_file->rbegin()),
+                    texture_file->size(),
                     true))
             {
                 KENGINE_ERROR("Failed to decode png texture from [{}]",

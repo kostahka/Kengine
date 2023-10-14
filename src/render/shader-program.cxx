@@ -91,12 +91,14 @@ namespace Kengine
 
         std::stringstream fragment_code;
 
-        file_manager::membuf vertex_file = file_manager::load_file(vertex_path);
-        file_manager::membuf fragment_file =
-            file_manager::load_file(fragment_path);
+        std::filesystem::path v_path = static_cast<const char*>(vertex_path);
+        std::filesystem::path f_path = static_cast<const char*>(fragment_path);
 
-        vertex_code.write(vertex_file.begin(), vertex_file.size());
-        fragment_code.write(fragment_file.begin(), fragment_file.size());
+        auto vertex_file   = file_manager::load_file(v_path);
+        auto fragment_file = file_manager::load_file(f_path);
+
+        vertex_code.write(vertex_file->rbegin(), vertex_file->size());
+        fragment_code.write(fragment_file->rbegin(), fragment_file->size());
 
         std::string vertex_string_code   = vertex_code.str();
         std::string fragment_string_code = fragment_code.str();

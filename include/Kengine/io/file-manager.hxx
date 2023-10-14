@@ -1,29 +1,43 @@
 #pragma once
 
+#include <filesystem>
 #include <memory>
 #include <streambuf>
 
 namespace Kengine::file_manager
 {
-
-    struct membuf : public std::streambuf
+    struct file_buffer : public std::streambuf
     {
-        membuf();
-        membuf(std::unique_ptr<char[]> buffer, size_t size);
-        membuf(membuf&& other);
+        static std::unique_ptr<file_buffer> get_empty();
 
-        pos_type seekoff(off_type               pos,
-                         std::ios_base::seekdir seek_dir,
-                         std::ios_base::openmode) override;
+        inline char* wbegin() const { return write_buffer.get(); }
 
-        char*  begin() const;
-        size_t size() const;
+        inline char* rbegin() const { return read_buffer.get(); }
 
-    private:
-        std::unique_ptr<char[]> buf;
+        inline size_t size() const { return buf_size; }
+
+        inline bool is_open() { return is_file_open; };
+
+        virtual bool open(std::filesystem::path   path,
+                          std::ios_base::openmode mode,
+                          size_t                  buf_size = 10) = 0;
+        virtual void close()                    = 0;
+
+        virtual ~file_buffer();
+
+    protected:
+        file_buffer();
+
+        std::unique_ptr<char[]> write_buffer;
+        std::unique_ptr<char[]> read_buffer;
         size_t                  buf_size;
+        bool                    is_file_open;
+        size_t                  file_size;
     };
 
-    membuf load_file(std::string_view path);
+    std::unique_ptr<file_buffer> load_file(std::filesystem::path path);
+    std::unique_ptr<file_buffer> open_file(std::filesystem::path   path,
+                                           std::ios_base::openmode mode,
+                                           size_t buf_size = 0);
 
 } // namespace Kengine::file_manager
