@@ -84,13 +84,9 @@ namespace Kengine::file_manager
                 SDL_RWFromFile(path.string().c_str(), sdl_openmode_map->second);
             if (!file)
             {
-                auto  path_wstr    = path.c_str();
-                auto  path_str_len = std::wcslen(path_wstr);
-                char* path_str     = new char[path_str_len];
-                wcstombs_s(
-                    nullptr, path_str, path_str_len, path_wstr, path_str_len);
+                auto path_wstr = path.c_str();
                 KENGINE_ERROR("Failed to open file [{}], error: {}",
-                              path_str,
+                              reinterpret_cast<const char*>(path_wstr),
                               SDL_GetError());
                 return false;
             }
@@ -135,13 +131,9 @@ namespace Kengine::file_manager
             file = SDL_RWFromFile(path.string().c_str(), "rb");
             if (!file)
             {
-                auto  path_wstr    = path.c_str();
-                auto  path_str_len = std::wcslen(path_wstr);
-                char* path_str     = new char[path_str_len];
-                wcstombs_s(
-                    nullptr, path_str, path_str_len, path_wstr, path_str_len);
+                auto path_wstr = path.c_str();
                 KENGINE_ERROR("Failed to open file [{}], error: {}",
-                              path_str,
+                              reinterpret_cast<const char*>(path_wstr),
                               SDL_GetError());
                 return false;
             }
