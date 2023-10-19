@@ -102,7 +102,7 @@ add_library(kengine-interface INTERFACE)
 # Link external libs
 target_link_libraries(
     kengine-private
-    INTERFACE SDL3::SDL3-static
+    INTERFACE SDL3::SDL3-shared
     INTERFACE efsw
     INTERFACE glad
 )
