@@ -20,6 +20,7 @@ set(KENGINE_SOURCES
     graphics/render-manager.cxx
     graphics/render-manager.hxx
     graphics/shader.cxx
+    graphics/texture.cxx
     graphics/vertex-array.cxx
     handle-file-modify.hxx
     helpers/hash.cxx
@@ -42,13 +43,14 @@ set(KENGINE_SOURCES
     render/b2GLDraw.cxx
     render/draw-primitives.cxx
     render/engine-resources.cxx
-    render/picopng.hxx
     render/shader-program.cxx
     render/sprite.cxx
     render/texture.cxx
     render/vertex-array-object.cxx
+    resources/picopng.hxx
     resources/resource.cxx
     resources/shader-resource.cxx
+    resources/texture-resource.cxx
     string/string-id.cxx
     window/window.cxx
     window/window.hxx
@@ -66,6 +68,7 @@ set(KENGINE_HEADERS
     ../include/Kengine/graphics/raw-vertex-buffer.hxx
     ../include/Kengine/graphics/render-manager.hxx
     ../include/Kengine/graphics/shader.hxx
+    ../include/Kengine/graphics/texture.hxx
     ../include/Kengine/graphics/vertex-array.hxx
     ../include/Kengine/graphics/vertex-buffer.hxx
     ../include/Kengine/helpers/hash.hxx
@@ -83,6 +86,7 @@ set(KENGINE_HEADERS
     ../include/Kengine/resources/resource.hxx
     ../include/Kengine/resources/resource_types.hxx
     ../include/Kengine/resources/shader-resource.hxx
+    ../include/Kengine/resources/texture-resource.hxx
     ../include/Kengine/string/string-id.hxx
     ../include/Kengine/units/rect.hxx
     ../include/Kengine/units/transform.hxx

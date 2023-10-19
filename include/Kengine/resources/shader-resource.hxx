@@ -86,7 +86,7 @@ namespace Kengine
                    const path& geometry_path,
                    const path& fragment_path);
 
-        ~shader_res();
+        ~shader_res() override;
 
         inline uint32_t get_id() const { return id; };
 

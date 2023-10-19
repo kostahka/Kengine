@@ -2,6 +2,7 @@
 
 #include "Kengine/game.hxx"
 #include "Kengine/graphics/shader.hxx"
+#include "Kengine/graphics/texture.hxx"
 #include "Kengine/graphics/vertex-array.hxx"
 #include "Kengine/units/vertex.hxx"
 
@@ -26,7 +27,8 @@ public:
     glm::mat4 view;
 
 private:
-    std::shared_ptr<vertex_buffer<Kengine::vertex_color>> vbo{ nullptr };
-    std::shared_ptr<vertex_array>                         vao{ nullptr };
-    std::shared_ptr<shader>                               sh{ nullptr };
+    std::shared_ptr<vertex_buffer<Kengine::vertex_text2d_color>> vbo{ nullptr };
+    std::shared_ptr<vertex_array>                                vao{ nullptr };
+    std::shared_ptr<shader>                                      sh{ nullptr };
+    std::shared_ptr<texture> checker_texture{ nullptr };
 };

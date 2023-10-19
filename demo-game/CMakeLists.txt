@@ -16,3 +16,12 @@ target_include_directories(
 )
 
 target_link_libraries(kengine-demo-static PRIVATE Kengine::kengine-static)
+
+add_custom_target(
+    copy_assets_shaders ALL
+    COMMAND
+        ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets/
+        $<TARGET_FILE_DIR:kengine-demo-static>/assets
+    COMMENT
+        "Copying shaders and assets into game directory: [$<TARGET_FILE_DIR:kengine-demo-static>]"
+)

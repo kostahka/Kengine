@@ -10,60 +10,46 @@ using namespace Kengine::graphics;
 
 void demo_game::on_start()
 {
-    std::vector<Kengine::vertex_color> vertices{
-        {{ -0.5, -0.5, 0 },  { 1.0, 0.0, 0.0, 1.0 }},
-        { { -0.5, 0.5, 0 },  { 0.0, 1.0, 0.0, 1.0 }},
-        { { 0.5, 0.5, 0 },   { 0.0, 0.0, 1.0, 1.0 }},
+    std::vector<Kengine::vertex_text2d_color> vertices{
+        {{ -0.5, -0.5, 0 },  { 0.0, 0.0 }, { 1.0, 0.0, 0.0, 1.0 }},
+        { { -0.5, 0.5, 0 },  { 1.0, 0.0 }, { 0.0, 1.0, 0.0, 1.0 }},
+        { { 0.5, 0.5, 0 },   { 1.0, 1.0 }, { 0.0, 0.0, 1.0, 1.0 }},
 
-        { { 0.5, 0.5, 0 },   { 0.0, 0.0, 1.0, 1.0 }},
-        { { 0.5, -0.5, 0 },  { 0.0, 1.0, 0.0, 1.0 }},
-        { { -0.5, -0.5, 0 }, { 1.0, 0.0, 0.0, 1.0 }}
+        { { 0.5, 0.5, 0 },   { 1.0, 1.0 }, { 0.0, 0.0, 1.0, 1.0 }},
+        { { 0.5, -0.5, 0 },  { 0.0, 1.0 }, { 0.0, 1.0, 0.0, 1.0 }},
+        { { -0.5, -0.5, 0 }, { 0.0, 0.0 }, { 1.0, 0.0, 0.0, 1.0 }}
     };
 
-    vbo = std::make_shared<vertex_buffer<Kengine::vertex_color>>();
+    vbo = std::make_shared<vertex_buffer<Kengine::vertex_text2d_color>>();
     vbo->bind();
     vbo->allocate_vertices(vertices.data(), vertices.size(), false);
     vbo->add_attribute_pointer(
-        { g_float, 3, 0, sizeof(Kengine::vertex_color) });
+        { g_float, 3, 0, sizeof(Kengine::vertex_text2d_color) });
     vbo->add_attribute_pointer({ g_float,
                                  4,
-                                 offsetof(Kengine::vertex_color, col),
-                                 sizeof(Kengine::vertex_color) });
+                                 offsetof(Kengine::vertex_text2d_color, col),
+                                 sizeof(Kengine::vertex_text2d_color) });
+    vbo->add_attribute_pointer({ g_float,
+                                 2,
+                                 offsetof(Kengine::vertex_text2d_color, text),
+                                 sizeof(Kengine::vertex_text2d_color) });
 
     vao = std::make_shared<vertex_array>();
     vao->bind();
     vao->add_vertex_buffer(vbo);
 
-    sh = std::make_shared<shader>(
-        std::make_shared<Kengine::shader_res>(std::string_view(R"(
-    #version 300 es
-    precision mediump float;
+    sh = std::make_shared<shader>(std::make_shared<Kengine::shader_res>(
+        std::filesystem::path("assets/shaders/square.vs"),
+        std::filesystem::path("assets/shaders/square.fs")));
 
-    layout (location = 0) in vec3 v_pos;
-    layout (location = 1) in vec4 v_color;
-
-    out vec4 vs_color;
-    void main()
-    {
-        gl_Position = vec4(v_pos, 1.0);
-        vs_color = v_color;
-    }
-)"),
-                                              std::string_view(R"(
-    #version 300 es
-    precision mediump float;
-
-    in vec4 vs_color;
-
-    uniform int time;
-
-    out vec4 f_color;
-    void main()
-    {
-        f_color = vec4(vs_color.r, vs_color.g * (sin(float(time) / 500.0 + 1.0) / 2.0), vs_color.ba);
-    }
-                             )")));
     sh->save_uniform_location("time");
+
+    checker_texture =
+        std::make_shared<texture>(std::make_shared<Kengine::texture_resource>(
+            std::filesystem::path("assets/textures/checker.png")));
+    checker_texture->bind();
+
+    sh->save_uniform_location("checker");
     sh->use();
 }
 

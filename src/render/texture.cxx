@@ -2,12 +2,18 @@
 #include "../opengl/opengl.hxx"
 #include "Kengine/io/file-manager.hxx"
 #include "Kengine/log/log.hxx"
-#include "picopng.hxx"
 
 #include <cstddef>
 #include <fstream>
 #include <ios>
 #include <vector>
+
+int decodePNG(std::vector<unsigned char>& out_image,
+              unsigned long&              image_width,
+              unsigned long&              image_height,
+              const unsigned char*        in_png,
+              size_t                      in_size,
+              bool                        convert_to_rgba32 = true);
 
 namespace Kengine
 {

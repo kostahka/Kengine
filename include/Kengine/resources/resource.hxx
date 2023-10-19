@@ -18,6 +18,8 @@ namespace Kengine
         void free_data(); // Deown resource.
                           // Unload resource if nobody else own it.
 
+        virtual ~resource();
+
     protected:
         virtual void load_data()   = 0; // What do to load data for resource
         virtual void unload_data() = 0; // What do to unload data

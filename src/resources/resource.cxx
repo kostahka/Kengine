@@ -34,4 +34,5 @@ namespace Kengine
     {
     }
 
+    resource::~resource() {}
 } // namespace Kengine
