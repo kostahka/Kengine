@@ -84,9 +84,8 @@ namespace Kengine::file_manager
                 SDL_RWFromFile(path.string().c_str(), sdl_openmode_map->second);
             if (!file)
             {
-                auto path_wstr = path.c_str();
                 KENGINE_ERROR("Failed to open file [{}], error: {}",
-                              reinterpret_cast<const char*>(path_wstr),
+                              path.string().c_str(),
                               SDL_GetError());
                 return false;
             }
@@ -123,6 +122,8 @@ namespace Kengine::file_manager
                 return false;
             }
 
+            KENGINE_INFO("Loaded file: {}", path.string().c_str());
+
             return true;
         }
 
@@ -131,9 +132,8 @@ namespace Kengine::file_manager
             file = SDL_RWFromFile(path.string().c_str(), "rb");
             if (!file)
             {
-                auto path_wstr = path.c_str();
                 KENGINE_ERROR("Failed to open file [{}], error: {}",
-                              reinterpret_cast<const char*>(path_wstr),
+                              path.string().c_str(),
                               SDL_GetError());
                 return false;
             }
@@ -154,6 +154,8 @@ namespace Kengine::file_manager
                 close();
                 return false;
             }
+
+            KENGINE_INFO("Loaded file: {}", path.string().c_str());
 
             return true;
         }

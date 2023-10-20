@@ -55,6 +55,9 @@ add_subdirectory(external/imgui-src)
 # GLAD - for loading OpenGL functions
 add_subdirectory(external/glad)
 
+# STB(image) - for loading images
+add_subdirectory(external/stb)
+
 # SPDLOG
 option(SPDLOG_BUILD_PIC ON)
 option(SPDLOG_NO_EXCEPTIONS ON)
@@ -63,6 +66,7 @@ option(SPDLOG_NO_TLS ON)
 option(SPDLOG_NO_ATOMIC_LEVELS ON)
 add_subdirectory(external/spdlog)
 set_property(TARGET spdlog PROPERTY POSITION_INDEPENDENT_CODE ON)
+
 # Kengine source
 add_subdirectory(src)
 

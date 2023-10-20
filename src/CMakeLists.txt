@@ -109,6 +109,7 @@ target_link_libraries(
     INTERFACE SDL3::SDL3-shared
     INTERFACE efsw
     INTERFACE glad
+    INTERFACE stb
 )
 target_link_libraries(
     kengine-public

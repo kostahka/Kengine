@@ -57,6 +57,7 @@ namespace Kengine
         if (fragment_id)
         {
             KENGINE_GL_CHECK(glDeleteShader(fragment_id));
+            KENGINE_INFO("Unloaded fragment shader, {}", fragment_id);
         }
     }
 
@@ -93,6 +94,8 @@ namespace Kengine
             fragment_id = 0;
             KENGINE_ERROR("Failed to compile fragment shader.");
         }
+
+        KENGINE_INFO("Loaded and compiled fragment shader: {}", fragment_id);
     }
 
     void fragment_shader_res::unload_data()
@@ -100,6 +103,7 @@ namespace Kengine
         if (fragment_id)
         {
             KENGINE_GL_CHECK(glDeleteShader(fragment_id));
+            KENGINE_INFO("Unloaded fragment shader, {}", fragment_id);
             fragment_id = 0;
         }
         code.clear();
@@ -151,6 +155,7 @@ namespace Kengine
         if (vertex_id)
         {
             KENGINE_GL_CHECK(glDeleteShader(vertex_id));
+            KENGINE_INFO("Unloaded vertex shader, {}", vertex_id);
         }
     }
 
@@ -187,6 +192,8 @@ namespace Kengine
             vertex_id = 0;
             KENGINE_ERROR("Failed to compile vertex shader.");
         }
+
+        KENGINE_INFO("Loaded and compiled vertex shader: {}", vertex_id);
     }
 
     void vertex_shader_res::unload_data()
@@ -194,6 +201,7 @@ namespace Kengine
         if (vertex_id)
         {
             KENGINE_GL_CHECK(glDeleteShader(vertex_id));
+            KENGINE_INFO("Unloaded vertex shader, {}", vertex_id);
             vertex_id = 0;
         }
         code.clear();
@@ -245,6 +253,7 @@ namespace Kengine
         if (geometry_id)
         {
             KENGINE_GL_CHECK(glDeleteShader(geometry_id));
+            KENGINE_INFO("Unloaded geometry shader, {}", geometry_id);
         }
     }
 
@@ -281,6 +290,8 @@ namespace Kengine
             geometry_id = 0;
             KENGINE_ERROR("Failed to compile geometry shader.");
         }
+
+        KENGINE_INFO("Loaded and compiled geometry shader: {}", geometry_id);
     }
 
     void geometry_shader_res::unload_data()
@@ -288,6 +299,7 @@ namespace Kengine
         if (geometry_id)
         {
             KENGINE_GL_CHECK(glDeleteShader(geometry_id));
+            KENGINE_INFO("Unloaded geometry shader, {}", geometry_id);
             geometry_id = 0;
         }
         code.clear();
@@ -363,6 +375,7 @@ namespace Kengine
         if (id)
         {
             KENGINE_GL_CHECK(glDeleteProgram(id));
+            KENGINE_INFO("Unloaded shader program, {}", id);
         }
     }
 
@@ -401,6 +414,8 @@ namespace Kengine
                           info_log.data());
         }
 
+        KENGINE_INFO("Loaded and compiled shader program: {}", id);
+
         if (vertex_res)
             vertex_res->free_data();
         if (geometry_res)
@@ -414,6 +429,7 @@ namespace Kengine
         if (id)
         {
             KENGINE_GL_CHECK(glDeleteProgram(id));
+            KENGINE_INFO("Unloaded shader program, {}", id);
             id = 0;
         }
     }
