@@ -42,6 +42,9 @@ endif()
 target_compile_definitions(kengine-public INTERFACE IMGUI_IMPL_OPENGL_ES3)
 if(WIN32)
     target_compile_definitions(
+        kengine-private INTERFACE "-D_CRT_SECURE_NO_WARNINGS=1"
+    )
+    target_compile_definitions(
         kengine-private INTERFACE "-DE_DECLSPEC=__declspec(dllexport)"
     )
     target_compile_definitions(

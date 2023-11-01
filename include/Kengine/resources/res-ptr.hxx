@@ -80,17 +80,17 @@ namespace Kengine
                 counter->w_count++;
         }
 
-        res_weak_ptr()
+        constexpr res_weak_ptr()
             : counter(nullptr)
         {
         }
 
-        res_weak_ptr(nullptr_t)
+        constexpr res_weak_ptr(nullptr_t)
             : counter(nullptr)
         {
         }
 
-        res_weak_ptr(res_ptr_counter* counter)
+        explicit res_weak_ptr(res_ptr_counter* counter)
             : counter(counter)
         {
             if (counter)
@@ -137,19 +137,19 @@ namespace Kengine
         friend void resource_manager::initialize();
 
     public:
-        res_ptr()
+        constexpr res_ptr()
             : ptr(nullptr)
             , counter(nullptr)
         {
         }
 
-        res_ptr(nullptr_t)
+        constexpr res_ptr(nullptr_t)
             : ptr(nullptr)
             , counter(nullptr)
         {
         }
 
-        res_ptr(ResourceType* res)
+        explicit res_ptr(ResourceType* res)
             : ptr(res)
 
         {
@@ -157,7 +157,7 @@ namespace Kengine
             counter->p_count++;
         }
 
-        res_ptr(res_ptr_counter* counter)
+        explicit res_ptr(res_ptr_counter* counter)
             : counter(counter)
         {
             ptr = static_cast<ResourceType*>(counter->ptr);

@@ -6,7 +6,6 @@
 #include <string.h>
 #include <unordered_map>
 
-
 namespace Kengine
 {
     std::unordered_map<string_id, const char*> string_table;
@@ -22,7 +21,7 @@ namespace Kengine
 
         size_t str_len  = strlen(c_str);
         char*  copy_str = new char[str_len + 1];
-        strcpy_s(copy_str, str_len + 1, c_str);
+        strcpy(copy_str, c_str);
 
         string_table[id] = copy_str;
         return id;
