@@ -1,9 +1,11 @@
 #include "Kengine/string/string-id.hxx"
 
-#include <unordered_map>
-
 #include "Kengine/helpers/hash.hxx"
 #include "Kengine/log/log.hxx"
+
+#include <string.h>
+#include <unordered_map>
+
 
 namespace Kengine
 {
@@ -14,9 +16,7 @@ namespace Kengine
         string_id id = hash::crc32(c_str);
         if (string_table.contains(id))
         {
-            KENGINE_WARN("String table already has such key. Check if you "
-                         "save one string "
-                         "more than once, or try to edit string");
+            KENGINE_WARN("String table already has such key: {}", c_str);
             return id;
         }
 
