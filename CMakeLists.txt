@@ -5,15 +5,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(Kengine VERSION 0.0.0)
 
-# Options for Kengine. You develop your game with hot-reload by setting
-# ENGINE_DEV=On and setting ENGINE_GAME_LIB_NAME to name of your game target. In
-# this case you need to build your game as shared lib and engine will build as
-# executable.
-option(KENGINE_DEV "engine load game dll with hot reload" OFF)
-set(KENGINE_GAME_LIB_NAME
-    ""
-    CACHE STRING "game lib name to load"
-)
+# Options for Kengine.
 option(KENGINE_DEMO_GAME "Build demo game" ON)
 
 # SDL3. For android provide sdl3.dir in local.properties in android-project

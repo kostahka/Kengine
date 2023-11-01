@@ -16,8 +16,11 @@
 #include <imgui_impl_sdl3.h>
 
 #include "Kengine/file-last-modify-listener.hxx"
+#include "Kengine/graphics/framebuffer.hxx"
+#include "Kengine/graphics/render-manager.hxx"
 #include "Kengine/log/log.hxx"
 #include "Kengine/render/engine-resources.hxx"
+#include "Kengine/resources/res-ptr.hxx"
 #include "Kengine/window/window.hxx"
 #include "audio/audio.hxx"
 #include "event/event.hxx"
@@ -25,6 +28,7 @@
 #include "graphics/render-manager.hxx"
 #include "log/log.hxx"
 #include "opengl/opengl.hxx"
+#include "resources/engine-resources.hxx"
 #include "window/window.hxx"
 
 namespace Kengine
@@ -71,6 +75,8 @@ namespace Kengine
 
         KENGINE_TRACE("Init engine resource...");
         e_resources::init();
+        resource_manager::initialize();
+        engine_resources::initialize();
 
         IMGUI_CHECKVERSION();
 
@@ -89,6 +95,8 @@ namespace Kengine
         ImGui_ImplSDL3_Shutdown();
         ImGui::DestroyContext();
 
+        resource_manager::shutdown();
+        engine_resources::shutdown();
         window::shutdown();
 
         SDL_Quit();
@@ -96,12 +104,57 @@ namespace Kengine
         log::shutdown();
     };
 
+    void draw_imgui()
+    {
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplSDL3_NewFrame();
+        ImGui::NewFrame();
+        e_game->on_imgui_render();
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    };
+
     void render(int delta_ms)
     {
         graphics::render_manager::begin_render();
         e_game->on_render(delta_ms);
+        draw_imgui();
         graphics::render_manager::end_render();
     }
+
+#ifdef ENGINE_DEV
+    void dev_draw_imgui()
+    {
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplSDL3_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::Begin("Game");
+        ImGui::Image(reinterpret_cast<ImTextureID>(
+                         engine_resources::game_frame.get_color_texture_id()),
+                     { 800, 600 });
+
+        e_game->on_imgui_render();
+
+        ImGui::End();
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    };
+
+    void dev_render(int delta_ms)
+    {
+        graphics::render_manager::begin_render();
+        graphics::render_manager::push_framebuffer(
+            engine_resources::game_frame);
+        e_game->on_render(delta_ms);
+        graphics::render_manager::pop_framebuffer();
+
+        dev_draw_imgui();
+
+        graphics::render_manager::end_render();
+    }
+#endif
 
     void update(int delta_ms)
     {
@@ -142,8 +195,11 @@ namespace Kengine
                 const int delta_ms = static_cast<int>(
                     duration_cast<std::chrono::milliseconds>(render_delta_time)
                         .count());
+#ifdef ENGINE_DEV
+                dev_render(delta_ms);
+#else
                 render(delta_ms);
-
+#endif
                 render_time = current_time;
             }
         }
@@ -169,16 +225,6 @@ namespace Kengine
             KENGINE_ERROR("Error to set cursor visibility. Error: {}",
                           SDL_GetError());
         }
-    };
-
-    void draw_imgui()
-    {
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplSDL3_NewFrame();
-        ImGui::NewFrame();
-        e_game->on_imgui_render();
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     };
 
     int get_time_ms()
@@ -218,11 +264,11 @@ namespace Kengine
     }
 
 #ifdef ENGINE_DEV
-    std::string_view dev_initialization(std::string lib_name,
-                                        std::string tmp_lib_name)
+    std::string_view dev_initialization(std::string alib_name,
+                                        std::string atmp_lib_name)
     {
-        lib_name     = lib_name;
-        tmp_lib_name = tmp_lib_name;
+        lib_name     = alib_name;
+        tmp_lib_name = atmp_lib_name;
         return "good";
     };
 
@@ -299,8 +345,10 @@ namespace Kengine
 
     std::string_view start_dev_game_loop()
     {
-        if (lib_name == "" || tmp_lib_name == "")
-            return "no dev init";
+        if (lib_name == "")
+            return "No lib name";
+        if (tmp_lib_name == "")
+            return "No dev init";
 
         load_e_game();
 
@@ -347,7 +395,12 @@ int main(int argc, char* argv[])
 
     Kengine::dev_initialization(lib_name, tmp_lib_name);
 
-    Kengine::start_dev_game_loop();
+    auto loop_return = Kengine::start_dev_game_loop();
+    if (loop_return != "good")
+    {
+        KENGINE_ERROR("Error in loop: {}", loop_return);
+    }
+
     Kengine::shutdown();
 
     return EXIT_SUCCESS;

@@ -7,14 +7,14 @@
 
 namespace Kengine::graphics
 {
-    extern const uint32_t g_byte;
-    extern const uint32_t g_ubyte;
-    extern const uint32_t g_short;
-    extern const uint32_t g_ushort;
-    extern const uint32_t g_int;
-    extern const uint32_t g_uint;
-    extern const uint32_t g_float;
-    extern const uint32_t g_double;
+    E_DECLSPEC extern const uint32_t g_byte;
+    E_DECLSPEC extern const uint32_t g_ubyte;
+    E_DECLSPEC extern const uint32_t g_short;
+    E_DECLSPEC extern const uint32_t g_ushort;
+    E_DECLSPEC extern const uint32_t g_int;
+    E_DECLSPEC extern const uint32_t g_uint;
+    E_DECLSPEC extern const uint32_t g_float;
+    E_DECLSPEC extern const uint32_t g_double;
 
     struct vertex_attribute_pointer
     {

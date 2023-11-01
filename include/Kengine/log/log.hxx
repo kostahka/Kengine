@@ -28,7 +28,8 @@
          Kengine::log::fatal_logger->critical(__VA_ARGS__);                    \
          Kengine::log::fatal_logger->dump_backtrace();                         \
      }
- #define KENGINE_ASSERT(EX, ...) (void)0
+ #define KENGINE_ASSERT(EX, ...)      (void)0
+ #define KENGINE_ASSERT_WARN(EX, msg) (void)0
 #else
  #define KENGINE_TRACE(...)                                                    \
      {                                                                         \
@@ -70,10 +71,19 @@
              (msg));                                                           \
          abort();                                                              \
      }
+ #define KENGINE_ASSERT_WARN(EX, msg)                                          \
+     if (!(EX))                                                                \
+     {                                                                         \
+         Kengine::log::logger->warn(                                           \
+             "Assert fail at line {}, at file {}, message: {}",                \
+             __LINE__,                                                         \
+             __FILE__,                                                         \
+             (msg));                                                           \
+     }
 #endif
 
 namespace Kengine::log
 {
-    extern std::shared_ptr<spdlog::logger> logger;
-    extern std::shared_ptr<spdlog::logger> fatal_logger;
+    E_DECLSPEC extern std::shared_ptr<spdlog::logger> logger;
+    E_DECLSPEC extern std::shared_ptr<spdlog::logger> fatal_logger;
 } // namespace Kengine::log

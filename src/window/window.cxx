@@ -30,6 +30,16 @@ namespace Kengine::window
     int gl_minor_version = 0;
     int gl_profile       = SDL_GL_CONTEXT_PROFILE_ES;
 
+    void pre_call_callback_gl(const char* name,
+                              void*       funcptr,
+                              int         len_args,
+                              ...)
+    {
+        (void)name;
+        (void)funcptr;
+        (void)len_args;
+    }
+
     void update_sizes()
     {
         if (window)
@@ -210,6 +220,8 @@ namespace Kengine::window
                 KENGINE_FATAL("Failed to initialize opengl.");
                 return false;
             }
+
+            glad_set_post_callback(pre_call_callback_gl);
 
             if (gl_debug)
                 if (Kengine::opengl_debug::initialize(

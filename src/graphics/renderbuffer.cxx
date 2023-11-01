@@ -1,29 +1,29 @@
-#include "Kengine/graphics/texture.hxx"
+#include "Kengine/graphics/renderbuffer.hxx"
 
 #include "../opengl/opengl.hxx"
 
 namespace Kengine::graphics
 {
-    texture::texture(res_ptr<texture_resource> resource)
+    renderbuffer::renderbuffer(res_ptr<renderbuffer_resource> resource)
         : resource(resource)
     {
         resource->take_data();
     }
 
-    texture::texture(const texture& other)
+    renderbuffer::renderbuffer(const renderbuffer& other)
     {
         resource = other.resource;
         if (resource)
             resource->take_data();
     }
 
-    texture::~texture()
+    renderbuffer::~renderbuffer()
     {
         if (resource)
             resource->free_data();
     }
 
-    texture& texture::operator=(const texture& other)
+    renderbuffer& renderbuffer::operator=(const renderbuffer& other)
     {
         if (resource)
             resource->free_data();
@@ -35,11 +35,10 @@ namespace Kengine::graphics
         return *this;
     }
 
-    void texture::bind(uint32_t texture_block)
+    void renderbuffer::bind()
     {
-        KENGINE_ASSERT(texture_block < 32,
-                       "Texture block id must be less than 32");
-        KENGINE_GL_CHECK(glActiveTexture(GL_TEXTURE0 + texture_block));
-        KENGINE_GL_CHECK(glBindTexture(GL_TEXTURE_2D, resource->get_id()));
+        KENGINE_GL_CHECK(
+            glBindRenderbuffer(GL_RENDERBUFFER, resource->get_id()));
     }
+
 } // namespace Kengine::graphics

@@ -5,7 +5,7 @@
 #include "resource_types.hxx"
 
 #include <filesystem>
-#include <vector>
+#include <string_view>
 
 namespace Kengine
 {
@@ -20,16 +20,24 @@ namespace Kengine
 
         virtual ~resource();
 
+        [[nodiscard]] inline resource_type get_resource_type() const
+        {
+            return r_type;
+        }
+
+        [[nodiscard]] inline string_id get_resource_id() const { return r_id; }
+
     protected:
         virtual void load_data()   = 0; // What do to load data for resource
         virtual void unload_data() = 0; // What do to unload data
 
-        resource(resource_type r_type, path f_path);
-        resource(resource_type r_type);
+        resource(resource_type r_type, path f_path, std::string_view name);
+        resource(resource_type r_type, std::string_view name);
 
         int           p_count;
         path          f_path;
         resource_type r_type;
+        string_id     r_id;
     };
 
 } // namespace Kengine

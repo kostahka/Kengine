@@ -4,6 +4,7 @@
 #include "Kengine/graphics/shader.hxx"
 #include "Kengine/graphics/texture.hxx"
 #include "Kengine/graphics/vertex-array.hxx"
+#include "Kengine/resources/res-ptr.hxx"
 #include "Kengine/units/vertex.hxx"
 
 using namespace Kengine::graphics;

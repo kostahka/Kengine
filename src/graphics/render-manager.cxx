@@ -6,9 +6,13 @@
 #include "Kengine/log/log.hxx"
 #include "Kengine/units/vector.hxx"
 
+#include <stack>
+
 namespace Kengine::graphics::render_manager
 {
     vec4 clear_color{ 0.0f, 0.0f, 0.0f, 1.0f };
+
+    static std::stack<framebuffer> framebuffers{};
 
     bool initialize()
     {
@@ -38,5 +42,26 @@ namespace Kengine::graphics::render_manager
     void set_clear_color(vec4& col)
     {
         KENGINE_GL_CHECK(glClearColor(col.r, col.g, col.b, col.a));
+    }
+
+    void push_framebuffer(framebuffer& frame)
+    {
+        framebuffers.push(frame);
+        KENGINE_GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, frame.get_id()));
+        frame.clear();
+    }
+
+    void pop_framebuffer()
+    {
+        framebuffers.pop();
+        if (framebuffers.size() > 0)
+        {
+            KENGINE_GL_CHECK(
+                glBindFramebuffer(GL_FRAMEBUFFER, framebuffers.top().get_id()));
+        }
+        else
+        {
+            KENGINE_GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+        }
     }
 } // namespace Kengine::graphics::render_manager

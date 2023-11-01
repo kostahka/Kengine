@@ -9,15 +9,36 @@
 
 namespace Kengine::graphics
 {
-    shader::shader(const std::shared_ptr<shader_res>& shader_resource)
+    shader::shader(const res_ptr<shader_res>& shader_resource)
         : resource(shader_resource)
     {
-        resource->take_data();
+        if (resource)
+            resource->take_data();
+    }
+
+    shader::shader(const shader& other)
+    {
+        resource = other.resource;
+        if (resource)
+            resource->take_data();
     }
 
     shader::~shader()
     {
-        resource->free_data();
+        if (resource)
+            resource->free_data();
+    }
+
+    shader& shader::operator=(const shader& other)
+    {
+        if (resource)
+            resource->free_data();
+
+        resource = other.resource;
+        if (resource)
+            resource->take_data();
+
+        return *this;
     }
 
     void shader::use()

@@ -2,6 +2,8 @@
 
 #include "Kengine/engine.hxx"
 #include "Kengine/log/log.hxx"
+#include "Kengine/resources/resource-manager.hxx"
+#include "Kengine/string/string-id.hxx"
 #include "Kengine/window/window.hxx"
 
 #include <stdlib.h>
@@ -38,15 +40,17 @@ void demo_game::on_start()
     vao->bind();
     vao->add_vertex_buffer(vbo);
 
-    sh = std::make_shared<shader>(std::make_shared<Kengine::shader_res>(
+    sh = std::make_shared<shader>(Kengine::make_resource<Kengine::shader_res>(
         std::filesystem::path("assets/shaders/square.vs"),
-        std::filesystem::path("assets/shaders/square.fs")));
+        std::filesystem::path("assets/shaders/square.fs"),
+        "square_program"));
 
     sh->save_uniform_location("time");
 
-    checker_texture =
-        std::make_shared<texture>(std::make_shared<Kengine::texture_resource>(
-            std::filesystem::path("assets/textures/checker.png")));
+    checker_texture = std::make_shared<texture>(
+        Kengine::make_resource<Kengine::texture_resource>(
+            std::filesystem::path("assets/textures/checker.png"),
+            "checker_texture"));
     checker_texture->bind();
 
     sh->save_uniform_location("checker");
@@ -84,6 +88,7 @@ Kengine::game* create_game()
     return new demo_game();
 }
 
+#ifndef ENGINE_DEV
 int main()
 {
     if (Kengine::run(&create_game))
@@ -91,3 +96,4 @@ int main()
     else
         return EXIT_FAILURE;
 }
+#endif

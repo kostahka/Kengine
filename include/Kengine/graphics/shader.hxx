@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <memory>
 #include <string_view>
 #include <unordered_map>
 
@@ -14,9 +13,11 @@ namespace Kengine::graphics
     class shader
     {
     public:
-        shader(const std::shared_ptr<shader_res>& shader_resource);
-
+        shader(const res_ptr<shader_res>& shader_resource);
+        shader(const shader& other);
         ~shader();
+
+        shader& operator=(const shader& other);
 
         void use();
 
@@ -170,7 +171,7 @@ namespace Kengine::graphics
     private:
         uint32_t get_uniform_location(std::string_view name);
 
-        std::shared_ptr<shader_res> resource;
+        res_ptr<shader_res> resource;
 
         std::unordered_map<std::string_view, uint32_t> uniform_locations;
     };

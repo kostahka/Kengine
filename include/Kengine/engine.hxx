@@ -23,7 +23,6 @@ namespace Kengine
     [[nodiscard]] bool run(create_game_func* pf_create_game);
 
     void set_cursor_visible(bool visible);
-    void draw_imgui();
     int  get_time_ms();
 
     void quit();

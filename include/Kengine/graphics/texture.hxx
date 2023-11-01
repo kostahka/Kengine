@@ -1,18 +1,20 @@
 #pragma once
 
+#include "Kengine/resources/res-ptr.hxx"
 #include "Kengine/resources/texture-resource.hxx"
-
-#include <memory>
 
 namespace Kengine::graphics
 {
     class texture
     {
     public:
-        texture(std::shared_ptr<texture_resource> resource);
+        texture(res_ptr<texture_resource> resource);
+        texture(const texture& other);
         ~texture();
 
-        void bind();
+        texture& operator=(const texture& other);
+
+        void bind(uint32_t texture_block = 0);
 
         [[nodiscard]] inline uint32_t get_id() const
         {
@@ -25,6 +27,6 @@ namespace Kengine::graphics
         }
 
     private:
-        std::shared_ptr<texture_resource> resource;
+        res_ptr<texture_resource> resource;
     };
 } // namespace Kengine::graphics

@@ -9,6 +9,8 @@ namespace Kengine
         geometry_shader,
         shader_program,
         texture,
+        renderbuffer,
+        framebuffer,
         sound,
         custom
     };

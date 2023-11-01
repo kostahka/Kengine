@@ -1,26 +1,23 @@
 #pragma once
 
+#include "Kengine/graphics/texture-common.hxx"
 #include "Kengine/units/vector.hxx"
 #include "resource.hxx"
 
 namespace Kengine
 {
-    enum class texture_filter
-    {
-        nearest,
-        linear,
-        nearest_mipmap_nearest,
-        linear_mipmap_nearest,
-        nearest_mipmap_linear,
-        linear_mipmap_linear,
-    };
-
     class texture_resource : public resource
     {
     public:
-        texture_resource(path           texture_path,
-                         texture_filter mag_filter = texture_filter::linear,
-                         texture_filter min_filter = texture_filter::linear);
+        texture_resource(path             texture_path,
+                         std::string_view name,
+                         texture_filter   mag_filter = texture_filter::linear,
+                         texture_filter   min_filter = texture_filter::linear);
+        texture_resource(ivec2            size,
+                         texture_format   format,
+                         std::string_view name,
+                         texture_filter   mag_filter = texture_filter::linear,
+                         texture_filter   min_filter = texture_filter::linear);
         ~texture_resource() override;
 
         void set_filter(texture_filter min_filter, texture_filter mag_filter);
@@ -39,6 +36,11 @@ namespace Kengine
             return mag_filter;
         }
 
+        [[nodiscard]] inline texture_format get_format() const
+        {
+            return format;
+        }
+
     protected:
         virtual void load_data() override;
         virtual void unload_data() override;
@@ -52,5 +54,7 @@ namespace Kengine
 
         texture_filter mag_filter;
         texture_filter min_filter;
+
+        texture_format format;
     };
 } // namespace Kengine
