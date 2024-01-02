@@ -24,7 +24,7 @@ namespace Kengine
 
         [[nodiscard]] inline uint32_t get_id() const { return id; }
 
-        [[nodiscard]] inline ivec2 get_size() const { return size; }
+        [[nodiscard]] inline const ivec2& get_size() const { return size; }
 
         [[nodiscard]] inline texture_filter get_min_filter() const
         {

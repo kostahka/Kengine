@@ -1,11 +1,13 @@
 #include "window.hxx"
-#include "Kengine/window/window.hxx"
 
 #include "SDL3/SDL_render.h"
 
 #include "../graphics/render-manager.hxx"
 #include "../opengl/opengl-debug.hxx"
+#include "Kengine/configuration/configuration-file.hxx"
 #include "Kengine/log/log.hxx"
+#include "Kengine/window/display.hxx"
+#include "display.hxx"
 
 #ifdef __ANDROID__
  #define SDL_WINDOW_RESIZABLE 0
@@ -13,16 +15,17 @@
 
 namespace Kengine::window
 {
-    options start_options;
+    ivec2         size{ 0, 0 };
+    ivec2         size_in_pixels{ 0, 0 };
+    bool          fullscreen = true;
+    display::mode fullscreen_mode{ 0, 0, 0 };
+    bool          maximized = false;
 
-    ivec2 size{ 0, 0 };
-    ivec2 size_in_pixels{ 0, 0 };
+    Kengine::configuration override_configuration{};
+    configuration_file     configuration("kengine_window");
 
     SDL_Window*   window  = nullptr;
     SDL_GLContext context = nullptr;
-
-    SDL_DisplayID                primary_display;
-    std::vector<SDL_DisplayMode> display_modes;
 
     bool gl_debug = false;
 
@@ -40,6 +43,20 @@ namespace Kengine::window
         (void)len_args;
     }
 
+    void override_startup_options(const Kengine::configuration& override_conf)
+    {
+        override_configuration = override_conf;
+    }
+
+    void update_flags()
+    {
+        if (window)
+        {
+            Uint32 wnd_flags = SDL_GetWindowFlags(window);
+            maximized        = wnd_flags & SDL_WINDOW_MAXIMIZED;
+        }
+    }
+
     void update_sizes()
     {
         if (window)
@@ -50,8 +67,7 @@ namespace Kengine::window
         }
         if (context)
         {
-            KENGINE_GL_CHECK(
-                glViewport(0, 0, size_in_pixels.x, size_in_pixels.y));
+            graphics::render_manager::update_viewport();
         }
     }
 
@@ -62,7 +78,15 @@ namespace Kengine::window
 
     ivec2 get_size()
     {
-        return size;
+        if (fullscreen)
+            return { fullscreen_mode.w, fullscreen_mode.h };
+        else
+            return size;
+    }
+
+    bool get_is_maximized()
+    {
+        return maximized;
     }
 
     void set_size(ivec2& s)
@@ -71,10 +95,12 @@ namespace Kengine::window
         update_sizes();
     }
 
-    void set_fullscreen(bool fullscreen)
+    void set_fullscreen(bool is_fullscreen)
     {
+        fullscreen = is_fullscreen;
         if (window)
-            SDL_SetWindowFullscreen(window, (SDL_bool)fullscreen);
+            SDL_SetWindowFullscreen(window, (SDL_bool)is_fullscreen);
+        graphics::render_manager::update_viewport();
     }
 
     void set_input_focus()
@@ -89,53 +115,65 @@ namespace Kengine::window
             SDL_RaiseWindow(window);
     }
 
-    void set_options(options& o)
+    void update_window_fullscreen_mode()
     {
-        start_options = o;
+        auto sdl_mode = display::get_closest_display_mode(fullscreen_mode);
+        int  failure  = SDL_SetWindowFullscreenMode(window, sdl_mode);
+        if (failure)
+        {
+            KENGINE_ERROR("Can't change window fullscreen mode. Error: {}",
+                          SDL_GetError());
+        }
+
+        if (context && fullscreen)
+            graphics::render_manager::update_viewport();
+    }
+
+    void set_fullscreen_mode(display::mode f_mode)
+    {
+        fullscreen_mode = f_mode;
+        update_window_fullscreen_mode();
     }
 
     bool initialize(std::string_view name)
     {
+        using namespace Kengine;
         bool result = true;
 
-        size = start_options.size;
+        configuration.load();
 
-        gl_major_version = start_options.gl_major_version;
-        gl_minor_version = start_options.gl_minor_version;
-        gl_profile = start_options.gl_profile_es ? SDL_GL_CONTEXT_PROFILE_ES
-                                                 : SDL_GL_CONTEXT_PROFILE_CORE;
-        gl_debug   = start_options.gl_debug;
+        configuration.override_settings_with(override_configuration);
+
+        display::initialize();
 
         if (!window)
         {
-            primary_display = SDL_GetPrimaryDisplay();
-            if (!primary_display)
-            {
-                KENGINE_FATAL("Failed to get primary display. Error: {}",
-                              SDL_GetError());
-                return false;
-            }
-            {
-                int                     d_modes_count;
-                const SDL_DisplayMode** modes = SDL_GetFullscreenDisplayModes(
-                    primary_display, &d_modes_count);
-                if (!modes)
-                {
-                    KENGINE_FATAL(
-                        "Failed to get display fullscreen modes. Error: {}",
-                        SDL_GetError());
-                    return false;
-                }
-                display_modes.resize(d_modes_count);
-                for (int i = 0; i < d_modes_count; i++)
-                {
-                    display_modes[i] = *modes[i];
-                }
-                SDL_free(modes);
-            }
+            fullscreen_mode = display::get_max_mode();
+            size.x = configuration.get_setting("options", "width", 640);
+            size.y = configuration.get_setting("options", "height", 480);
+            fullscreen =
+                configuration.get_setting("options", "fullscreen", true);
+            maximized =
+                configuration.get_setting("options", "maximized", false);
+            fullscreen_mode.w = configuration.get_setting(
+                "fullscreen_options", "width", fullscreen_mode.w);
+            fullscreen_mode.h = configuration.get_setting(
+                "fullscreen_options", "height", fullscreen_mode.h);
+            fullscreen_mode.refresh_rate =
+                configuration.get_setting("fullscreen_options",
+                                          "refresh_rate",
+                                          fullscreen_mode.refresh_rate);
 
-            window = SDL_CreateWindow(
-                name.data(), size.x, size.y, SDL_WINDOW_OPENGL);
+            Uint32 wnd_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
+
+            if (fullscreen)
+                wnd_flags |= SDL_WINDOW_FULLSCREEN;
+
+            if (maximized)
+                wnd_flags |= SDL_WINDOW_MAXIMIZED;
+
+            window = SDL_CreateWindow(name.data(), size.x, size.y, wnd_flags);
+            update_window_fullscreen_mode();
 
             if (window == nullptr)
             {
@@ -165,7 +203,8 @@ namespace Kengine::window
                          gl_major_version,
                          gl_minor_version);
             KENGINE_INFO("GL required profile: {}",
-                         start_options.gl_profile_es ? "ES" : "Core");
+                         gl_profile == SDL_GL_CONTEXT_PROFILE_ES ? "ES"
+                                                                 : "Core");
 
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, gl_major_version);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, gl_minor_version);
@@ -201,7 +240,9 @@ namespace Kengine::window
                              gl_major_version_returned,
                              gl_minor_version_returned);
                 KENGINE_INFO("Open GL profile: {}",
-                             start_options.gl_profile_es ? "ES" : "Core");
+                             gl_profile_returned == SDL_GL_CONTEXT_PROFILE_ES
+                                 ? "ES"
+                                 : "Core");
 
                 if (gl_major_version_returned < gl_major_version ||
                     gl_minor_version_returned < gl_minor_version ||
@@ -215,7 +256,7 @@ namespace Kengine::window
                 }
             }
 
-            if (!Kengine::opengl::initialize())
+            if (!opengl::initialize())
             {
                 KENGINE_FATAL("Failed to initialize opengl.");
                 return false;
@@ -224,7 +265,7 @@ namespace Kengine::window
             glad_set_post_callback(pre_call_callback_gl);
 
             if (gl_debug)
-                if (Kengine::opengl_debug::initialize(
+                if (opengl_debug::initialize(
                         gl_major_version, gl_minor_version, gl_profile))
                     KENGINE_INFO("GL debug enabled");
 
@@ -252,16 +293,18 @@ namespace Kengine::window
             SDL_DestroyWindow(window);
             window = nullptr;
         }
-    }
 
-    SDL_Window* get_sdl_window()
-    {
-        return window;
-    }
-
-    SDL_GLContext get_context()
-    {
-        return context;
+        configuration.set_setting("options", "width", size.x);
+        configuration.set_setting("options", "height", size.y);
+        configuration.set_setting("options", "fullscreen", fullscreen);
+        configuration.set_setting("options", "maximized", maximized);
+        configuration.set_setting(
+            "fullscreen_options", "width", fullscreen_mode.w);
+        configuration.set_setting(
+            "fullscreen_options", "height", fullscreen_mode.h);
+        configuration.set_setting(
+            "fullscreen_options", "refresh_rate", fullscreen_mode.refresh_rate);
+        configuration.save();
     }
 
     void warp_mouse(float x, float y)
@@ -269,8 +312,4 @@ namespace Kengine::window
         SDL_WarpMouseInWindow(window, x, y);
     }
 
-    void set_start_options(options& opt)
-    {
-        start_options = opt;
-    }
 } // namespace Kengine::window

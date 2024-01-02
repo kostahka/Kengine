@@ -8,6 +8,7 @@ namespace Kengine
     framebuffer_resource::framebuffer_resource(
         res_ptr<resource> color_attachment,
         res_ptr<resource> depth_stencil_attachment,
+        const vec4&       clear_color,
         std::string_view  name)
         : resource(resource_type::framebuffer, name)
         , color_attachment(color_attachment)
@@ -18,6 +19,7 @@ namespace Kengine
         , color_attach(false)
         , depth_attach(false)
         , stencil_attach(false)
+        , clear_color(clear_color)
     {
         KENGINE_ASSERT(!color_attachment ||
                            color_attachment->get_resource_type() ==
@@ -32,6 +34,33 @@ namespace Kengine
                            depth_stencil_attachment->get_resource_type() ==
                                resource_type::renderbuffer,
                        "Color attachment can be only texture or renderbuffer");
+
+        if (color_attachment->get_resource_type() == resource_type::texture)
+        {
+            size = static_resource_cast<texture_resource>(color_attachment)
+                       ->get_size();
+        }
+        else
+        {
+            size = static_resource_cast<renderbuffer_resource>(color_attachment)
+                       ->get_size();
+        }
+
+        if (depth_stencil_attachment->get_resource_type() ==
+            resource_type::texture)
+        {
+            KENGINE_ASSERT(size == static_resource_cast<texture_resource>(
+                                       depth_stencil_attachment)
+                                       ->get_size(),
+                           "Attachments not the same size for framebuffer");
+        }
+        else
+        {
+            KENGINE_ASSERT(size == static_resource_cast<renderbuffer_resource>(
+                                       depth_stencil_attachment)
+                                       ->get_size(),
+                           "Attachments not the same size for framebuffer");
+        }
     }
 
     framebuffer_resource::~framebuffer_resource()
@@ -170,6 +199,11 @@ namespace Kengine
             KENGINE_GL_CHECK(glFramebufferRenderbuffer(
                 GL_FRAMEBUFFER, attach_type, GL_RENDERBUFFER, attach_id));
         }
+    }
+
+    void framebuffer_resource::set_clear_color(const vec4& clear_color)
+    {
+        this->clear_color = clear_color;
     }
 
 } // namespace Kengine

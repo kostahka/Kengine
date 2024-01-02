@@ -1,6 +1,7 @@
 #pragma once
 
 #include "resource.hxx"
+#include <cstddef>
 
 namespace Kengine::resource_manager
 {
@@ -80,12 +81,12 @@ namespace Kengine
                 counter->w_count++;
         }
 
-        constexpr res_weak_ptr()
+        res_weak_ptr()
             : counter(nullptr)
         {
         }
 
-        constexpr res_weak_ptr(nullptr_t)
+        res_weak_ptr(std::nullptr_t)
             : counter(nullptr)
         {
         }
@@ -137,13 +138,13 @@ namespace Kengine
         friend void resource_manager::initialize();
 
     public:
-        constexpr res_ptr()
+        res_ptr()
             : ptr(nullptr)
             , counter(nullptr)
         {
         }
 
-        constexpr res_ptr(nullptr_t)
+        constexpr res_ptr(std::nullptr_t)
             : ptr(nullptr)
             , counter(nullptr)
         {

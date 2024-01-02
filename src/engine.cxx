@@ -11,10 +11,7 @@
 
 #include <SDL3/SDL.h>
 
-#include <imgui.h>
-#include <imgui_impl_opengl3.h>
-#include <imgui_impl_sdl3.h>
-
+#include "Kengine/configuration/configuration-file.hxx"
 #include "Kengine/file-last-modify-listener.hxx"
 #include "Kengine/graphics/framebuffer.hxx"
 #include "Kengine/graphics/render-manager.hxx"
@@ -26,6 +23,7 @@
 #include "event/event.hxx"
 #include "event/handle-user-event.hxx"
 #include "graphics/render-manager.hxx"
+#include "imgui/imgui.hxx"
 #include "log/log.hxx"
 #include "opengl/opengl.hxx"
 #include "resources/engine-resources.hxx"
@@ -33,18 +31,8 @@
 
 namespace Kengine
 {
-
-#ifdef ENGINE_DEV
-    void reload_game(void* data);
-#endif
-
-    game* e_game = nullptr;
-
-#ifdef ENGINE_DEV
-    std::string lib_name     = "";
-    std::string tmp_lib_name = "";
-    void*       lib_handle   = nullptr;
-#endif
+    configuration_file engine_settings("kengine");
+    game*              e_game = nullptr;
 
     // Time from init SDL in milliseconds
     std::chrono::high_resolution_clock::time_point update_time;
@@ -57,7 +45,7 @@ namespace Kengine
         std::chrono::milliseconds{ 1000 / 90 },
     };
 
-    bool initialize()
+    bool initialize(const char* name)
     {
         log::initialize();
 
@@ -67,7 +55,9 @@ namespace Kengine
             return false;
         }
 
-        if (!window::initialize())
+        engine_settings.load();
+
+        if (!window::initialize(name))
         {
             KENGINE_FATAL("Error to initialize window.");
             return false;
@@ -78,83 +68,40 @@ namespace Kengine
         resource_manager::initialize();
         engine_resources::initialize();
 
-        IMGUI_CHECKVERSION();
-
-        ImGui::CreateContext();
-        ImGui_ImplSDL3_InitForOpenGL(window::window, window::context);
-        ImGui_ImplOpenGL3_Init("#version 300 es");
-
         // audio::init();
+
+#ifdef KENGINE_IMGUI
+        imgui::initialize();
+#endif
 
         return true;
     };
 
     void shutdown()
     {
-        ImGui_ImplOpenGL3_Shutdown();
-        ImGui_ImplSDL3_Shutdown();
-        ImGui::DestroyContext();
+        imgui::shutdown();
 
         resource_manager::shutdown();
         engine_resources::shutdown();
         window::shutdown();
+
+        engine_settings.save();
 
         SDL_Quit();
 
         log::shutdown();
     };
 
-    void draw_imgui()
-    {
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplSDL3_NewFrame();
-        ImGui::NewFrame();
-        e_game->on_imgui_render();
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    };
-
     void render(int delta_ms)
     {
         graphics::render_manager::begin_render();
         e_game->on_render(delta_ms);
-        draw_imgui();
-        graphics::render_manager::end_render();
-    }
 
-#ifdef ENGINE_DEV
-    void dev_draw_imgui()
-    {
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplSDL3_NewFrame();
-        ImGui::NewFrame();
-
-        ImGui::Begin("Game");
-        ImGui::Image(reinterpret_cast<ImTextureID>(
-                         engine_resources::game_frame.get_color_texture_id()),
-                     { 800, 600 });
-
-        e_game->on_imgui_render();
-
-        ImGui::End();
-
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    };
-
-    void dev_render(int delta_ms)
-    {
-        graphics::render_manager::begin_render();
-        graphics::render_manager::push_framebuffer(
-            engine_resources::game_frame);
-        e_game->on_render(delta_ms);
-        graphics::render_manager::pop_framebuffer();
-
-        dev_draw_imgui();
-
-        graphics::render_manager::end_render();
-    }
+#ifdef KENGINE_IMGUI
+        imgui::draw();
 #endif
+        graphics::render_manager::end_render();
+    }
 
     void update(int delta_ms)
     {
@@ -170,6 +117,13 @@ namespace Kengine
             std::chrono::high_resolution_clock::now();
 
         file_last_modify_listener::get_instance()->start_files_watch();
+
+#ifdef KENGINE_IMGUI
+        auto pf_imgui_render = e_game->get_imgui_render();
+        if (pf_imgui_render)
+            imgui::registrate_imgui_render(pf_imgui_render);
+#endif
+
         e_game->on_start();
 
         while (continue_loop)
@@ -195,11 +149,9 @@ namespace Kengine
                 const int delta_ms = static_cast<int>(
                     duration_cast<std::chrono::milliseconds>(render_delta_time)
                         .count());
-#ifdef ENGINE_DEV
-                dev_render(delta_ms);
-#else
+
                 render(delta_ms);
-#endif
+
                 render_time = current_time;
             }
         }
@@ -211,13 +163,11 @@ namespace Kengine
         if (visible)
         {
             failure = SDL_ShowCursor();
-            ImGui::GetIO().ConfigFlags ^= ImGuiConfigFlags_NoMouseCursorChange;
         }
         else
 
         {
             failure = SDL_HideCursor();
-            ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
         }
 
         if (failure)
@@ -242,10 +192,10 @@ namespace Kengine
         SDL_PushEvent(quit);
     };
 
-    bool run(create_game_func* pf_create_game)
+    bool run(create_game_func* pf_create_game, const char* name)
     {
         bool good = false;
-        if (initialize())
+        if (initialize(name))
         {
             e_game = pf_create_game();
             KENGINE_ASSERT(e_game, "Function doesn't return game pointer");
@@ -263,146 +213,4 @@ namespace Kengine
         return good;
     }
 
-#ifdef ENGINE_DEV
-    std::string_view dev_initialization(std::string alib_name,
-                                        std::string atmp_lib_name)
-    {
-        lib_name     = alib_name;
-        tmp_lib_name = atmp_lib_name;
-        return "good";
-    };
-
-    bool load_e_game()
-    {
-        if (e_game)
-        {
-            delete e_game;
-            SDL_UnloadObject(lib_handle);
-        }
-
-        using namespace std::filesystem;
-        if (exists(tmp_lib_name))
-        {
-            if (!remove(tmp_lib_name))
-            {
-                KENGINE_ERROR("Failed to remove temp lib [{}]", tmp_lib_name);
-                return false;
-            }
-        }
-
-        try
-        {
-            copy_file(lib_name, tmp_lib_name);
-        }
-        catch (const std::exception* ex)
-        {
-            KENGINE_ERROR("Failed to copy from [{}] to [{}]: {}",
-                          lib_name,
-                          tmp_lib_name,
-                          ex->what());
-            return false;
-        }
-
-        lib_handle = SDL_LoadObject(tmp_lib_name.c_str());
-
-        if (lib_handle == nullptr)
-        {
-            KENGINE_ERROR("Failed to load lib from [{}]. Error: {}",
-                          tmp_lib_name,
-                          SDL_GetError());
-            return false;
-        }
-
-        SDL_FunctionPointer create_game_func_ptr =
-            SDL_LoadFunction(lib_handle, "create_game");
-
-        if (create_game_func_ptr == nullptr)
-        {
-            KENGINE_ERROR(
-                "Failed to load function [create_game] from [{}]. Error: {}",
-                tmp_lib_name,
-                SDL_GetError());
-            return false;
-        }
-
-        using create_game_ptr = decltype(&create_game);
-
-        create_game_ptr create_game_func =
-            reinterpret_cast<create_game_ptr>(create_game_func_ptr);
-
-        game* new_game = create_game_func();
-
-        if (new_game == nullptr)
-        {
-            KENGINE_ERROR("Failed to create game");
-            return false;
-        }
-
-        e_game = new_game;
-
-        return true;
-    };
-
-    std::string_view start_dev_game_loop()
-    {
-        if (lib_name == "")
-            return "No lib name";
-        if (tmp_lib_name == "")
-            return "No dev init";
-
-        load_e_game();
-
-        auto file_listener = file_last_modify_listener::get_instance();
-        file_listener->add_file(lib_name, &reload_game, nullptr);
-
-        start_game_loop();
-
-        return "good";
-    };
-
-    bool reload_e_game()
-    {
-        bool result = load_e_game();
-        if (result)
-            e_game->on_start();
-        return false;
-    };
-
-#endif
-
-#ifdef ENGINE_DEV
-    void reload_game(void* data)
-    {
-        reload_e_game();
-    };
-#endif
-
 } // namespace Kengine
-
-#ifdef ENGINE_DEV
-int main(int argc, char* argv[])
-{
-
-    if (!Kengine::initialize())
-        return EXIT_FAILURE;
-    using namespace std::string_literals;
-    std::string game_name = ENGINE_GAME_LIB_NAME;
-    std::string lib_name  = SDL_GetPlatform() == "Windows"s
-                                ? game_name + ".dll"
-                                : "./lib" + game_name + ".so";
-
-    std::string tmp_lib_name = "./temp.dll";
-
-    Kengine::dev_initialization(lib_name, tmp_lib_name);
-
-    auto loop_return = Kengine::start_dev_game_loop();
-    if (loop_return != "good")
-    {
-        KENGINE_ERROR("Error in loop: {}", loop_return);
-    }
-
-    Kengine::shutdown();
-
-    return EXIT_SUCCESS;
-};
-#endif

@@ -13,9 +13,9 @@ namespace Kengine::resource_manager
 namespace Kengine
 {
     template <class ResourceType, typename... Types>
-    res_ptr<ResourceType> make_resource(Types... args)
+    res_ptr<ResourceType> make_resource(Types&&... args)
     {
-        ResourceType*         res = new ResourceType(args...);
+        ResourceType* res = new ResourceType(std::forward<Types>(args)...);
         res_ptr<ResourceType> ptr(res);
         resource_manager::registrate_resource(
             static_resource_cast<resource, ResourceType>(ptr));

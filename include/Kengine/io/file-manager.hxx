@@ -40,4 +40,8 @@ namespace Kengine::file_manager
                                            std::ios_base::openmode mode,
                                            size_t buf_size = 0);
 
+    void                  set_base_path(std::filesystem::path path);
+    std::filesystem::path get_base_path();
+
+    bool file_exists(std::filesystem::path path);
 } // namespace Kengine::file_manager

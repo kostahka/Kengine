@@ -8,6 +8,8 @@ set(KENGINE_SOURCES
     # cmake-format: sortable
     ${CMAKE_CURRENT_LIST_DIR}/../src/audio/audio.cxx
     ${CMAKE_CURRENT_LIST_DIR}/../src/audio/audio.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../src/configuration/configuration-file.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/../src/configuration/configuration.cxx
     ${CMAKE_CURRENT_LIST_DIR}/../src/engine.cxx
     ${CMAKE_CURRENT_LIST_DIR}/../src/engine.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../src/event/event.cxx
@@ -21,6 +23,7 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/../src/graphics/render-manager.cxx
     ${CMAKE_CURRENT_LIST_DIR}/../src/graphics/render-manager.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../src/graphics/renderbuffer.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/../src/graphics/shader-utils/shader-type.cxx
     ${CMAKE_CURRENT_LIST_DIR}/../src/graphics/shader.cxx
     ${CMAKE_CURRENT_LIST_DIR}/../src/graphics/texture.cxx
     ${CMAKE_CURRENT_LIST_DIR}/../src/graphics/vertex-array.cxx
@@ -33,8 +36,11 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/../src/imgui-impl/imgui_impl_sdl3.h
     ${CMAKE_CURRENT_LIST_DIR}/../src/imgui-impl/imgui_impl_sdlrenderer3.cpp
     ${CMAKE_CURRENT_LIST_DIR}/../src/imgui-impl/imgui_impl_sdlrenderer3.h
+    ${CMAKE_CURRENT_LIST_DIR}/../src/imgui/imgui.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/../src/imgui/imgui.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../src/io/file-manager.cxx
     ${CMAKE_CURRENT_LIST_DIR}/../src/io/input.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/../src/lib/lib.cxx
     ${CMAKE_CURRENT_LIST_DIR}/../src/log/log.cxx
     ${CMAKE_CURRENT_LIST_DIR}/../src/log/log.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../src/opengl/opengl-debug.cxx
@@ -59,6 +65,8 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/../src/resources/shader-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/../src/resources/texture-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/../src/string/string-id.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/../src/window/display.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/../src/window/display.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../src/window/window.cxx
     ${CMAKE_CURRENT_LIST_DIR}/../src/window/window.hxx
 )
@@ -66,6 +74,8 @@ set(KENGINE_SOURCES
 set(KENGINE_HEADERS
     # cmake-format: sortable
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/audio/audio.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/configuration/configuration-file.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/configuration/configuration.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/engine.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/event/event.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/event/user-events.hxx
@@ -76,15 +86,19 @@ set(KENGINE_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/raw-vertex-buffer.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/render-manager.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/renderbuffer.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/shader-utils/shader-type.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/shader.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/texture-common.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/texture.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/vertex-array.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/vertex-buffer.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/helpers/hash.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/imgui/imgui.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/io/file-manager.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/io/input.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/lib/lib.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/log/log.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/main.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/render/animation.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/render/b2GLDraw.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/render/draw-primitives.hxx
@@ -102,10 +116,12 @@ set(KENGINE_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/shader-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/texture-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/string/string-id.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/units/matrix.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/units/rect.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/units/transform.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/units/vector.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/units/vertex.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/window/display.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/window/window.hxx
 )
 

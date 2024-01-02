@@ -9,7 +9,7 @@ namespace Kengine::graphics
     {
     public:
         framebuffer();
-        framebuffer(res_ptr<framebuffer_resource> resource, vec4 clear_color);
+        framebuffer(res_ptr<framebuffer_resource> resource);
         framebuffer(const framebuffer& other);
         ~framebuffer();
 
@@ -17,30 +17,34 @@ namespace Kengine::graphics
 
         void clear();
 
-        void set_clear_color(vec4 color);
+        void set_clear_color(const vec4& color);
 
         [[nodiscard]] inline uint32_t get_id() const
         {
             return resource->get_id();
         }
 
-        [[nodiscard]] inline uint32_t& get_color_texture_id()
+        [[nodiscard]] inline uint32_t get_color_texture_id() const
         {
             return resource->get_color_texture_id();
         }
 
-        [[nodiscard]] inline uint32_t& get_depth_stencil_texture_id()
+        [[nodiscard]] inline uint32_t get_depth_stencil_texture_id() const
         {
             return resource->get_depth_stencil_texture_id();
         }
 
         [[nodiscard]] inline vec4 get_clear_color() const
         {
-            return clear_color;
+            return resource->get_clear_color();
+        }
+
+        [[nodiscard]] inline const ivec2& get_size() const
+        {
+            return resource->get_size();
         }
 
     private:
         res_ptr<framebuffer_resource> resource;
-        vec4                          clear_color;
     };
 } // namespace Kengine::graphics

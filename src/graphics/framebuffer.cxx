@@ -8,22 +8,18 @@ namespace Kengine::graphics
 {
     framebuffer::framebuffer()
         : resource(nullptr)
-        , clear_color(0)
     {
     }
 
-    framebuffer::framebuffer(res_ptr<framebuffer_resource> resource,
-                             vec4                          clear_color)
+    framebuffer::framebuffer(res_ptr<framebuffer_resource> resource)
         : resource(resource)
-        , clear_color(clear_color)
     {
         resource->take_data();
     }
 
     framebuffer::framebuffer(const framebuffer& other)
     {
-        resource    = other.resource;
-        clear_color = other.clear_color;
+        resource = other.resource;
         if (resource)
             resource->take_data();
     }
@@ -39,8 +35,7 @@ namespace Kengine::graphics
         if (resource)
             resource->free_data();
 
-        resource    = other.resource;
-        clear_color = other.clear_color;
+        resource = other.resource;
         if (resource)
             resource->take_data();
 
@@ -49,14 +44,15 @@ namespace Kengine::graphics
 
     void framebuffer::clear()
     {
-        render_manager::set_clear_color(clear_color);
-        // For test
+        auto clear_color = resource->get_clear_color();
+        KENGINE_GL_CHECK(glClearColor(
+            clear_color.r, clear_color.g, clear_color.b, clear_color.a));
         KENGINE_GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
                                  GL_STENCIL_BUFFER_BIT));
     }
 
-    void framebuffer::set_clear_color(vec4 color)
+    void framebuffer::set_clear_color(const vec4& color)
     {
-        clear_color = color;
+        resource->set_clear_color(color);
     }
 } // namespace Kengine::graphics

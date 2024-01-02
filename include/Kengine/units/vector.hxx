@@ -8,6 +8,7 @@
 namespace Kengine
 {
     typedef glm::vec3 vec;
+    typedef glm::vec3 vec3;
     // struct vec : public glm::vec3
     // {
     //     vec(const b2Vec3& v)
@@ -27,11 +28,11 @@ namespace Kengine
 
     typedef glm::vec4 vec4;
 
-    typedef glm::ivec3 ivec;
+    typedef glm::ivec3 ivec3;
     typedef glm::ivec2 ivec2;
     typedef glm::ivec4 ivec4;
 
-    typedef glm::uvec3 uvec;
+    typedef glm::uvec3 uvec3;
     typedef glm::uvec2 uvec2;
     typedef glm::uvec4 uvec4;
 

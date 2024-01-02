@@ -6,7 +6,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(Kengine VERSION 0.0.0)
 
 # Options for Kengine.
+option(KENGINE_EDITOR "Build kengine editor" ON)
 option(KENGINE_DEMO_GAME "Build demo game" ON)
+option(KENGINE_IMGUI "Integration with imgui" ON)
+
+if(KENGINE_EDITOR OR KENGINE_DEMO_GAME)
+    set(KENGINE_IMGUI
+        ON
+        CACHE BOOL "Integration with imgui" FORCE
+    )
+endif()
 
 # SDL3. For android provide sdl3.dir in local.properties in android-project
 if(SDL3_SRC_DIR AND ANDROID)
@@ -66,4 +75,10 @@ add_subdirectory(src)
 if(KENGINE_DEMO_GAME)
     message(STATUS "Configuring demo game for Kengine.")
     add_subdirectory(demo-game)
+endif()
+
+# Kengine editor
+if(KENGINE_EDITOR)
+    message(STATUS "Configuring kengine editor")
+    add_subdirectory(editor)
 endif()

@@ -23,7 +23,6 @@ target_link_libraries(
 )
 target_link_libraries(
     kengine-public
-    INTERFACE imgui
     INTERFACE glm::glm
     INTERFACE box2d
     INTERFACE spdlog
@@ -40,7 +39,7 @@ endif()
 
 # Compile definitions
 target_compile_definitions(kengine-public INTERFACE IMGUI_IMPL_OPENGL_ES3)
-if(WIN32)
+if(MSVC)
     target_compile_definitions(
         kengine-private INTERFACE "-D_CRT_SECURE_NO_WARNINGS=1"
     )
@@ -52,6 +51,14 @@ if(WIN32)
     )
 else()
     target_compile_definitions(kengine-public INTERFACE "-DE_DECLSPEC=")
+endif()
+
+if(KENGINE_IMGUI)
+    target_compile_definitions(kengine-public INTERFACE KENGINE_IMGUI)
+    target_link_libraries(
+        kengine-private INTERFACE $<LINK_LIBRARY:WHOLE_ARCHIVE, imgui>
+    )
+    target_link_libraries(kengine-interface INTERFACE imgui-interface)
 endif()
 
 # Include dirs

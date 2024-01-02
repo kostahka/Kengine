@@ -26,9 +26,19 @@ namespace Kengine::event
 
             switch (sdl_event.type)
             {
+                case SDL_EVENT_WINDOW_MAXIMIZED:
+                case SDL_EVENT_WINDOW_MINIMIZED:
+                case SDL_EVENT_WINDOW_RESTORED:
+                    Kengine::window::update_flags();
+                    event.g_type = type::window_maximazed;
+                    event.window.maximized =
+                        Kengine::window::get_is_maximized();
+                    break;
                 case SDL_EVENT_WINDOW_RESIZED:
+                    Kengine::window::update_flags();
                     Kengine::window::update_sizes();
-                    event.g_type = type::window_resize;
+                    event.g_type          = type::window_resize;
+                    event.window.new_size = Kengine::window::get_size();
                     break;
                 case SDL_EVENT_KEY_DOWN:
                 case SDL_EVENT_KEY_UP:

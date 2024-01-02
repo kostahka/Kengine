@@ -1,7 +1,9 @@
 #include "demo-game.hxx"
 
 #include "Kengine/engine.hxx"
+#include "Kengine/graphics/render-manager.hxx"
 #include "Kengine/log/log.hxx"
+#include "Kengine/main.hxx"
 #include "Kengine/resources/resource-manager.hxx"
 #include "Kengine/string/string-id.hxx"
 #include "Kengine/window/window.hxx"
@@ -55,6 +57,9 @@ void demo_game::on_start()
 
     sh->save_uniform_location("checker");
     sh->use();
+
+    Kengine::graphics::render_manager::set_clear_color(
+        { 0.2f, 0.3f, 0.4f, 1.0f });
 }
 
 void demo_game::on_event(Kengine::event::game_event e)
@@ -71,15 +76,13 @@ void demo_game::on_event(Kengine::event::game_event e)
 
 void demo_game::on_update(int delta_ms)
 {
-    sh->uniform1i("time", Kengine::get_time_ms());
+    sh->uniform<int>("time", Kengine::get_time_ms());
 }
 
 void demo_game::on_render(int delta_ms)
 {
     vao->draw(draw_mode::triangles, 6);
 }
-
-void demo_game::on_imgui_render() {}
 
 demo_game::~demo_game() {}
 
@@ -88,12 +91,10 @@ Kengine::game* create_game()
     return new demo_game();
 }
 
-#ifndef ENGINE_DEV
 int main()
 {
-    if (Kengine::run(&create_game))
+    if (Kengine::run(&create_game, "Kengine Demo"))
         return EXIT_SUCCESS;
     else
         return EXIT_FAILURE;
 }
-#endif

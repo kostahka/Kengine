@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Kengine/io/input.hxx"
+#include "Kengine/units/vector.hxx"
 #include <cstdint>
 
 namespace Kengine::event
@@ -12,6 +13,7 @@ namespace Kengine::event
         touch_event,
         touch_move_event,
         window_resize,
+        window_maximazed,
 
         quit,
 
@@ -42,6 +44,15 @@ namespace Kengine::event
         bool    pressed;
     };
 
+    struct window_event
+    {
+        union
+        {
+            bool  maximized;
+            ivec2 new_size;
+        };
+    };
+
     struct game_event
     {
         type g_type;
@@ -51,6 +62,7 @@ namespace Kengine::event
             mouse_button_event mouse;
             keyboard_event     keyboard;
             touch_event        touch;
+            window_event       window;
         };
     };
 

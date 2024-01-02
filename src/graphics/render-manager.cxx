@@ -39,8 +39,16 @@ namespace Kengine::graphics::render_manager
         SDL_GL_SwapWindow(window::window);
     }
 
-    void set_clear_color(vec4& col)
+    void set_clear_color(const vec4& col)
     {
+        if (framebuffers.size() > 0)
+        {
+            framebuffers.top().set_clear_color(col);
+        }
+        else
+        {
+            clear_color = col;
+        }
         KENGINE_GL_CHECK(glClearColor(col.r, col.g, col.b, col.a));
     }
 
@@ -49,6 +57,8 @@ namespace Kengine::graphics::render_manager
         framebuffers.push(frame);
         KENGINE_GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, frame.get_id()));
         frame.clear();
+        auto frame_size = frame.get_size();
+        KENGINE_GL_CHECK(glViewport(0, 0, frame_size.x, frame_size.y));
     }
 
     void pop_framebuffer()
@@ -61,7 +71,24 @@ namespace Kengine::graphics::render_manager
         }
         else
         {
+            KENGINE_GL_CHECK(glClearColor(
+                clear_color.r, clear_color.g, clear_color.b, clear_color.a));
             KENGINE_GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+        }
+        update_viewport();
+    }
+
+    void update_viewport()
+    {
+        if (framebuffers.size() > 0)
+        {
+            auto frame_size = framebuffers.top().get_size();
+            KENGINE_GL_CHECK(glViewport(0, 0, frame_size.x, frame_size.y));
+        }
+        else
+        {
+            auto wnd_size = window::get_size();
+            KENGINE_GL_CHECK(glViewport(0, 0, wnd_size.x, wnd_size.y));
         }
     }
 } // namespace Kengine::graphics::render_manager

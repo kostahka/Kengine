@@ -11,6 +11,8 @@
 
 namespace Kengine::file_manager
 {
+    static std::filesystem::path base_path;
+
     std::unordered_map<std::ios_base::openmode, const char*> openmodes{
         {std::ios_base::in,                                                "r" },
         { std::ios_base::in | std::ios_base::binary,                       "rb"},
@@ -80,12 +82,15 @@ namespace Kengine::file_manager
                 KENGINE_ERROR("Undefined openmode");
                 return false;
             }
-            file =
-                SDL_RWFromFile(path.string().c_str(), sdl_openmode_map->second);
+
+            std::filesystem::path sum_path = base_path / path;
+
+            file = SDL_RWFromFile(sum_path.string().c_str(),
+                                  sdl_openmode_map->second);
             if (!file)
             {
                 KENGINE_ERROR("Failed to open file [{}], error: {}",
-                              path.string().c_str(),
+                              sum_path.string().c_str(),
                               SDL_GetError());
                 return false;
             }
@@ -122,21 +127,24 @@ namespace Kengine::file_manager
                 return false;
             }
 
-            KENGINE_INFO("Loaded file: {}", path.string().c_str());
+            KENGINE_INFO("Loaded file: {}", sum_path.string().c_str());
 
             return true;
         }
 
         bool load(std::filesystem::path path)
         {
-            file = SDL_RWFromFile(path.string().c_str(), "rb");
+            std::filesystem::path sum_path = base_path / path;
+
+            file = SDL_RWFromFile(sum_path.string().c_str(), "rb");
             if (!file)
             {
                 KENGINE_ERROR("Failed to open file [{}], error: {}",
-                              path.string().c_str(),
+                              sum_path.string().c_str(),
                               SDL_GetError());
                 return false;
             }
+
             is_file_open   = true;
             file_size      = file->size(file);
             file_curr_pos  = 0;
@@ -155,7 +163,7 @@ namespace Kengine::file_manager
                 return false;
             }
 
-            KENGINE_INFO("Loaded file: {}", path.string().c_str());
+            KENGINE_INFO("Loaded file: {}", sum_path.string().c_str());
 
             return true;
         }
@@ -349,5 +357,27 @@ namespace Kengine::file_manager
             return f_buffer;
         else
             return nullptr;
+    }
+
+    void set_base_path(std::filesystem::path path)
+    {
+        base_path = path;
+    }
+
+    std::filesystem::path get_base_path()
+    {
+        return base_path;
+    }
+
+    bool file_exists(std::filesystem::path path)
+    {
+        auto file = SDL_RWFromFile(path.string().c_str(), "rb");
+        if (file)
+        {
+            file->close(file);
+            return true;
+        }
+        else
+            return false;
     }
 } // namespace Kengine::file_manager

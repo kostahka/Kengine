@@ -21,7 +21,7 @@ namespace Kengine::graphics
             return resource->get_id();
         }
 
-        [[nodiscard]] inline ivec2 get_size() const
+        [[nodiscard]] inline const ivec2& get_size() const
         {
             return resource->get_size();
         }

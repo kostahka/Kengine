@@ -20,7 +20,7 @@ namespace Kengine
         std::chrono::duration<int, std::milli> render_delta_time;
     };
 
-    [[nodiscard]] bool run(create_game_func* pf_create_game);
+    [[nodiscard]] bool run(create_game_func* pf_create_game, const char* name);
 
     void set_cursor_visible(bool visible);
     int  get_time_ms();

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Kengine/units/vector.hxx"
+#include "Kengine/window/window.hxx"
 
 #include <string_view>
 
@@ -9,7 +10,7 @@ typedef void* SDL_GLContext;
 
 namespace Kengine::window
 {
-    [[nodiscard]] bool initialize(std::string_view name = "");
+    [[nodiscard]] bool initialize(std::string_view name);
     void               shutdown();
 
     extern SDL_Window*   window;
@@ -22,4 +23,5 @@ namespace Kengine::window
     extern int gl_profile;
 
     void update_sizes();
+    void update_flags();
 } // namespace Kengine::window

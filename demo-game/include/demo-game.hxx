@@ -13,14 +13,13 @@ class demo_game : public Kengine::game
 {
 public:
     demo_game()
-        : Kengine::game("Demo kengine"){};
+        : Kengine::game(){};
 
     ~demo_game() override;
     void on_start() override;
     void on_event(Kengine::event::game_event) override;
     void on_update(int delta_ms) override;
     void on_render(int delta_ms) override;
-    void on_imgui_render() override;
 
     std::string name;
 
