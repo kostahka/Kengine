@@ -7,6 +7,8 @@
 
 #include <cstdint>
 #include <string_view>
+#include <tuple>
+
 
 namespace Kengine::graphics
 {
