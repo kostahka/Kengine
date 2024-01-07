@@ -73,7 +73,7 @@ namespace Kengine::audio
             SDL_AudioSpec file_audio_spec;
 
             if (!SDL_LoadWAV_RW(SDL_RWFromFile(path.data(), "rb"),
-                                SDL_bool::SDL_TRUE,
+                                SDL_TRUE,
                                 &file_audio_spec,
                                 &buffer,
                                 &length))
