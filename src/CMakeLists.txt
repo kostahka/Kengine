@@ -155,13 +155,10 @@ target_link_libraries(
     INTERFACE efsw
     INTERFACE glad
     INTERFACE stb
+    INTERFACE $<LINK_LIBRARY:WHOLE_ARCHIVE, spdlog>
+    INTERFACE $<LINK_LIBRARY:WHOLE_ARCHIVE, box2d>
 )
-target_link_libraries(
-    kengine-public
-    INTERFACE glm::glm
-    INTERFACE box2d
-    INTERFACE spdlog
-)
+target_link_libraries(kengine-public INTERFACE glm::glm)
 if(ANDROID)
     target_link_libraries(
         kengine-public
@@ -188,17 +185,44 @@ else()
     target_compile_definitions(kengine-public INTERFACE "-DE_DECLSPEC=")
 endif()
 
+target_compile_definitions(
+    kengine-interface
+    INTERFACE $<TARGET_PROPERTY:spdlog,INTERFACE_COMPILE_DEFINITIONS>
+)
+
+target_compile_definitions(
+    kengine-interface
+    INTERFACE $<TARGET_PROPERTY:box2d,INTERFACE_COMPILE_DEFINITIONS>
+)
+
+# IMGUI
 if(KENGINE_IMGUI)
     target_compile_definitions(kengine-public INTERFACE KENGINE_IMGUI)
     target_link_libraries(
         kengine-private INTERFACE $<LINK_LIBRARY:WHOLE_ARCHIVE, imgui>
     )
-    target_link_libraries(kengine-interface INTERFACE imgui-interface)
+
+    target_compile_definitions(
+        kengine-interface
+        INTERFACE $<TARGET_PROPERTY:imgui,INTERFACE_COMPILE_DEFINITIONS>
+    )
+    target_include_directories(
+        kengine-interface
+        INTERFACE $<TARGET_PROPERTY:imgui,INTERFACE_INCLUDE_DIRECTORIES>
+    )
 endif()
 
 # Include dirs
 target_include_directories(kengine-public INTERFACE ${KENGINE_INCLUDE_DIR})
 target_include_directories(kengine-private INTERFACE ${IMGUI_IMPL_INCLUDE_DIR})
+target_include_directories(
+    kengine-interface
+    INTERFACE $<TARGET_PROPERTY:spdlog,INTERFACE_INCLUDE_DIRECTORIES>
+)
+target_include_directories(
+    kengine-interface
+    INTERFACE $<TARGET_PROPERTY:box2d,INTERFACE_INCLUDE_DIRECTORIES>
+)
 
 # <<
 # Shared engine lib

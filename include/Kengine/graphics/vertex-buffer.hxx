@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Kengine/graphics/raw-vertex-buffer.hxx"
 
 namespace Kengine::graphics

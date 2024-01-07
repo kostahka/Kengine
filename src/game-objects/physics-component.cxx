@@ -1,5 +1,3 @@
-#pragma once
-
 #include "Kengine/game-objects/component.hxx"
 
 namespace Kengine

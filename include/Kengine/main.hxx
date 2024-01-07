@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Kengine/engine.hxx"
 #include "Kengine/game.hxx"
 
