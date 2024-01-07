@@ -7,12 +7,17 @@ add_library(imgui-interface INTERFACE)
 
 target_include_directories(imgui-public INTERFACE .)
 target_include_directories(imgui-interface INTERFACE .)
-target_compile_definitions(
-    imgui-public INTERFACE "-DIMGUI_API=__declspec(dllexport)"
-)
-target_compile_definitions(
-    imgui-interface INTERFACE "-DIMGUI_API=__declspec(dllimport)"
-)
+if(MSVC)
+    target_compile_definitions(
+        imgui-public INTERFACE "-DIMGUI_API=__declspec(dllexport)"
+    )
+    target_compile_definitions(
+        imgui-interface INTERFACE "-DIMGUI_API=__declspec(dllimport)"
+    )
+else()
+    target_compile_definitions(imgui-public INTERFACE "-DIMGUI_API=")
+    target_compile_definitions(imgui-interface INTERFACE "-DIMGUI_API=")
+endif()
 
 add_library(imgui STATIC ${IMGUI_SOURCES} ${IMGUI_HEADERS})
 
