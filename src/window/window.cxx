@@ -118,15 +118,22 @@ namespace Kengine::window
     void update_window_fullscreen_mode()
     {
         auto sdl_mode = display::get_closest_display_mode(fullscreen_mode);
-        int  failure  = SDL_SetWindowFullscreenMode(window, sdl_mode);
-        if (failure)
+        if (sdl_mode)
         {
-            KENGINE_ERROR("Can't change window fullscreen mode. Error: {}",
-                          SDL_GetError());
-        }
+            int failure = SDL_SetWindowFullscreenMode(window, sdl_mode);
+            if (failure)
+            {
+                KENGINE_ERROR("Can't change window fullscreen mode. Error: {}",
+                              SDL_GetError());
+            }
 
-        if (context && fullscreen)
-            graphics::render_manager::update_viewport();
+            fullscreen_mode.w            = sdl_mode->w;
+            fullscreen_mode.h            = sdl_mode->h;
+            fullscreen_mode.refresh_rate = sdl_mode->refresh_rate;
+
+            if (context && fullscreen)
+                graphics::render_manager::update_viewport();
+        }
     }
 
     void set_fullscreen_mode(display::mode f_mode)

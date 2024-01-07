@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Kengine/game.hxx"
+#include "Kengine/graphics/camera.hxx"
 #include "Kengine/graphics/shader.hxx"
 #include "Kengine/graphics/texture.hxx"
 #include "Kengine/graphics/vertex-array.hxx"
-#include "Kengine/resources/res-ptr.hxx"
+#include "Kengine/resources/resource-manager.hxx"
 #include "Kengine/units/vertex.hxx"
 
 using namespace Kengine::graphics;
@@ -27,8 +28,15 @@ public:
     glm::mat4 view;
 
 private:
-    std::shared_ptr<vertex_buffer<Kengine::vertex_text2d_color>> vbo{ nullptr };
-    std::shared_ptr<vertex_array>                                vao{ nullptr };
-    std::shared_ptr<shader>                                      sh{ nullptr };
-    std::shared_ptr<texture> checker_texture{ nullptr };
+    vertex_array vao;
+
+    shader  sh = shader(Kengine::make_resource<Kengine::shader_res>(
+        std::filesystem::path("assets/shaders/square.vs"),
+        std::filesystem::path("assets/shaders/square.fs"),
+        "square_program"));
+    texture checker_texture =
+        texture(Kengine::make_resource<Kengine::texture_resource>(
+            std::filesystem::path("assets/textures/checker.png"),
+            "checker_texture"));
+    camera main_camera;
 };

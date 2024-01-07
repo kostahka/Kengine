@@ -44,9 +44,9 @@ namespace Kengine
             program->use();
             game* current_game = Kengine::e_game;
 
-            program->set_uniform_matrix4fv("projection",
-                                           current_game->projection);
-            program->set_uniform_matrix4fv("view", current_game->view);
+            // program->set_uniform_matrix4fv("projection",
+            //                                current_game->projection);
+            // program->set_uniform_matrix4fv("view", current_game->view);
             vao->draw_points(static_cast<int>(m_count));
             m_count = 0;
         };
@@ -91,9 +91,9 @@ namespace Kengine
             program->use();
             game* current_game = Kengine::e_game;
 
-            program->set_uniform_matrix4fv("projection",
-                                           current_game->projection);
-            program->set_uniform_matrix4fv("view", current_game->view);
+            // program->set_uniform_matrix4fv("projection",
+            //                                current_game->projection);
+            // program->set_uniform_matrix4fv("view", current_game->view);
             vao->draw_lines(static_cast<int>(m_count));
             m_count = 0;
         };
@@ -138,9 +138,9 @@ namespace Kengine
             program->use();
             game* current_game = Kengine::e_game;
 
-            program->set_uniform_matrix4fv("projection",
-                                           current_game->projection);
-            program->set_uniform_matrix4fv("view", current_game->view);
+            // program->set_uniform_matrix4fv("projection",
+            //                                current_game->projection);
+            // program->set_uniform_matrix4fv("view", current_game->view);
             vao->draw_triangles(static_cast<int>(m_count) / 3);
             m_count = 0;
         };

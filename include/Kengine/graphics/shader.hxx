@@ -4,8 +4,6 @@
 #include <string_view>
 #include <unordered_map>
 
-#include "glm/glm.hpp"
-
 #include "Kengine/graphics/shader-utils/shader-type.hxx"
 #include "Kengine/resources/shader-resource.hxx"
 
@@ -30,6 +28,8 @@ namespace Kengine::graphics
         };
 
         void save_uniform_location(std::string_view name);
+
+        void uniform_block(std::string_view block_name, uint32_t end_point);
 
     private:
         uint32_t get_uniform_location(std::string_view name);

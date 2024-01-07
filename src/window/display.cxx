@@ -2,6 +2,7 @@
 #include "display.hxx"
 
 #include "Kengine/log/log.hxx"
+#include "window.hxx"
 
 #include <vector>
 
@@ -73,10 +74,14 @@ namespace Kengine::display
     {
         auto sdl_mode = SDL_GetClosestFullscreenDisplayMode(
             primary, d_mode.w, d_mode.h, d_mode.refresh_rate, SDL_TRUE);
-        if (!sdl_mode)
+        if (!sdl_mode && !d_modes.empty())
         {
-            KENGINE_ERROR("Can't get closest display mode. Error {}",
-                          SDL_GetError());
+            sdl_mode =
+                SDL_GetClosestFullscreenDisplayMode(primary,
+                                                    d_modes[0].w,
+                                                    d_modes[0].h,
+                                                    d_modes[0].refresh_rate,
+                                                    SDL_TRUE);
         }
         return sdl_mode;
     }

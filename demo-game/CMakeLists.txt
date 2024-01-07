@@ -13,14 +13,9 @@ add_executable(
                         ${KENGINE_DEMO_GAME_HEADERS}
 )
 
-add_library(
-    kengine-demo-dev SHARED ${KENGINE_DEMO_GAME_SOURCES}
-                            ${KENGINE_DEMO_GAME_HEADERS}
+developgame(
+    kengine-demo-dev ${KENGINE_DEMO_GAME_SOURCES} ${KENGINE_DEMO_GAME_HEADERS}
 )
-
-# developgame(
-#     kengine-demo-dev ${KENGINE_DEMO_GAME_SOURCES} ${KENGINE_DEMO_GAME_HEADERS}
-# )
 
 target_include_directories(
     kengine-demo-static PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include
@@ -30,13 +25,7 @@ target_include_directories(
     kengine-demo-dev PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include
 )
 
-# target_include_directories(
-#     kengine-demo-dev PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include
-# )
-
 target_link_libraries(kengine-demo-static PRIVATE Kengine::kengine-static)
-
-target_link_libraries(kengine-demo-dev PRIVATE Kengine::kengine-shared)
 
 add_custom_target(
     copy_assets_shaders ALL
@@ -46,12 +35,3 @@ add_custom_target(
     COMMENT
         "Copying shaders and assets into game directory: [$<TARGET_FILE_DIR:kengine-demo-static>]"
 )
-
-# add_custom_target(
-#     copy_assets_shaders_dev ALL
-#     COMMAND
-#         ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets/
-#         $<TARGET_FILE_DIR:kengine-demo-dev>/assets
-#     COMMENT
-#         "Copying shaders and assets into game directory: [$<TARGET_FILE_DIR:kengine-demo-dev>]"
-# )

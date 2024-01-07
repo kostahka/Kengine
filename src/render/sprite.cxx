@@ -18,10 +18,10 @@ namespace Kengine
     void world_sprite_program_use(const glm::mat4& model)
     {
         e_resources::global_sprite_program->use();
-        e_resources::global_sprite_program->set_uniform_matrix4fv(
-            "projection", Kengine::e_game->projection);
-        e_resources::global_sprite_program->set_uniform_matrix4fv(
-            "view", Kengine::e_game->view);
+        // e_resources::global_sprite_program->set_uniform_matrix4fv(
+        //     "projection", Kengine::e_game->projection);
+        // e_resources::global_sprite_program->set_uniform_matrix4fv(
+        //     "view", Kengine::e_game->view);
         e_resources::global_sprite_program->set_uniform_matrix4fv("model",
                                                                   model);
     }
@@ -29,8 +29,8 @@ namespace Kengine
     void local_sprite_program_use(const glm::mat4& model)
     {
         e_resources::local_sprite_program->use();
-        e_resources::local_sprite_program->set_uniform_matrix4fv(
-            "projection", Kengine::e_game->projection);
+        // e_resources::local_sprite_program->set_uniform_matrix4fv(
+        //     "projection", Kengine::e_game->projection);
         e_resources::local_sprite_program->set_uniform_matrix4fv("model",
                                                                  model);
     }

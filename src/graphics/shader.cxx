@@ -52,6 +52,14 @@ namespace Kengine::graphics
             glGetUniformLocation(resource->get_id(), name.data()));
     }
 
+    void shader::uniform_block(std::string_view block_name, uint32_t end_point)
+    {
+        auto block_index = KENGINE_GL_CHECK(
+            glGetUniformBlockIndex(resource->get_id(), block_name.data()));
+        KENGINE_GL_CHECK(
+            glUniformBlockBinding(resource->get_id(), block_index, end_point));
+    }
+
     uint32_t shader::get_uniform_location(std::string_view name)
     {
         KENGINE_ASSERT(uniform_locations.contains(name), "No such uniform");

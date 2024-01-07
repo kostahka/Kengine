@@ -2,10 +2,9 @@
 
 #include "Kengine/engine.hxx"
 #include "Kengine/graphics/render-manager.hxx"
+#include "Kengine/graphics/uniformbuffer.hxx"
 #include "Kengine/log/log.hxx"
 #include "Kengine/main.hxx"
-#include "Kengine/resources/resource-manager.hxx"
-#include "Kengine/string/string-id.hxx"
 #include "Kengine/window/window.hxx"
 
 #include <stdlib.h>
@@ -24,7 +23,8 @@ void demo_game::on_start()
         { { -0.5, -0.5, 0 }, { 0.0, 0.0 }, { 1.0, 0.0, 0.0, 1.0 }}
     };
 
-    vbo = std::make_shared<vertex_buffer<Kengine::vertex_text2d_color>>();
+    auto vbo = std::make_shared<vertex_buffer<Kengine::vertex_text2d_color>>();
+
     vbo->bind();
     vbo->allocate_vertices(vertices.data(), vertices.size(), false);
     vbo->add_attribute_pointer(
@@ -38,28 +38,24 @@ void demo_game::on_start()
                                  offsetof(Kengine::vertex_text2d_color, text),
                                  sizeof(Kengine::vertex_text2d_color) });
 
-    vao = std::make_shared<vertex_array>();
-    vao->bind();
-    vao->add_vertex_buffer(vbo);
+    vao.bind();
+    vao.add_vertex_buffer(vbo);
 
-    sh = std::make_shared<shader>(Kengine::make_resource<Kengine::shader_res>(
-        std::filesystem::path("assets/shaders/square.vs"),
-        std::filesystem::path("assets/shaders/square.fs"),
-        "square_program"));
+    sh.save_uniform_location("time");
 
-    sh->save_uniform_location("time");
+    checker_texture.bind();
 
-    checker_texture = std::make_shared<texture>(
-        Kengine::make_resource<Kengine::texture_resource>(
-            std::filesystem::path("assets/textures/checker.png"),
-            "checker_texture"));
-    checker_texture->bind();
-
-    sh->save_uniform_location("checker");
-    sh->use();
+    sh.save_uniform_location("checker");
+    sh.uniform_block("Matrices", 0);
+    sh.use();
 
     Kengine::graphics::render_manager::set_clear_color(
         { 0.2f, 0.3f, 0.4f, 1.0f });
+
+    main_camera.bind();
+    main_camera.set_view(glm::lookAt(Kengine::vec3(0.5f, 0, 0),
+                                     Kengine::vec3(0.5f, 0, -0.1f),
+                                     Kengine::vec3(0, 1, 0)));
 }
 
 void demo_game::on_event(Kengine::event::game_event e)
@@ -76,12 +72,12 @@ void demo_game::on_event(Kengine::event::game_event e)
 
 void demo_game::on_update(int delta_ms)
 {
-    sh->uniform<int>("time", Kengine::get_time_ms());
+    sh.uniform<int>("time", Kengine::get_time_ms());
 }
 
 void demo_game::on_render(int delta_ms)
 {
-    vao->draw(draw_mode::triangles, 6);
+    vao.draw(draw_mode::triangles, 6);
 }
 
 demo_game::~demo_game() {}

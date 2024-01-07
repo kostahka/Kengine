@@ -3,6 +3,8 @@
 #include "Kengine/units/matrix.hxx"
 #include "Kengine/units/vector.hxx"
 
+#include "glm/gtc/type_ptr.hpp"
+
 #include <cstdint>
 #include <string_view>
 
@@ -34,180 +36,248 @@ namespace Kengine::graphics
     void set_uniform(uint32_t location, T value);
 
     template <typename T>
-    struct shader_type
+    struct shader_type_base_align;
+
+    template <>
+    struct shader_type_base_align<int> : std::integral_constant<uint32_t, 4>
     {
-    public:
-        static constexpr uint32_t size       = sizeof(T);
-        static constexpr uint32_t base_align = 0;
     };
 
     template <>
-    struct shader_type<int>
+    struct shader_type_base_align<ivec2> : std::integral_constant<uint32_t, 8>
     {
-    public:
-        static constexpr uint32_t size       = sizeof(int);
-        static constexpr uint32_t base_align = 4;
     };
 
     template <>
-    struct shader_type<ivec2>
+    struct shader_type_base_align<ivec3> : std::integral_constant<uint32_t, 16>
     {
-    public:
-        static constexpr uint32_t size       = sizeof(ivec2);
-        static constexpr uint32_t base_align = 8;
     };
 
     template <>
-    struct shader_type<ivec3>
+    struct shader_type_base_align<ivec4> : std::integral_constant<uint32_t, 16>
     {
-    public:
-        static constexpr uint32_t size       = sizeof(ivec3);
-        static constexpr uint32_t base_align = 16;
     };
 
     template <>
-    struct shader_type<ivec4>
+    struct shader_type_base_align<unsigned int>
+        : std::integral_constant<uint32_t, 4>
     {
-    public:
-        static constexpr uint32_t size       = sizeof(ivec4);
-        static constexpr uint32_t base_align = 16;
     };
 
     template <>
-    struct shader_type<unsigned int>
+    struct shader_type_base_align<uvec2> : std::integral_constant<uint32_t, 8>
     {
-    public:
-        static constexpr uint32_t size       = sizeof(unsigned int);
-        static constexpr uint32_t base_align = 4;
     };
 
     template <>
-    struct shader_type<uvec2>
+    struct shader_type_base_align<uvec3> : std::integral_constant<uint32_t, 16>
     {
-    public:
-        static constexpr uint32_t size       = sizeof(uvec2);
-        static constexpr uint32_t base_align = 8;
     };
 
     template <>
-    struct shader_type<uvec3>
+    struct shader_type_base_align<uvec4> : std::integral_constant<uint32_t, 16>
     {
-    public:
-        static constexpr uint32_t size       = sizeof(uvec3);
-        static constexpr uint32_t base_align = 16;
     };
 
     template <>
-    struct shader_type<uvec4>
+    struct shader_type_base_align<float> : std::integral_constant<uint32_t, 4>
     {
-    public:
-        static constexpr uint32_t size       = sizeof(uvec4);
-        static constexpr uint32_t base_align = 16;
     };
 
     template <>
-    struct shader_type<float>
+    struct shader_type_base_align<vec2> : std::integral_constant<uint32_t, 8>
     {
-    public:
-        static constexpr uint32_t size       = sizeof(float);
-        static constexpr uint32_t base_align = 4;
     };
 
     template <>
-    struct shader_type<vec2>
+    struct shader_type_base_align<vec3> : std::integral_constant<uint32_t, 16>
     {
-    public:
-        static constexpr uint32_t size       = sizeof(vec2);
-        static constexpr uint32_t base_align = 8;
     };
 
     template <>
-    struct shader_type<vec3>
+    struct shader_type_base_align<vec4> : std::integral_constant<uint32_t, 16>
     {
-    public:
-        static constexpr uint32_t size       = sizeof(vec3);
-        static constexpr uint32_t base_align = 16;
     };
 
     template <>
-    struct shader_type<vec4>
+    struct shader_type_base_align<mat2x2> : std::integral_constant<uint32_t, 32>
     {
-    public:
-        static constexpr uint32_t size       = sizeof(vec4);
-        static constexpr uint32_t base_align = 16;
     };
 
     template <>
-    struct shader_type<mat2x2>
+    struct shader_type_base_align<mat2x3> : std::integral_constant<uint32_t, 32>
     {
-    public:
-        static constexpr uint32_t size       = sizeof(mat2x2);
-        static constexpr uint32_t base_align = 32;
     };
 
     template <>
-    struct shader_type<mat2x3>
+    struct shader_type_base_align<mat2x4> : std::integral_constant<uint32_t, 32>
     {
-    public:
-        static constexpr uint32_t size       = sizeof(mat2x3);
-        static constexpr uint32_t base_align = 32;
     };
 
     template <>
-    struct shader_type<mat2x4>
+    struct shader_type_base_align<mat3x2> : std::integral_constant<uint32_t, 48>
     {
-    public:
-        static constexpr uint32_t size       = sizeof(mat2x4);
-        static constexpr uint32_t base_align = 32;
     };
 
     template <>
-    struct shader_type<mat3x3>
+    struct shader_type_base_align<mat3x3> : std::integral_constant<uint32_t, 48>
     {
-    public:
-        static constexpr uint32_t size       = sizeof(mat3x3);
-        static constexpr uint32_t base_align = 48;
     };
 
     template <>
-    struct shader_type<mat3x2>
+    struct shader_type_base_align<mat3x4> : std::integral_constant<uint32_t, 48>
     {
-    public:
-        static constexpr uint32_t size       = sizeof(mat3x2);
-        static constexpr uint32_t base_align = 48;
     };
 
     template <>
-    struct shader_type<mat3x4>
+    struct shader_type_base_align<mat4x2> : std::integral_constant<uint32_t, 64>
     {
-    public:
-        static constexpr uint32_t size       = sizeof(mat3x4);
-        static constexpr uint32_t base_align = 48;
     };
 
     template <>
-    struct shader_type<mat4x4>
+    struct shader_type_base_align<mat4x3> : std::integral_constant<uint32_t, 64>
     {
-    public:
-        static constexpr uint32_t size       = sizeof(mat4x4);
-        static constexpr uint32_t base_align = 64;
     };
 
     template <>
-    struct shader_type<mat4x3>
+    struct shader_type_base_align<mat4x4> : std::integral_constant<uint32_t, 64>
     {
-    public:
-        static constexpr uint32_t size       = sizeof(mat4x3);
-        static constexpr uint32_t base_align = 64;
     };
 
-    template <>
-    struct shader_type<mat4x2>
+    template <typename T>
+    inline const void* get_shader_type_address(const T& value)
     {
-    public:
-        static constexpr uint32_t size       = sizeof(mat4x2);
-        static constexpr uint32_t base_align = 64;
-    };
+        return &value;
+    }
+
+    inline const void* get_shader_type_address(const mat2x2& value)
+    {
+        return glm::value_ptr(value);
+    }
+
+    inline const void* get_shader_type_address(const mat2x3& value)
+    {
+        return glm::value_ptr(value);
+    }
+
+    inline const void* get_shader_type_address(const mat2x4& value)
+    {
+        return glm::value_ptr(value);
+    }
+
+    inline const void* get_shader_type_address(const mat3x2& value)
+    {
+        return glm::value_ptr(value);
+    }
+
+    inline const void* get_shader_type_address(const mat3x3& value)
+    {
+        return glm::value_ptr(value);
+    }
+
+    inline const void* get_shader_type_address(const mat3x4& value)
+    {
+        return glm::value_ptr(value);
+    }
+
+    inline const void* get_shader_type_address(const mat4x2& value)
+    {
+        return glm::value_ptr(value);
+    }
+
+    inline const void* get_shader_type_address(const mat4x3& value)
+    {
+        return glm::value_ptr(value);
+    }
+
+    inline const void* get_shader_type_address(const mat4x4& value)
+    {
+        return glm::value_ptr(value);
+    }
+
+    namespace std140
+    {
+        template <typename T, typename... Types>
+        struct layout;
+
+        template <typename T>
+        struct layout<T>
+        {
+            static constexpr uint32_t get(uint32_t  current_align,
+                                          uint32_t* aligns)
+            {
+                constexpr uint32_t base_align =
+                    shader_type_base_align<T>::value;
+                constexpr uint32_t size = sizeof(T);
+
+                if (current_align % base_align != 0)
+                {
+                    uint32_t next_align =
+                        (current_align / base_align + 1) * base_align;
+                    *aligns = next_align;
+                    return next_align + size;
+                }
+
+                *aligns = current_align;
+                return current_align + size;
+            }
+        };
+
+        template <typename T, typename... Types>
+        struct layout
+        {
+            static constexpr uint32_t get(uint32_t  current_align,
+                                          uint32_t* aligns)
+            {
+                constexpr uint32_t base_align =
+                    shader_type_base_align<T>::value;
+                constexpr uint32_t size = sizeof(T);
+
+                if (current_align % base_align != 0)
+                {
+                    uint32_t next_align =
+                        (current_align / base_align + 1) * base_align;
+                    *aligns = next_align;
+                    return layout<Types...>::get(next_align + size, aligns + 1);
+                }
+
+                *aligns = current_align;
+                return layout<Types...>::get(current_align + size, aligns + 1);
+            }
+        };
+
+        template <typename T>
+        constexpr void fill_data(char* data, uint32_t* aligns, const T& arg)
+        {
+            *(reinterpret_cast<T*>(data + *aligns)) = arg;
+        }
+
+        template <typename T, typename... Types>
+        constexpr void fill_data(char*     data,
+                                 uint32_t* aligns,
+                                 const T&  arg,
+                                 const Types&... args)
+        {
+            *(reinterpret_cast<T*>(data + *aligns)) = arg;
+            fill_data(data, aligns + 1, args...);
+        }
+
+        template <typename... Types>
+        constexpr std::pair<uint32_t, char*> get_buffer(uint32_t* aligns,
+                                                        const Types&... args)
+        {
+            uint32_t total_size = layout<Types...>::get(0, aligns);
+
+            char* data = new char[total_size];
+            fill_data(data, aligns, args...);
+
+            return std::pair(total_size, data);
+        };
+
+        template <int I, typename... Types>
+        using type_at = std::tuple_element<I, std::tuple<Types...>>::type;
+
+    }; // namespace std140
 
     template <>
     inline void set_uniform(uint32_t location, int value)

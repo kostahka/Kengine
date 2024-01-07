@@ -3,8 +3,6 @@
 #include "../../opengl/opengl.hxx"
 #include "Kengine/log/log.hxx"
 
-#include "glm/gtc/type_ptr.hpp"
-
 namespace Kengine::graphics
 {
     void set_uniform1i(uint32_t location, int value)

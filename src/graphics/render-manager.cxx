@@ -3,9 +3,10 @@
 
 #include "../opengl/opengl-debug.hxx"
 #include "../window/window.hxx"
+#include "Kengine/graphics/uniformbuffer.hxx"
 #include "Kengine/log/log.hxx"
-#include "Kengine/units/vector.hxx"
 
+#include <memory>
 #include <stack>
 
 namespace Kengine::graphics::render_manager
@@ -13,6 +14,9 @@ namespace Kengine::graphics::render_manager
     vec4 clear_color{ 0.0f, 0.0f, 0.0f, 1.0f };
 
     static std::stack<framebuffer> framebuffers{};
+
+    static std::unique_ptr<uniformbuffer_std140<mat4x4, mat4x4>>
+        global_matrices = nullptr;
 
     bool initialize()
     {
@@ -23,6 +27,12 @@ namespace Kengine::graphics::render_manager
 
         KENGINE_GL_CHECK(glClearColor(
             clear_color.r, clear_color.g, clear_color.b, clear_color.a));
+
+        global_matrices =
+            std::make_unique<uniformbuffer_std140<mat4x4, mat4x4>>(
+                true, mat4x4(1), mat4x4(1));
+
+        global_matrices->bind_end_point(0);
 
         return true;
     }
@@ -76,6 +86,21 @@ namespace Kengine::graphics::render_manager
             KENGINE_GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
         }
         update_viewport();
+    }
+
+    void update_matrices(const mat4x4& projection, const mat4x4& view)
+    {
+        global_matrices->set_values(projection, view);
+    }
+
+    void update_projection(const mat4x4& projection)
+    {
+        global_matrices->set_value<0>(projection);
+    }
+
+    void update_view(const mat4x4& view)
+    {
+        global_matrices->set_value<1>(view);
     }
 
     void update_viewport()

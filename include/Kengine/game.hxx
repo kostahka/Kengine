@@ -22,8 +22,5 @@ namespace Kengine
         virtual void on_render(int delta_ms)     = 0;
 
         virtual on_imgui_render* get_imgui_render() { return nullptr; };
-
-        glm::mat4 projection{};
-        glm::mat4 view{};
     };
 } // namespace Kengine

@@ -69,6 +69,7 @@ namespace Kengine::graphics
 
     vertex_element_array::vertex_element_array()
         : ebo(nullptr)
+        , vertex_array()
     {
     }
 

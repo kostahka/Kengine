@@ -1,7 +1,10 @@
 #pragma once
 
-#include "../units/vector.hxx"
-#include "framebuffer.hxx"
+#include "Kengine/graphics/camera.hxx"
+#include "Kengine/graphics/framebuffer.hxx"
+#include "Kengine/units/vector.hxx"
+
+#include <memory>
 
 namespace Kengine::graphics::render_manager
 {
@@ -9,4 +12,7 @@ namespace Kengine::graphics::render_manager
 
     void push_framebuffer(framebuffer& frame);
     void pop_framebuffer();
+
+    void push_camera(std::shared_ptr<camera> cam);
+    void pop_camera();
 } // namespace Kengine::graphics::render_manager
