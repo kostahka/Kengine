@@ -9,6 +9,7 @@ namespace Kengine::display
         float refresh_rate;
 
         bool operator==(const mode& other) const;
+        bool operator!=(const mode& other) const;
     };
 
     mode get_max_mode();

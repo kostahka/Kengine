@@ -17,6 +17,11 @@ namespace Kengine::display
                refresh_rate == other.refresh_rate;
     }
 
+    bool mode::operator!=(const mode& other) const
+    {
+        return !(*this == other);
+    }
+
     bool initialize()
     {
         d_modes.clear();
