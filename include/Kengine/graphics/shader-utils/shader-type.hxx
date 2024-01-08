@@ -9,7 +9,6 @@
 #include <string_view>
 #include <tuple>
 
-
 namespace Kengine::graphics
 {
     void set_uniform1i(uint32_t location, int value);
@@ -277,7 +276,8 @@ namespace Kengine::graphics
         };
 
         template <int I, typename... Types>
-        using type_at = std::tuple_element<I, std::tuple<Types...>>::type;
+        using type_at =
+            typename std::tuple_element<I, std::tuple<Types...>>::type;
 
     }; // namespace std140
 

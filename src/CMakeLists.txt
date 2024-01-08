@@ -186,16 +186,30 @@ else()
 endif()
 
 target_compile_definitions(
-    kengine-interface
+    kengine-public
     INTERFACE $<TARGET_PROPERTY:spdlog,INTERFACE_COMPILE_DEFINITIONS>
-)
-
-target_compile_definitions(
-    kengine-interface
     INTERFACE $<TARGET_PROPERTY:box2d,INTERFACE_COMPILE_DEFINITIONS>
 )
 
+target_compile_options(
+    kengine-public
+    INTERFACE
+        $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<NOT:$<COMPILE_LANGUAGE:CUDA>>>:/wd4251
+        /wd4275>
+)
+
+# Include dirs
+target_include_directories(kengine-public INTERFACE ${KENGINE_INCLUDE_DIR})
+target_include_directories(kengine-private INTERFACE ${IMGUI_IMPL_INCLUDE_DIR})
+target_include_directories(
+    kengine-public
+    INTERFACE $<TARGET_PROPERTY:spdlog,INTERFACE_INCLUDE_DIRECTORIES>
+    INTERFACE $<TARGET_PROPERTY:box2d,INTERFACE_INCLUDE_DIRECTORIES>
+)
+
 # IMGUI
+target_compile_definitions(kengine-public INTERFACE "-DIMGUI_IMPL_API=")
+
 if(KENGINE_IMGUI)
     target_compile_definitions(kengine-public INTERFACE KENGINE_IMGUI)
     target_link_libraries(
@@ -211,18 +225,6 @@ if(KENGINE_IMGUI)
         INTERFACE $<TARGET_PROPERTY:imgui,INTERFACE_INCLUDE_DIRECTORIES>
     )
 endif()
-
-# Include dirs
-target_include_directories(kengine-public INTERFACE ${KENGINE_INCLUDE_DIR})
-target_include_directories(kengine-private INTERFACE ${IMGUI_IMPL_INCLUDE_DIR})
-target_include_directories(
-    kengine-interface
-    INTERFACE $<TARGET_PROPERTY:spdlog,INTERFACE_INCLUDE_DIRECTORIES>
-)
-target_include_directories(
-    kengine-interface
-    INTERFACE $<TARGET_PROPERTY:box2d,INTERFACE_INCLUDE_DIRECTORIES>
-)
 
 # <<
 # Shared engine lib

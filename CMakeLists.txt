@@ -67,6 +67,19 @@ option(SPDLOG_NO_TLS ON)
 option(SPDLOG_NO_ATOMIC_LEVELS ON)
 add_subdirectory(external/spdlog)
 set_property(TARGET spdlog PROPERTY POSITION_INDEPENDENT_CODE ON)
+target_compile_definitions(spdlog PUBLIC SPDLOG_SHARED_LIB)
+target_compile_definitions(spdlog PRIVATE spdlog_EXPORTS)
+target_compile_options(
+    spdlog
+    PUBLIC
+        $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<NOT:$<COMPILE_LANGUAGE:CUDA>>>:/wd4251
+        /wd4275>
+)
+target_compile_definitions(
+    spdlog
+    PRIVATE FMT_EXPORT
+    PUBLIC FMT_SHARED
+)
 
 # Kengine source
 add_subdirectory(src)
