@@ -7,24 +7,32 @@
 
 namespace Kengine
 {
-    typedef glm::vec3 vec;
-    typedef glm::vec3 vec3;
-    // struct vec : public glm::vec3
-    // {
-    //     vec(const b2Vec3& v)
-    //         : glm::vec3(v.x, v.y, v.z){};
+    struct vec3 : public glm::vec3
+    {
 
-    //     inline operator b2Vec3() { return { x, y, z }; };
-    // };
+        constexpr vec3(float x, float y, float z)
+            : glm::vec3(x, y, z){};
+        constexpr vec3(const b2Vec3& v)
+            : glm::vec3(v.x, v.y, v.z){};
+        constexpr vec3(const b2Vec2& v)
+            : glm::vec3(v.x, v.y, 0.f){};
 
-    typedef glm::vec2 vec2;
-    // struct vec2 : public glm::vec2
-    // {
-    //     vec2(const b2Vec2& v)
-    //         : glm::vec2(v.x, v.y){};
+        operator b2Vec3() const { return { x, y, z }; };
 
-    //     inline operator b2Vec2() { return { x, y }; };
-    // };
+        operator b2Vec2() const { return { x, y }; };
+    };
+
+    typedef vec3 vec;
+
+    struct vec2 : public glm::vec2
+    {
+        constexpr vec2(float x, float y)
+            : glm::vec2(x, y){};
+        constexpr vec2(const b2Vec2& v)
+            : glm::vec2(v.x, v.y){};
+
+        operator b2Vec2() const { return { x, y }; };
+    };
 
     typedef glm::vec4 vec4;
 

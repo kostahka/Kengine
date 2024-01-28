@@ -57,12 +57,52 @@ namespace Kengine
         GLint gl_min_filter = opengl::get_gl_texture_filter(min_filter);
         GLint gl_mag_filter = opengl::get_gl_texture_filter(mag_filter);
 
-        KENGINE_GL_CHECK(glBindTexture(GL_TEXTURE_2D, id));
+        if (id)
+        {
+            KENGINE_GL_CHECK(glBindTexture(GL_TEXTURE_2D, id));
 
-        KENGINE_GL_CHECK(glTexParameteri(
-            GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_min_filter));
-        KENGINE_GL_CHECK(glTexParameteri(
-            GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_mag_filter));
+            KENGINE_GL_CHECK(glTexParameteri(
+                GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_min_filter));
+            KENGINE_GL_CHECK(glTexParameteri(
+                GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_mag_filter));
+        }
+    }
+
+    std::size_t texture_resource::serialize(std::ostream& os) const
+    {
+        std::size_t size      = 0;
+        const bool  from_file = !f_path.empty();
+
+        size += serialization::write(os, from_file);
+        if (!from_file)
+        {
+            size += serialization::write(os, this->size.x);
+            size += serialization::write(os, this->size.y);
+            size += serialization::write(os, format);
+        }
+        size += serialization::write(os, mag_filter);
+        size += serialization::write(os, min_filter);
+
+        return size;
+    }
+
+    std::size_t texture_resource::deserialize(std::istream& is)
+    {
+        std::size_t size      = 0;
+        bool        from_file = true;
+
+        size += serialization::read(is, from_file);
+        if (!from_file)
+        {
+            f_path.clear();
+            size += serialization::read(is, this->size.x);
+            size += serialization::read(is, this->size.y);
+            size += serialization::read(is, format);
+        }
+        size += serialization::read(is, mag_filter);
+        size += serialization::read(is, min_filter);
+
+        return size;
     }
 
     void texture_resource::load_data()

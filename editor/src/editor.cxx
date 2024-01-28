@@ -1,7 +1,7 @@
 #include "editor.hxx"
 
 #include "Kengine/engine.hxx"
-#include "Kengine/graphics/render-manager.hxx"
+#include "Kengine/graphics/graphics.hxx"
 #include "Kengine/imgui/imgui.hxx"
 #include "Kengine/io/file-manager.hxx"
 #include "Kengine/log/log.hxx"
@@ -115,7 +115,7 @@ bool editor::load_game()
     create_game_ptr create_game_func =
         reinterpret_cast<create_game_ptr>(create_game_func_ptr);
 
-    Kengine::graphics::render_manager::push_framebuffer(game_framebuffer);
+    Kengine::graphics::push_framebuffer(game_framebuffer);
 
     game* new_game = create_game_func();
 
@@ -139,7 +139,7 @@ bool editor::load_game()
     game_imgui = current_game->get_imgui_render();
 
     current_game->on_start();
-    Kengine::graphics::render_manager::pop_framebuffer();
+    Kengine::graphics::pop_framebuffer();
 
     return true;
 };
@@ -196,9 +196,9 @@ void editor::on_render(int delta_ms)
 {
     if (current_game)
     {
-        Kengine::graphics::render_manager::push_framebuffer(game_framebuffer);
+        Kengine::graphics::push_framebuffer(game_framebuffer);
         current_game->on_render(delta_ms);
-        Kengine::graphics::render_manager::pop_framebuffer();
+        Kengine::graphics::pop_framebuffer();
     }
 }
 

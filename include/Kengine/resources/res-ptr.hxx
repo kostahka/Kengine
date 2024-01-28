@@ -1,12 +1,14 @@
 #pragma once
 
+#include "Kengine/serialization/serialization.hxx"
 #include "resource.hxx"
 #include <cstddef>
 
 namespace Kengine::resource_manager
 {
-    void initialize();
-    void shutdown();
+    res_ptr<resource> get_resource(string_id r_id);
+    void              initialize();
+    void              shutdown();
 } // namespace Kengine::resource_manager
 
 namespace Kengine
@@ -123,7 +125,7 @@ namespace Kengine
     };
 
     template <class ResourceType>
-    class res_ptr
+    class res_ptr : public serializable
     {
         static_assert(std::is_base_of_v<resource, ResourceType>,
                       "ResourceType only inhertis resource");
@@ -138,6 +140,8 @@ namespace Kengine
         friend void resource_manager::initialize();
 
     public:
+        using element_type = ResourceType;
+
         res_ptr()
             : ptr(nullptr)
             , counter(nullptr)
@@ -202,7 +206,7 @@ namespace Kengine
             return *this;
         }
 
-        inline operator bool() { return ptr != nullptr; }
+        inline operator bool() const { return ptr != nullptr; }
 
         ~res_ptr()
         {
@@ -217,6 +221,28 @@ namespace Kengine
                         counter->free();
                 }
             }
+        }
+
+        std::size_t serialize(std::ostream& os) const override
+        {
+            if (ptr)
+                return serialization::write(os, ptr->get_resource_id());
+            else
+                return serialization::write(os, string_id(0));
+        }
+
+        std::size_t deserialize(std::istream& is) override
+        {
+            res_ptr<resource> res    = nullptr;
+            string_id         res_id = 0;
+
+            std::size_t size = serialization::read(is, res_id);
+            if (res_id)
+            {
+                res   = resource_manager::get_resource(res_id);
+                *this = static_resource_cast<ResourceType>(res);
+            }
+            return size;
         }
 
         [[nodiscard]] inline ResourceType* get() const { return ptr; }

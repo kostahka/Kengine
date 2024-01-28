@@ -5,6 +5,20 @@
 
 namespace Kengine
 {
+    framebuffer_resource::framebuffer_resource(std::string_view name)
+        : resource(resource_type::framebuffer, name)
+        , color_attachment(nullptr)
+        , depth_stencil_attachment(nullptr)
+        , id(0)
+        , color_id(0)
+        , depth_stencil_id(0)
+        , color_attach(false)
+        , depth_attach(false)
+        , stencil_attach(false)
+        , clear_color({ 0, 0, 0, 0 })
+    {
+    }
+
     framebuffer_resource::framebuffer_resource(
         res_ptr<resource> color_attachment,
         res_ptr<resource> depth_stencil_attachment,
@@ -75,6 +89,44 @@ namespace Kengine
             color_attachment->free_data();
         if (depth_stencil_attachment)
             depth_stencil_attachment->free_data();
+    }
+
+    std::size_t framebuffer_resource::serialize(std::ostream& os) const
+    {
+        std::size_t size = 0;
+
+        size += serialization::write(os, color_attachment);
+        size += serialization::write(os, depth_stencil_attachment);
+        size += serialization::write(os, clear_color.r);
+        size += serialization::write(os, clear_color.g);
+        size += serialization::write(os, clear_color.b);
+        size += serialization::write(os, clear_color.a);
+        size += serialization::write(os, this->size.x);
+        size += serialization::write(os, this->size.y);
+        size += serialization::write(os, color_attach);
+        size += serialization::write(os, depth_attach);
+        size += serialization::write(os, stencil_attach);
+
+        return size;
+    }
+
+    std::size_t framebuffer_resource::deserialize(std::istream& is)
+    {
+        std::size_t size = 0;
+
+        size += serialization::read(is, color_attachment);
+        size += serialization::read(is, depth_stencil_attachment);
+        size += serialization::read(is, clear_color.r);
+        size += serialization::read(is, clear_color.g);
+        size += serialization::read(is, clear_color.b);
+        size += serialization::read(is, clear_color.a);
+        size += serialization::read(is, this->size.x);
+        size += serialization::read(is, this->size.y);
+        size += serialization::read(is, color_attach);
+        size += serialization::read(is, depth_attach);
+        size += serialization::read(is, stencil_attach);
+
+        return size;
     }
 
     void framebuffer_resource::load_data()

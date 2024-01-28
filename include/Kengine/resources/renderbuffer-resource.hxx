@@ -9,6 +9,7 @@ namespace Kengine
     class renderbuffer_resource : public resource
     {
     public:
+        renderbuffer_resource(std::string_view name);
         renderbuffer_resource(ivec2                   size,
                               texture_internal_format format,
                               std::string_view        name);
@@ -22,6 +23,9 @@ namespace Kengine
         {
             return format;
         }
+
+        std::size_t serialize(std::ostream& os) const override;
+        std::size_t deserialize(std::istream& is) override;
 
     protected:
         virtual void load_data() override;

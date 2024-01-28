@@ -12,6 +12,7 @@ namespace Kengine
         renderbuffer,
         framebuffer,
         sound,
-        custom
+        material,
+        sprite_material,
     };
 }

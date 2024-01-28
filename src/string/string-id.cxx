@@ -10,14 +10,14 @@ namespace Kengine
 {
     std::unordered_map<string_id, const char*> string_table;
 
-    string_id save_string(const char* c_str)
+    string_id hash_string(const char* c_str)
     {
         string_id id = hash::crc32(c_str);
-        if (string_table.contains(id))
-        {
-            KENGINE_WARN("String table already has such key: {}", c_str);
-            return id;
-        }
+        // if (string_table.contains(id))
+        // {
+        //     KENGINE_WARN("String table already has such key: {}", c_str);
+        //     return id;
+        // }
 
         size_t str_len  = strlen(c_str);
         char*  copy_str = new char[str_len + 1];
@@ -36,6 +36,6 @@ namespace Kengine
 
     string_id operator""_sid(const char* str)
     {
-        return save_string(str);
+        return hash_string(str);
     }
 } // namespace Kengine

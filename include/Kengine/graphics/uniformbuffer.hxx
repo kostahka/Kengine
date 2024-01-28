@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Kengine/graphics/shader-utils/shader-type.hxx"
+#include "Kengine/graphics/shader-utils/shader-utils.hxx"
 
 #include <cstdint>
 #include <type_traits>

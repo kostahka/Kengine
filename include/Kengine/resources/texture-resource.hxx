@@ -22,6 +22,9 @@ namespace Kengine
 
         void set_filter(texture_filter min_filter, texture_filter mag_filter);
 
+        std::size_t serialize(std::ostream& os) const override;
+        std::size_t deserialize(std::istream& is) override;
+
         [[nodiscard]] inline uint32_t get_id() const { return id; }
 
         [[nodiscard]] inline const ivec2& get_size() const { return size; }

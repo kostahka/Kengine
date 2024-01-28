@@ -30,13 +30,14 @@ public:
 private:
     vertex_array vao;
 
-    shader  sh = shader(Kengine::make_resource<Kengine::shader_res>(
+    shader sh = shader(Kengine::make_resource<Kengine::shader_res>(
         std::filesystem::path("assets/shaders/square.vs"),
         std::filesystem::path("assets/shaders/square.fs"),
         "square_program"));
-    texture checker_texture =
-        texture(Kengine::make_resource<Kengine::texture_resource>(
+    Kengine::res_ptr<Kengine::texture_resource> checker_texture_res =
+        Kengine::make_resource<Kengine::texture_resource>(
             std::filesystem::path("assets/textures/checker.png"),
-            "checker_texture"));
-    camera main_camera;
+            "checker_texture");
+    texture checker_texture = texture(checker_texture_res);
+    camera  main_camera;
 };

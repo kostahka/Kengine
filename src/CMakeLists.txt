@@ -8,6 +8,11 @@ set(KENGINE_SOURCES
     # cmake-format: sortable
     ${CMAKE_CURRENT_LIST_DIR}/audio/audio.cxx
     ${CMAKE_CURRENT_LIST_DIR}/audio/audio.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/components/component.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/components/physics-component.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/components/render-component.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/components/sprite-component.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/components/transform-component.cxx
     ${CMAKE_CURRENT_LIST_DIR}/configuration/configuration-file.cxx
     ${CMAKE_CURRENT_LIST_DIR}/configuration/configuration.cxx
     ${CMAKE_CURRENT_LIST_DIR}/engine.cxx
@@ -17,17 +22,15 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/event/handle-user-event.hxx
     ${CMAKE_CURRENT_LIST_DIR}/event/user-events.cxx
     ${CMAKE_CURRENT_LIST_DIR}/file-last-modify-listener.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/game-objects/component.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/game-objects/game-object.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/game-objects/physics-component.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/camera.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/element-buffer.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/framebuffer.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/graphics/graphics.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/graphics/graphics.hxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/raw-vertex-buffer.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/graphics/render-manager.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/graphics/render-manager.hxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/renderbuffer.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/shader-utils/shader-type.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/graphics/shader-utils/shader-utils.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/shader.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/texture.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/uniformbuffer.cxx
@@ -52,23 +55,22 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/opengl/opengl-debug.hxx
     ${CMAKE_CURRENT_LIST_DIR}/opengl/opengl.cxx
     ${CMAKE_CURRENT_LIST_DIR}/opengl/opengl.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/render/animation.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/render/b2GLDraw.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/render/draw-primitives.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/render/engine-resources.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/render/shader-program.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/render/sprite.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/render/texture.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/render/vertex-array-object.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/resources/engine-resources.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/resources/engine-resources.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/physics/physics.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/physics/physics.hxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/framebuffer-resource.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/resources/material-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/picopng.hxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/renderbuffer-resource.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/resources/resource-link.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/resource-manager.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/shader-resource.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/resources/sprite-material-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/texture-resource.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/scene/scene-manager.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/scene/scene-manager.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/scene/scene.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/serialization/archive.cxx
     ${CMAKE_CURRENT_LIST_DIR}/string/string-id.cxx
     ${CMAKE_CURRENT_LIST_DIR}/window/display.cxx
     ${CMAKE_CURRENT_LIST_DIR}/window/display.hxx
@@ -79,24 +81,27 @@ set(KENGINE_SOURCES
 set(KENGINE_HEADERS
     # cmake-format: sortable
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/audio/audio.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/component-types.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/component.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/physics-component.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/render-component.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/sprite-component.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/transform-component.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/configuration/configuration-file.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/configuration/configuration.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/engine.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/event/event.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/event/user-events.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/file-last-modify-listener.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/game-objects/component-types.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/game-objects/component.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/game-objects/game-object.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/game-objects/physics-component.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/game.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/camera.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/element-buffer.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/framebuffer.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/graphics.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/raw-vertex-buffer.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/render-manager.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/renderbuffer.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/shader-utils/shader-type.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/shader-utils/shader-utils.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/shader.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/texture-common.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/texture.hxx
@@ -110,22 +115,22 @@ set(KENGINE_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/lib/lib.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/log/log.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/main.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/render/animation.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/render/b2GLDraw.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/render/draw-primitives.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/render/engine-resources.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/render/shader-program.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/render/sprite.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/render/texture.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/render/vertex-array-object.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/physics/physics.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/framebuffer-resource.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/material-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/renderbuffer-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/res-ptr.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/resource-link.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/resource-manager.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/resource-types.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/resource.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/resource_types.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/shader-resource.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/sprite-material-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/texture-resource.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/scene/scene-manager.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/scene/scene.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/serialization/archive.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/serialization/serialization.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/string/string-id.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/units/matrix.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/units/rect.hxx
@@ -158,7 +163,13 @@ target_link_libraries(
     INTERFACE $<LINK_LIBRARY:WHOLE_ARCHIVE, spdlog>
     INTERFACE $<LINK_LIBRARY:WHOLE_ARCHIVE, box2d>
 )
-target_link_libraries(kengine-public INTERFACE glm::glm)
+
+target_link_libraries(
+    kengine-public
+    INTERFACE glm::glm
+    INTERFACE EnTT::EnTT
+)
+
 if(ANDROID)
     target_link_libraries(
         kengine-public
@@ -170,7 +181,16 @@ if(ANDROID)
 endif()
 
 # Compile definitions
-target_compile_definitions(kengine-public INTERFACE IMGUI_IMPL_OPENGL_ES3)
+target_compile_definitions(
+    kengine-public
+    INTERFACE IMGUI_IMPL_OPENGL_ES3
+    INTERFACE $<TARGET_PROPERTY:spdlog,INTERFACE_COMPILE_DEFINITIONS>
+    INTERFACE ENTT_NOEXCEPTION
+    INTERFACE
+        $<IF:$<STREQUAL:${CMAKE_BUILD_TYPE},"Debug">,ENTT_ASSERT,ENTT_DISABLE_ASSERT>
+    INTERFACE $<TARGET_PROPERTY:box2d,INTERFACE_COMPILE_DEFINITIONS>
+)
+
 if(MSVC)
     target_compile_definitions(
         kengine-private INTERFACE "-D_CRT_SECURE_NO_WARNINGS=1"
@@ -185,17 +205,10 @@ else()
     target_compile_definitions(kengine-public INTERFACE "-DE_DECLSPEC=")
 endif()
 
-target_compile_definitions(
-    kengine-public
-    INTERFACE $<TARGET_PROPERTY:spdlog,INTERFACE_COMPILE_DEFINITIONS>
-    INTERFACE $<TARGET_PROPERTY:box2d,INTERFACE_COMPILE_DEFINITIONS>
-)
-
+# Compile options
 target_compile_options(
     kengine-public
-    INTERFACE
-        $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<NOT:$<COMPILE_LANGUAGE:CUDA>>>:/wd4251
-        /wd4275>
+    INTERFACE $<TARGET_PROPERTY:spdlog,INTERFACE_COMPILE_OPTIONS>
 )
 
 # Include dirs

@@ -10,10 +10,10 @@
 namespace Kengine
 {
 
-    constexpr vec v1 = { 0, 0, 0 };
-    constexpr vec v2 = { 0, 1, 0 };
-    constexpr vec v3 = { 1, 1, 0 };
-    constexpr vec v4 = { 1, 0, 0 };
+    constexpr vec v1{ 0, 0, 0 };
+    constexpr vec v2{ 0, 1, 0 };
+    constexpr vec v3{ 1, 1, 0 };
+    constexpr vec v4{ 1, 0, 0 };
 
     void world_sprite_program_use(const glm::mat4& model)
     {

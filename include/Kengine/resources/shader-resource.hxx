@@ -5,6 +5,7 @@
 
 #include <string>
 #include <string_view>
+#include <unordered_map>
 
 namespace Kengine
 {
@@ -20,6 +21,9 @@ namespace Kengine
         ~fragment_shader_res();
 
         inline uint32_t get_id() const { return fragment_id; };
+
+        std::size_t serialize(std::ostream& os) const override;
+        std::size_t deserialize(std::istream& is) override;
 
     protected:
         void load_data() override;
@@ -40,6 +44,9 @@ namespace Kengine
 
         inline uint32_t get_id() const { return vertex_id; };
 
+        std::size_t serialize(std::ostream& os) const override;
+        std::size_t deserialize(std::istream& is) override;
+
     protected:
         void load_data() override;
         void unload_data() override;
@@ -59,6 +66,9 @@ namespace Kengine
 
         inline uint32_t get_id() const { return geometry_id; };
 
+        std::size_t serialize(std::ostream& os) const override;
+        std::size_t deserialize(std::istream& is) override;
+
     protected:
         void load_data() override;
         void unload_data() override;
@@ -71,6 +81,7 @@ namespace Kengine
     class shader_res : public resource
     {
     public:
+        shader_res(std::string_view name);
         shader_res(const res_ptr<vertex_shader_res>&,
                    const res_ptr<geometry_shader_res>&,
                    const res_ptr<fragment_shader_res>&,
@@ -97,7 +108,18 @@ namespace Kengine
 
         ~shader_res() override;
 
+        void set_uniform_block_binding(std::string_view name, uint32_t binding);
+
         inline uint32_t get_id() const { return id; };
+
+        inline const std::unordered_map<string_id, uint32_t>&
+        get_uniform_locations() const
+        {
+            return uniform_locations;
+        }
+
+        std::size_t serialize(std::ostream& os) const override;
+        std::size_t deserialize(std::istream& is) override;
 
     protected:
         void load_data() override;
@@ -107,6 +129,9 @@ namespace Kengine
         res_ptr<vertex_shader_res>   vertex_res;
         res_ptr<geometry_shader_res> geometry_res;
         res_ptr<fragment_shader_res> fragment_res;
+
+        std::unordered_map<string_id, uint32_t>   uniform_locations;
+        std::unordered_map<std::string, uint32_t> uniform_block_bindings;
 
         uint32_t id;
     };

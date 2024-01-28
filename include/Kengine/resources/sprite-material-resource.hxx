@@ -1,0 +1,19 @@
+#pragma once
+
+#include "Kengine/resources/material-resource.hxx"
+
+namespace Kengine
+{
+    class sprite_material_resource : public material_resource
+    {
+    public:
+        sprite_material_resource(std::string_view name);
+        sprite_material_resource(
+            const res_ptr<fragment_shader_res>& fragment_shader,
+            std::string_view                    shader_name,
+            std::string_view                    name);
+        ~sprite_material_resource();
+
+    private:
+    };
+} // namespace Kengine

@@ -4,12 +4,14 @@
 #include "Kengine/io/file-manager.hxx"
 #include "Kengine/resources/resource-manager.hxx"
 
+#include <array>
 #include <sstream>
 
 namespace Kengine
 {
     static GLint             info_len;
     static std::vector<char> info_log;
+    static std::vector<char> uniform_name_buffer;
     static GLint             succes;
 
     // ------------------------
@@ -37,6 +39,33 @@ namespace Kengine
             KENGINE_GL_CHECK(glDeleteShader(fragment_id));
             KENGINE_INFO("Unloaded fragment shader, {}", fragment_id);
         }
+    }
+
+    std::size_t fragment_shader_res::serialize(std::ostream& os) const
+    {
+        std::size_t size      = 0;
+        const bool  from_file = !f_path.empty();
+        size += serialization::write(os, from_file);
+        if (!from_file)
+        {
+            size += serialization::write(os, code);
+        }
+
+        return size;
+    }
+
+    std::size_t fragment_shader_res::deserialize(std::istream& is)
+    {
+        std::size_t size      = 0;
+        bool        from_file = true;
+        size += serialization::read(is, from_file);
+        if (!from_file)
+        {
+            size += serialization::read(is, code);
+            f_path.clear();
+        }
+
+        return size;
     }
 
     void fragment_shader_res::load_data()
@@ -123,6 +152,33 @@ namespace Kengine
         }
     }
 
+    std::size_t vertex_shader_res::serialize(std::ostream& os) const
+    {
+        std::size_t size      = 0;
+        const bool  from_file = !f_path.empty();
+        size += serialization::write(os, from_file);
+        if (!from_file)
+        {
+            size += serialization::write(os, code);
+        }
+
+        return size;
+    }
+
+    std::size_t vertex_shader_res::deserialize(std::istream& is)
+    {
+        std::size_t size      = 0;
+        bool        from_file = true;
+        size += serialization::read(is, from_file);
+        if (!from_file)
+        {
+            size += serialization::read(is, code);
+            f_path.clear();
+        }
+
+        return size;
+    }
+
     void vertex_shader_res::load_data()
     {
         const GLchar* shader_code;
@@ -206,6 +262,33 @@ namespace Kengine
         }
     }
 
+    std::size_t geometry_shader_res::serialize(std::ostream& os) const
+    {
+        std::size_t size      = 0;
+        const bool  from_file = !f_path.empty();
+        size += serialization::write(os, from_file);
+        if (!from_file)
+        {
+            size += serialization::write(os, code);
+        }
+
+        return size;
+    }
+
+    std::size_t geometry_shader_res::deserialize(std::istream& is)
+    {
+        std::size_t size      = 0;
+        bool        from_file = true;
+        size += serialization::read(is, from_file);
+        if (!from_file)
+        {
+            size += serialization::read(is, code);
+            f_path.clear();
+        }
+
+        return size;
+    }
+
     void geometry_shader_res::load_data()
     {
         const GLchar* shader_code;
@@ -265,6 +348,15 @@ namespace Kengine
     // ------------------------
     // Shader program resource
     // ------------------------
+    shader_res::shader_res(std::string_view name)
+        : resource(resource_type::shader_program, name)
+        , vertex_res(nullptr)
+        , geometry_res(nullptr)
+        , fragment_res(nullptr)
+        , id(0)
+    {
+    }
+
     shader_res::shader_res(const res_ptr<vertex_shader_res>&   vert,
                            const res_ptr<geometry_shader_res>& geom,
                            const res_ptr<fragment_shader_res>& frag,
@@ -371,6 +463,30 @@ namespace Kengine
         }
     }
 
+    std::size_t shader_res::serialize(std::ostream& os) const
+    {
+        std::size_t size = 0;
+
+        size += serialization::write(os, vertex_res);
+        size += serialization::write(os, geometry_res);
+        size += serialization::write(os, fragment_res);
+        size += serialization::write(os, uniform_block_bindings);
+
+        return size;
+    }
+
+    std::size_t shader_res::deserialize(std::istream& is)
+    {
+        std::size_t size = 0;
+
+        size += serialization::read(is, vertex_res);
+        size += serialization::read(is, geometry_res);
+        size += serialization::read(is, fragment_res);
+        size += serialization::read(is, uniform_block_bindings);
+
+        return size;
+    }
+
     void shader_res::load_data()
     {
 
@@ -405,6 +521,47 @@ namespace Kengine
             KENGINE_ERROR("Failed to link shader program. Log: {}",
                           info_log.data());
         }
+        else
+        {
+            int32_t uniforms_count     = 0;
+            int32_t uniform_max_length = 0;
+            KENGINE_GL_CHECK(
+                glGetProgramiv(id, GL_ACTIVE_UNIFORMS, &uniforms_count));
+            KENGINE_GL_CHECK(glGetProgramiv(
+                id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &uniform_max_length));
+            uniform_name_buffer.resize(uniform_max_length);
+            for (int32_t i = 0; i < uniforms_count; i++)
+            {
+                int32_t uniform_name_length = 0;
+                int32_t uniform_size        = 0;
+                GLenum  uniform_type        = 0;
+                KENGINE_GL_CHECK(
+                    glGetActiveUniform(id,
+                                       i,
+                                       100,
+                                       &uniform_name_length,
+                                       &uniform_size,
+                                       &uniform_type,
+                                       uniform_name_buffer.data()));
+
+                string_id uniform_name_id =
+                    hash_string(uniform_name_buffer.data());
+
+                uint32_t uniform_location = KENGINE_GL_CHECK(
+                    glGetUniformLocation(id, uniform_name_buffer.data()));
+
+                uniform_locations[uniform_name_id] = uniform_location;
+            }
+
+            for (auto& [uniform_block_name, uniform_block_binding] :
+                 uniform_block_bindings)
+            {
+                auto block_index = KENGINE_GL_CHECK(
+                    glGetUniformBlockIndex(id, uniform_block_name.data()));
+                KENGINE_GL_CHECK(glUniformBlockBinding(
+                    id, block_index, uniform_block_binding));
+            }
+        }
 
         KENGINE_INFO("Loaded and compiled shader program: {}", id);
 
@@ -423,6 +580,20 @@ namespace Kengine
             KENGINE_GL_CHECK(glDeleteProgram(id));
             KENGINE_INFO("Unloaded shader program, {}", id);
             id = 0;
+            uniform_locations.clear();
         }
     }
+
+    void shader_res::set_uniform_block_binding(std::string_view name,
+                                               uint32_t         binding)
+    {
+        uniform_block_bindings[std::string(name)] = binding;
+        if (p_count > 0)
+        {
+            auto block_index =
+                KENGINE_GL_CHECK(glGetUniformBlockIndex(id, name.data()));
+            KENGINE_GL_CHECK(glUniformBlockBinding(id, block_index, binding));
+        }
+    }
+
 } // namespace Kengine

@@ -73,6 +73,13 @@ namespace Kengine::graphics
     {
     }
 
+    void vertex_element_array::bind()
+    {
+        KENGINE_GL_CHECK(glBindVertexArray(vao));
+        if (ebo)
+            ebo->bind();
+    }
+
     void vertex_element_array::set_elements(std::shared_ptr<element_buffer> ebo)
     {
         KENGINE_ASSERT(ebo->is_valid(), "Element buffer is not valid");

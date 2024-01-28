@@ -1,7 +1,9 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.15.7)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(CMAKE_UNITY_BUILD ON)
 
 project(Kengine VERSION 0.0.0)
 
@@ -82,6 +84,9 @@ if(MSVC)
         PUBLIC FMT_SHARED
     )
 endif()
+
+# ENTT
+add_subdirectory(external/entt)
 
 # Kengine source
 add_subdirectory(src)

@@ -39,7 +39,7 @@ namespace Kengine::graphics
                             uint32_t  v_count,
                             uint32_t v_start = 0); // make sure do bind() before
 
-    private:
+    protected:
         uint32_t vao;
         uint32_t attributes_count;
 
@@ -51,6 +51,8 @@ namespace Kengine::graphics
     {
     public:
         vertex_element_array();
+
+        void bind();
 
         void set_elements(
             std::shared_ptr<element_buffer> ebo); // make sure do bind() before

@@ -14,19 +14,21 @@
 #include "Kengine/configuration/configuration-file.hxx"
 #include "Kengine/file-last-modify-listener.hxx"
 #include "Kengine/graphics/framebuffer.hxx"
-#include "Kengine/graphics/render-manager.hxx"
+#include "Kengine/graphics/graphics.hxx"
 #include "Kengine/log/log.hxx"
 #include "Kengine/render/engine-resources.hxx"
 #include "Kengine/resources/res-ptr.hxx"
+#include "Kengine/scene/scene-manager.hxx"
 #include "Kengine/window/window.hxx"
 #include "audio/audio.hxx"
 #include "event/event.hxx"
 #include "event/handle-user-event.hxx"
-#include "graphics/render-manager.hxx"
+#include "graphics/graphics.hxx"
 #include "imgui/imgui.hxx"
 #include "log/log.hxx"
 #include "opengl/opengl.hxx"
-#include "resources/engine-resources.hxx"
+#include "physics/physics.hxx"
+#include "scene/scene-manager.hxx"
 #include "window/window.hxx"
 
 namespace Kengine
@@ -64,11 +66,10 @@ namespace Kengine
         }
 
         KENGINE_TRACE("Init engine resource...");
-        e_resources::init();
-        resource_manager::initialize();
-        engine_resources::initialize();
-
         // audio::init();
+        resource_manager::initialize();
+        physics::initialize();
+        scene_manager::initialize();
 
 #ifdef KENGINE_IMGUI
         imgui::initialize();
@@ -81,8 +82,9 @@ namespace Kengine
     {
         imgui::shutdown();
 
+        scene_manager::shutdown();
+        physics::shutdown();
         resource_manager::shutdown();
-        engine_resources::shutdown();
         window::shutdown();
 
         engine_settings.save();
@@ -94,17 +96,20 @@ namespace Kengine
 
     void render(int delta_ms)
     {
-        graphics::render_manager::begin_render();
+        graphics::begin_render();
+
+        scene_manager::get_current_scene()->on_render(delta_ms);
         e_game->on_render(delta_ms);
 
 #ifdef KENGINE_IMGUI
         imgui::draw();
 #endif
-        graphics::render_manager::end_render();
+        graphics::end_render();
     }
 
     void update(int delta_ms)
     {
+        scene_manager::get_current_scene()->on_update(delta_ms);
         e_game->on_update(delta_ms);
     }
 

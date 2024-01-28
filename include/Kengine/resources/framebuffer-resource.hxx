@@ -10,6 +10,7 @@ namespace Kengine
     class framebuffer_resource : public resource
     {
     public:
+        framebuffer_resource(std::string_view name);
         /// attachments can be texture_resource or renderbuffer_resource
         framebuffer_resource(res_ptr<resource> color_attachment,
                              res_ptr<resource> depth_stencil_attachment,
@@ -19,6 +20,9 @@ namespace Kengine
         ~framebuffer_resource() override;
 
         void set_clear_color(const vec4& clear_color);
+
+        std::size_t serialize(std::ostream& os) const override;
+        std::size_t deserialize(std::istream& is) override;
 
         [[nodiscard]] inline uint32_t get_id() const { return id; }
 

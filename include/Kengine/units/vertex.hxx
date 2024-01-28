@@ -9,33 +9,33 @@ namespace Kengine
 {
     struct vertex
     {
-        vec pos;
+        vec pos = { 0, 0, 0 };
     };
 
     struct vertex_color
     {
-        vec  pos;
-        vec4 col;
+        vec  pos = { 0, 0, 0 };
+        vec4 col = { 0, 0, 0, 0 };
     };
 
     struct vertex_text2d
     {
-        vec  pos;
-        vec2 text;
+        vec  pos  = { 0, 0, 0 };
+        vec2 text = { 0, 0 };
     };
 
     struct vertex_color_size
     {
-        vec   pos;
-        vec4  col;
-        float size;
+        vec   pos  = { 0, 0, 0 };
+        vec4  col  = { 0, 0, 0, 0 };
+        float size = 0;
     };
 
     struct vertex_text2d_color
     {
-        vec  pos;
-        vec2 text;
-        vec4 col;
+        vec  pos  = { 0, 0, 0 };
+        vec2 text = { 0, 0 };
+        vec4 col  = { 0, 0, 0, 0 };
     };
 
     using vertex2d_array      = std::vector<vec2>;

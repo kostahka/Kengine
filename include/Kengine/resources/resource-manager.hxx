@@ -8,6 +8,9 @@ namespace Kengine::resource_manager
 
     void registrate_resource(const res_ptr<resource>& resource);
     void remove_resource(string_id r_id);
+
+    res_ptr<resource> load_resource(path res_path);
+    void              save_resource(path res_path, res_ptr<resource> res);
 } // namespace Kengine::resource_manager
 
 namespace Kengine

@@ -12,6 +12,8 @@ namespace Kengine
 
     struct gl_render_points : public gl_render_primitive
     {
+        gl_render_points(){};
+
         void create() override
         {
             program = e_resources::points_program;
@@ -59,6 +61,8 @@ namespace Kengine
 
     struct gl_render_lines : public gl_render_primitive
     {
+        gl_render_lines(){};
+
         void create() override
         {
             program = e_resources::lines_program;
@@ -106,6 +110,8 @@ namespace Kengine
 
     struct gl_render_triangles : public gl_render_primitive
     {
+        gl_render_triangles(){};
+
         void create() override
         {
             program = e_resources::lines_program;

@@ -2,7 +2,7 @@
 
 #include "SDL3/SDL_render.h"
 
-#include "../graphics/render-manager.hxx"
+#include "../graphics/graphics.hxx"
 #include "../opengl/opengl-debug.hxx"
 #include "Kengine/configuration/configuration-file.hxx"
 #include "Kengine/log/log.hxx"
@@ -67,7 +67,7 @@ namespace Kengine::window
         }
         if (context)
         {
-            graphics::render_manager::update_viewport();
+            graphics::update_viewport();
         }
     }
 
@@ -100,7 +100,7 @@ namespace Kengine::window
         fullscreen = is_fullscreen;
         if (window)
             SDL_SetWindowFullscreen(window, (SDL_bool)is_fullscreen);
-        graphics::render_manager::update_viewport();
+        graphics::update_viewport();
     }
 
     void set_input_focus()
@@ -132,7 +132,7 @@ namespace Kengine::window
             fullscreen_mode.refresh_rate = sdl_mode->refresh_rate;
 
             if (context && fullscreen)
-                graphics::render_manager::update_viewport();
+                graphics::update_viewport();
         }
     }
 
@@ -276,7 +276,7 @@ namespace Kengine::window
                         gl_major_version, gl_minor_version, gl_profile))
                     KENGINE_INFO("GL debug enabled");
 
-            if (!graphics::render_manager::initialize())
+            if (!graphics::initialize())
             {
                 KENGINE_FATAL("Failed to initialize render manager.");
                 return false;
@@ -291,6 +291,7 @@ namespace Kengine::window
     {
         if (context)
         {
+            graphics::shutdown();
             SDL_GL_DeleteContext(context);
             context = nullptr;
         }

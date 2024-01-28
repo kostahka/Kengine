@@ -4,6 +4,14 @@
 
 namespace Kengine
 {
+    renderbuffer_resource::renderbuffer_resource(std::string_view name)
+        : resource(resource_type::renderbuffer, name)
+        , size(0, 0)
+        , format(texture_internal_format::rgb8)
+        , id(0)
+    {
+    }
+
     renderbuffer_resource::renderbuffer_resource(ivec2                   size,
                                                  texture_internal_format format,
                                                  std::string_view        name)
@@ -21,6 +29,28 @@ namespace Kengine
             KENGINE_GL_CHECK(glDeleteRenderbuffers(1, &id));
             KENGINE_INFO("Unloaded renderbuffer: {}", id);
         }
+    }
+
+    std::size_t renderbuffer_resource::serialize(std::ostream& os) const
+    {
+        std::size_t size = 0;
+
+        size += serialization::write(os, this->size.x);
+        size += serialization::write(os, this->size.y);
+        size += serialization::write(os, format);
+
+        return size;
+    }
+
+    std::size_t renderbuffer_resource::deserialize(std::istream& is)
+    {
+        std::size_t size = 0;
+
+        size += serialization::read(is, this->size.x);
+        size += serialization::read(is, this->size.y);
+        size += serialization::read(is, format);
+
+        return size;
     }
 
     void renderbuffer_resource::load_data()

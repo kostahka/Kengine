@@ -1,6 +1,6 @@
 #include "Kengine/graphics/camera.hxx"
 
-#include "render-manager.hxx"
+#include "graphics.hxx"
 
 namespace Kengine::graphics
 {
@@ -18,8 +18,7 @@ namespace Kengine::graphics
         if (binded)
         {
             current_camera = nullptr;
-            Kengine::graphics::render_manager::update_matrices(mat4x4(1),
-                                                               mat4x4(1));
+            graphics::update_matrices(mat4x4(1), mat4x4(1));
         }
     }
 
@@ -29,7 +28,7 @@ namespace Kengine::graphics
         this->view       = view;
         if (binded)
         {
-            render_manager::update_matrices(projection, view);
+            graphics::update_matrices(projection, view);
         }
     }
 
@@ -38,7 +37,7 @@ namespace Kengine::graphics
         this->projection = projection;
         if (binded)
         {
-            render_manager::update_projection(projection);
+            graphics::update_projection(projection);
         }
     }
 
@@ -47,7 +46,7 @@ namespace Kengine::graphics
         this->view = view;
         if (binded)
         {
-            render_manager::update_view(view);
+            graphics::update_view(view);
         }
     }
 
@@ -61,6 +60,6 @@ namespace Kengine::graphics
         current_camera = this;
         binded         = true;
 
-        render_manager::update_matrices(projection, view);
+        graphics::update_matrices(projection, view);
     }
 } // namespace Kengine::graphics

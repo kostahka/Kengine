@@ -6,7 +6,7 @@
 
 #include <memory>
 
-namespace Kengine::graphics::render_manager
+namespace Kengine::graphics
 {
     void set_clear_color(const vec4& col); // set clear color
 
@@ -15,4 +15,4 @@ namespace Kengine::graphics::render_manager
 
     void push_camera(std::shared_ptr<camera> cam);
     void pop_camera();
-} // namespace Kengine::graphics::render_manager
+} // namespace Kengine::graphics

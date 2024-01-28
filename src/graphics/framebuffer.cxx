@@ -2,8 +2,6 @@
 
 #include "../opengl/opengl.hxx"
 
-#include "Kengine/graphics/render-manager.hxx"
-
 namespace Kengine::graphics
 {
     framebuffer::framebuffer()
