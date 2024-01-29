@@ -51,7 +51,11 @@ namespace Kengine
     {
         log::initialize();
 
-        if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
+        auto sdl_init_flags = SDL_INIT_AUDIO | SDL_INIT_EVENTS |
+                              SDL_INIT_GAMEPAD | SDL_INIT_VIDEO |
+                              SDL_INIT_JOYSTICK | SDL_INIT_SENSOR;
+
+        if (SDL_Init(sdl_init_flags) < 0)
         {
             KENGINE_FATAL("Error to initialize SDL. Error: {}", SDL_GetError());
             return false;
