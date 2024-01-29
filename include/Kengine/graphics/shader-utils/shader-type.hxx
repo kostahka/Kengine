@@ -31,87 +31,72 @@ namespace Kengine::graphics
         {
         }
 
-        template <typename T>
-        shader_type_any(T value);
-
-        template <>
         shader_type_any(unsigned int value)
             : type(shader_type::uint_type)
             , uint_value(value)
         {
         }
 
-        template <>
         shader_type_any(int value)
             : type(shader_type::int_type)
             , int_value(value)
         {
         }
 
-        template <>
         shader_type_any(float value)
             : type(shader_type::float_type)
             , float_value(value)
         {
         }
 
-        template <>
         shader_type_any(const mat2x2& value)
             : type(shader_type::mat2x2_type)
             , mat2x2_value(value)
         {
         }
 
-        template <>
         shader_type_any(const mat2x3& value)
             : type(shader_type::mat2x3_type)
             , mat2x3_value(value)
         {
         }
 
-        template <>
         shader_type_any(const mat2x4& value)
             : type(shader_type::mat2x4_type)
             , mat2x4_value(value)
         {
         }
 
-        template <>
         shader_type_any(const mat3x2& value)
             : type(shader_type::mat3x2_type)
             , mat3x2_value(value)
         {
         }
 
-        template <>
         shader_type_any(const mat3x3& value)
             : type(shader_type::mat3x3_type)
             , mat3x3_value(value)
         {
         }
 
-        template <>
         shader_type_any(const mat3x4& value)
             : type(shader_type::mat3x4_type)
             , mat3x4_value(value)
         {
         }
 
-        template <>
         shader_type_any(const mat4x2& value)
             : type(shader_type::mat4x2_type)
             , mat4x2_value(value)
         {
         }
 
-        template <>
         shader_type_any(const mat4x3& value)
             : type(shader_type::mat4x3_type)
             , mat4x3_value(value)
         {
         }
 
-        template <>
         shader_type_any(const mat4x4& value)
             : type(shader_type::mat4x4_type)
             , mat4x4_value(value)

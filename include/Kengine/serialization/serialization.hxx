@@ -38,16 +38,16 @@ namespace Kengine
             typename T::size_type;
             {
                 a.begin()
-            } -> std::same_as<T::iterator>;
+            } -> std::same_as<typename T::iterator>;
             {
                 a.end()
-            } -> std::same_as<T::iterator>;
+            } -> std::same_as<typename T::iterator>;
             {
                 a.cbegin()
-            } -> std::same_as<T::const_iterator>;
+            } -> std::same_as<typename T::const_iterator>;
             {
                 a.cend()
-            } -> std::same_as<T::const_iterator>;
+            } -> std::same_as<typename T::const_iterator>;
             {
                 a.clear()
             } -> std::same_as<void>;
@@ -118,7 +118,7 @@ namespace Kengine
                 auto size = static_cast<std::size_t>(os.tellp() - pos);
                 if (len > 0)
                 {
-                    using value_t = typename stream_writer::value_type;
+                    using value_t = typename T::value_type;
                     std::for_each(
                         value.cbegin(),
                         value.cend(),
@@ -137,13 +137,13 @@ namespace Kengine
             static auto write(std::ostream& os, const T& value) -> std::size_t
             {
                 const auto pos = os.tellp();
-                const auto len = static_cast<typename stream_writer::size_type>(
-                    value.size());
+                const auto len =
+                    static_cast<typename T::size_type>(value.size());
                 os.write(reinterpret_cast<const char*>(&len), sizeof(len));
                 auto size = static_cast<std::size_t>(os.tellp() - pos);
                 if (len > 0)
                 {
-                    using value_t = typename stream_writer::value_type;
+                    using value_t = typename T::value_type;
                     std::for_each(
                         value.cbegin(),
                         value.cend(),
@@ -208,18 +208,18 @@ namespace Kengine
         public:
             static auto read(std::istream& is, T& value) -> std::size_t
             {
-                const auto                        pos = is.tellg();
-                typename stream_reader::size_type len = 0;
+                const auto            pos = is.tellg();
+                typename T::size_type len = 0;
                 is.read(reinterpret_cast<char*>(&len), sizeof(len));
                 auto size = static_cast<std::size_t>(is.tellg() - pos);
                 if (len > 0)
                 {
                     for (auto i = 0U; i < len; ++i)
                     {
-                        using value_t = typename stream_reader::value_type;
+                        using value_t = typename T::value_type;
                         value_t v{};
                         size += stream_reader<value_t>::read(is, v);
-                        value.insert(std::move(v));
+                        value.push_back(std::move(v));
                     }
                 }
                 return size;
@@ -233,15 +233,15 @@ namespace Kengine
         public:
             static auto read(std::istream& is, T& value) -> std::size_t
             {
-                const auto                        pos = is.tellg();
-                typename stream_reader::size_type len = 0;
+                const auto            pos = is.tellg();
+                typename T::size_type len = 0;
                 is.read(reinterpret_cast<char*>(&len), sizeof(len));
                 auto size = static_cast<std::size_t>(is.tellg() - pos);
                 if (len > 0)
                 {
                     for (auto i = 0U; i < len; ++i)
                     {
-                        using value_t = typename stream_reader::value_type;
+                        using value_t = typename T::value_type;
                         value_t v{};
                         size += stream_reader<value_t>::read(is, v);
                         value.insert(std::move(v));

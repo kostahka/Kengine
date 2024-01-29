@@ -211,6 +211,10 @@ target_compile_options(
     INTERFACE $<TARGET_PROPERTY:spdlog,INTERFACE_COMPILE_OPTIONS>
 )
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(kengine-public INTERFACE "-fconcepts")
+endif()
+
 # Include dirs
 target_include_directories(kengine-public INTERFACE ${KENGINE_INCLUDE_DIR})
 target_include_directories(kengine-private INTERFACE ${IMGUI_IMPL_INCLUDE_DIR})
