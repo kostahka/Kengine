@@ -1,9 +1,14 @@
-set(KENGINE_EDITOR_SOURCES # cmake-format: sortable
-                           src/editor.cxx
+set(KENGINE_EDITOR_SOURCES
+    # cmake-format: sortable
+    src/assets-browser.cxx src/editor.cxx src/game-properties-wnd.cxx
 )
 
-set(KENGINE_EDITOR_HEADERS # cmake-format: sortable
-                           include/editor.hxx
+set(KENGINE_EDITOR_HEADERS
+    # cmake-format: sortable
+    include/assets-browser.hxx
+    include/editor.hxx
+    include/game-properties-wnd.hxx
+    include/imgui-filebrowser/imfilebrowser.h
 )
 
 add_executable(

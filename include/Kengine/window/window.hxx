@@ -10,7 +10,8 @@ namespace Kengine::window
 
     [[nodiscard]] ivec2 get_size_in_pixels(); // size of window in pixels
     [[nodiscard]] ivec2 get_size();           // size of window
-    [[nodiscard]] bool  get_is_maximized();
+    [[nodiscard]] bool  is_maximized();
+    [[nodiscard]] bool  is_hidden();
 
     void set_size(ivec2&);     // set window size
     void set_fullscreen(bool); // set fullscreen

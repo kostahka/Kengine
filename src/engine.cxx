@@ -102,7 +102,7 @@ namespace Kengine
     {
         graphics::begin_render();
 
-        scene_manager::get_current_scene()->on_render(delta_ms);
+        e_game->current_scene->on_render(delta_ms);
         e_game->on_render(delta_ms);
 
 #ifdef KENGINE_IMGUI
@@ -113,7 +113,7 @@ namespace Kengine
 
     void update(int delta_ms)
     {
-        scene_manager::get_current_scene()->on_update(delta_ms);
+        e_game->current_scene->on_update(delta_ms);
         e_game->on_update(delta_ms);
     }
 
@@ -210,6 +210,7 @@ namespace Kengine
             KENGINE_ASSERT(e_game, "Function doesn't return game pointer");
             if (e_game)
             {
+                e_game->load_scene_links();
                 start_game_loop();
                 delete e_game;
                 e_game = nullptr;

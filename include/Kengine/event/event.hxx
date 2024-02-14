@@ -14,6 +14,7 @@ namespace Kengine::event
         touch_move_event,
         window_resize,
         window_maximazed,
+        window_hide_show,
 
         quit,
 
@@ -49,6 +50,7 @@ namespace Kengine::event
         union
         {
             bool  maximized;
+            bool  hidden;
             ivec2 new_size;
         };
     };

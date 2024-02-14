@@ -9,5 +9,6 @@ namespace Kengine
         physics,
         sprite,
         camera,
+        custom
     };
 }

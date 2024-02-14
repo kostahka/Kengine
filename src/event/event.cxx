@@ -26,13 +26,18 @@ namespace Kengine::event
 
             switch (sdl_event.type)
             {
+                case SDL_EVENT_WINDOW_HIDDEN:
+                case SDL_EVENT_WINDOW_SHOWN:
+                    Kengine::window::update_flags();
+                    event.g_type        = type::window_hide_show;
+                    event.window.hidden = Kengine::window::is_hidden();
+                    break;
                 case SDL_EVENT_WINDOW_MAXIMIZED:
                 case SDL_EVENT_WINDOW_MINIMIZED:
                 case SDL_EVENT_WINDOW_RESTORED:
                     Kengine::window::update_flags();
-                    event.g_type = type::window_maximazed;
-                    event.window.maximized =
-                        Kengine::window::get_is_maximized();
+                    event.g_type           = type::window_maximazed;
+                    event.window.maximized = Kengine::window::is_maximized();
                     break;
                 case SDL_EVENT_WINDOW_RESIZED:
                     Kengine::window::update_flags();
@@ -110,9 +115,9 @@ namespace Kengine::event
                 default:
                     event.g_type = type::unknown;
             }
-
+#ifdef KENGINE_IMGUI
             ImGui_ImplSDL3_ProcessEvent(&sdl_event);
-
+#endif
             if (event.g_type != type::unknown)
                 Kengine::e_game->on_event(event);
         }

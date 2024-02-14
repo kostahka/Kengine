@@ -20,10 +20,13 @@ namespace Kengine
     namespace serialization
     {
         template <typename T>
-        using only_if_string = std::enable_if_t<std::is_same_v<T, std::string>>;
+        concept Serializable = std::is_base_of_v<serializable, T>;
+
+        constexpr char true_char  = 'T';
+        constexpr char false_char = 'F';
 
         template <typename T>
-        concept Serializable = std::is_base_of_v<serializable, T>;
+        concept Boolean = std::is_same_v<T, bool>;
 
         template <typename T>
         concept String = std::is_same_v<T, std::string>;
@@ -89,7 +92,8 @@ namespace Kengine
         };
 
         template <typename T>
-        class stream_writer<T, only_if_string<T>>
+            requires String<T>
+        class stream_writer<T, void>
         {
         public:
             static auto write(std::ostream& os, const T& value) -> std::size_t
@@ -104,6 +108,20 @@ namespace Kengine
         };
 
         template <typename T>
+            requires Boolean<T>
+        class stream_writer<T, void>
+        {
+        public:
+            static auto write(std::ostream& os, const T& value) -> std::size_t
+            {
+                const auto pos         = os.tellp();
+                const auto write_value = value ? true_char : false_char;
+                os.write(&write_value, sizeof(write_value));
+                return static_cast<std::size_t>(os.tellp() - pos);
+            };
+        };
+
+        template <typename T>
             requires SequenceContainer<T>
         class stream_writer<T, void>
         {
@@ -112,7 +130,7 @@ namespace Kengine
             {
                 const auto pos = os.tellp();
                 // to support std::forward_list we have to use std::distance()
-                const auto len = static_cast<std::uint16_t>(
+                const auto len = static_cast<typename T::size_type>(
                     std::distance(value.cbegin(), value.cend()));
                 os.write(reinterpret_cast<const char*>(&len), sizeof(len));
                 auto size = static_cast<std::size_t>(os.tellp() - pos);
@@ -139,7 +157,8 @@ namespace Kengine
                 const auto pos = os.tellp();
                 const auto len =
                     static_cast<typename T::size_type>(value.size());
-                os.write(reinterpret_cast<const char*>(&len), sizeof(len));
+                const auto len_size = sizeof(len);
+                os.write(reinterpret_cast<const char*>(&len), len_size);
                 auto size = static_cast<std::size_t>(os.tellp() - pos);
                 if (len > 0)
                 {
@@ -193,10 +212,25 @@ namespace Kengine
                 const auto    pos = is.tellg();
                 std::uint32_t len = 0;
                 is.read(reinterpret_cast<char*>(&len), sizeof(len));
-                value.resize(len);
+                value.assign(len + 1, 0);
                 if (len > 0)
                     is.read(value.data(), len);
 
+                return static_cast<std::size_t>(is.tellg() - pos);
+            };
+        };
+
+        template <typename T>
+            requires Boolean<T>
+        class stream_reader<T, void>
+        {
+        public:
+            static auto read(std::istream& is, T& value) -> std::size_t
+            {
+                const auto pos       = is.tellg();
+                auto       read_char = false_char;
+                is.read(reinterpret_cast<char*>(&read_char), sizeof(read_char));
+                value = read_char == true_char;
                 return static_cast<std::size_t>(is.tellg() - pos);
             };
         };
@@ -208,9 +242,10 @@ namespace Kengine
         public:
             static auto read(std::istream& is, T& value) -> std::size_t
             {
-                const auto            pos = is.tellg();
-                typename T::size_type len = 0;
-                is.read(reinterpret_cast<char*>(&len), sizeof(len));
+                const auto            pos      = is.tellg();
+                typename T::size_type len      = 0;
+                auto                  len_size = sizeof(len);
+                is.read(reinterpret_cast<char*>(&len), len_size);
                 auto size = static_cast<std::size_t>(is.tellg() - pos);
                 if (len > 0)
                 {

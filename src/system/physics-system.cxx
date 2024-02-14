@@ -1,0 +1,41 @@
+#include "Kengine/system/physics-system.hxx"
+
+#include "Kengine/components/physics-component.hxx"
+#include "Kengine/components/transform-component.hxx"
+#include "Kengine/scene/scene.hxx"
+
+namespace Kengine
+{
+    static int velocity_iterations = 10;
+    static int position_iterations = 8;
+
+    physics_system::physics_system()
+        : update_system(name)
+    {
+    }
+
+    void physics_system::on_update(scene& sc, int delta_ms)
+    {
+        auto physics_view =
+            sc.registry.view<transform_component, physics_component>();
+
+        for (auto [ent, ent_transform, ent_physics] : physics_view.each())
+        {
+            ent_physics->SetTransform(ent_transform.position,
+                                      ent_transform.angle);
+        }
+
+        sc.get_world().Step(
+            delta_ms / 1000.0f, velocity_iterations, position_iterations);
+
+        for (auto [ent, ent_transform, ent_physics] : physics_view.each())
+        {
+            auto new_position = ent_physics->GetPosition();
+            auto new_angle    = ent_physics->GetAngle();
+
+            ent_transform.position.x = new_position.x;
+            ent_transform.position.y = new_position.y;
+            ent_transform.angle      = new_angle;
+        }
+    }
+} // namespace Kengine

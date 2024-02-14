@@ -2,8 +2,9 @@
 
 namespace Kengine
 {
-    archive_input::archive_input(std::istream& is)
+    archive_input::archive_input(std::istream& is, scene& sc)
         : is(is)
+        , sc(sc)
         , total_size(0)
     {
     }
@@ -18,8 +19,9 @@ namespace Kengine
         total_size += serialization::read(is, size);
     }
 
-    archive_output::archive_output(std::ostream& os)
+    archive_output::archive_output(std::ostream& os, const scene& sc)
         : os(os)
+        , sc(sc)
         , total_size(0)
     {
     }

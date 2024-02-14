@@ -12,13 +12,7 @@ public:
     static editor* instance;
     static void    render_imgui();
 
-    editor()
-    {
-        current_game = nullptr;
-        game_lib     = nullptr;
-        need_reload  = false;
-        game_imgui   = nullptr;
-    };
+    editor();
 
     ~editor() override;
     void on_start() override;

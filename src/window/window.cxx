@@ -20,6 +20,7 @@ namespace Kengine::window
     bool          fullscreen = true;
     display::mode fullscreen_mode{ 0, 0, 0 };
     bool          maximized = false;
+    bool          hidden    = false;
 
     Kengine::configuration override_configuration{};
     configuration_file     configuration("kengine_window");
@@ -54,6 +55,7 @@ namespace Kengine::window
         {
             Uint32 wnd_flags = SDL_GetWindowFlags(window);
             maximized        = wnd_flags & SDL_WINDOW_MAXIMIZED;
+            hidden           = wnd_flags & SDL_WINDOW_HIDDEN;
         }
     }
 
@@ -84,9 +86,14 @@ namespace Kengine::window
             return size;
     }
 
-    bool get_is_maximized()
+    bool is_maximized()
     {
         return maximized;
+    }
+
+    bool is_hidden()
+    {
+        return hidden;
     }
 
     void set_size(ivec2& s)

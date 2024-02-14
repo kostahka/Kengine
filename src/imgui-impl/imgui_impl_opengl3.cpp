@@ -7,8 +7,10 @@
 
 // Implemented features:
 //  [X] Renderer: User texture binding. Use 'GLuint' OpenGL texture identifier
-//  as void*/ImTextureID. Read the FAQ about ImTextureID! [x] Renderer: Large
+//  as void*/ImTextureID. Read the FAQ about ImTextureID! [X] Renderer: Large
 //  meshes support (64k+ vertices) with 16-bit indices (Desktop OpenGL only).
+//  [X] Renderer: Multi-viewport support (multiple windows). Enable with
+//  'io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable'.
 
 // About WebGL/ES:
 // - You need to '#define IMGUI_IMPL_OPENGL_ES2' or '#define
@@ -21,20 +23,33 @@
 // You can use unmodified imgui_impl_* files in your project. See examples/
 // folder for examples of using this. Prefer including the entire imgui/
 // repository into your project (either as a copy or as a submodule), and only
-// build the backends you need. If you are new to Dear ImGui, read documentation
-// from the docs/ folder + read the top of imgui.cpp. Read online:
-// https://github.com/ocornut/imgui/tree/master/docs
+// build the backends you need. Learn about Dear ImGui:
+// - FAQ                  https://dearimgui.com/faq
+// - Getting Started      https://dearimgui.com/getting-started
+// - Documentation        https://dearimgui.com/docs (same as your local docs/
+// folder).
+// - Introduction, links and more at the top of imgui.cpp
 
 // CHANGELOG
 // (minor and older changes stripped away, please see git history for details)
-//  2023-05-09: OpenGL: Support for glBindSampler() backup/restore on ES3.
-//  (#6375) 2023-04-18: OpenGL: Restore front and back polygon mode separately
-//  when supported by context. (#6333) 2023-03-23: OpenGL: Properly restoring
-//  "no shader program bound" if it was the case prior to running the rendering
-//  function. (#6267, #6220, #6224) 2023-03-15: OpenGL: Fixed GL loader crash
-//  when GL_VERSION returns NULL. (#6154, #4445, #3530) 2023-03-06: OpenGL:
-//  Fixed restoration of a potentially deleted OpenGL program, by calling
-//  glIsProgram(). (#6220, #6224) 2022-11-09: OpenGL: Reverted use of
+//  2023-XX-XX: Platform: Added support for multiple windows via the
+//  ImGuiPlatformIO interface. 2024-01-09: OpenGL: Update GL3W based
+//  imgui_impl_opengl3_loader.h to load "libGL.so" and variants, fixing
+//  regression on distros missing a symlink. 2023-11-08: OpenGL: Update GL3W
+//  based imgui_impl_opengl3_loader.h to load "libGL.so" instead of
+//  "libGL.so.1", accommodating for NetBSD systems having only "libGL.so.3"
+//  available. (#6983) 2023-10-05: OpenGL: Rename symbols in our internal loader
+//  so that LTO compilation with another copy of gl3w is possible. (#6875,
+//  #6668, #4445) 2023-06-20: OpenGL: Fixed erroneous use
+//  glGetIntegerv(GL_CONTEXT_PROFILE_MASK) on contexts lower than 3.2. (#6539,
+//  #6333) 2023-05-09: OpenGL: Support for glBindSampler() backup/restore on
+//  ES3. (#6375) 2023-04-18: OpenGL: Restore front and back polygon mode
+//  separately when supported by context. (#6333) 2023-03-23: OpenGL: Properly
+//  restoring "no shader program bound" if it was the case prior to running the
+//  rendering function. (#6267, #6220, #6224) 2023-03-15: OpenGL: Fixed GL
+//  loader crash when GL_VERSION returns NULL. (#6154, #4445, #3530) 2023-03-06:
+//  OpenGL: Fixed restoration of a potentially deleted OpenGL program, by
+//  calling glIsProgram(). (#6220, #6224) 2022-11-09: OpenGL: Reverted use of
 //  glBufferSubData(), too many corruptions issues + old issues seemingly can't
 //  be reproed with Intel drivers nowadays (revert 2021-12-15 and 2022-05-23
 //  changes). 2022-10-11: Using 'nullptr' instead of 'NULL' as per our switch to
@@ -141,143 +156,141 @@
 //----------------------------------------
 
 #if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_WARNINGS)
-#define _CRT_SECURE_NO_WARNINGS
+ #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include "imgui_impl_opengl3.h"
 #include "imgui.h"
-#include <stdio.h>
-#if defined(_MSC_VER) && _MSC_VER <= 1500 // MSVC 2008 or earlier
-#include <stddef.h>                       // intptr_t
-#else
-#include <stdint.h> // intptr_t
-#endif
-#if defined(__APPLE__)
-#include <TargetConditionals.h>
-#endif
+#ifndef IMGUI_DISABLE
+ #include "imgui_impl_opengl3.h"
+ #include <stdint.h> // intptr_t
+ #include <stdio.h>
+ #if defined(__APPLE__)
+  #include <TargetConditionals.h>
+ #endif
 
-// Clang/GCC warnings with -Weverything
-#if defined(__clang__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored                                               \
-    "-Wold-style-cast" // warning: use of old-style cast
-#pragma clang diagnostic ignored                                               \
-    "-Wsign-conversion" // warning: implicit conversion changes signedness
-#pragma clang diagnostic ignored "-Wunused-macros" // warning: macro is not used
-#pragma clang diagnostic ignored "-Wnonportable-system-include-path"
-#pragma clang diagnostic ignored                                               \
-    "-Wcast-function-type" // warning: cast between incompatible function types
-                           // (for loader)
-#endif
-#if defined(__GNUC__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored                                                 \
-    "-Wpragmas" // warning: unknown option after '#pragma GCC diagnostic' kind
-#pragma GCC diagnostic ignored                                                 \
-    "-Wunknown-warning-option" // warning: unknown warning group 'xxx'
-#pragma GCC diagnostic ignored                                                 \
-    "-Wcast-function-type" // warning: cast between incompatible function types
-                           // (for loader)
-#endif
+ // Clang/GCC warnings with -Weverything
+ #if defined(__clang__)
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored                                             \
+      "-Wold-style-cast"  // warning: use of old-style cast
+  #pragma clang diagnostic ignored                                             \
+      "-Wsign-conversion" // warning: implicit conversion changes signedness
+  #pragma clang diagnostic ignored                                             \
+      "-Wunused-macros"   // warning: macro is not used
+  #pragma clang diagnostic ignored "-Wnonportable-system-include-path"
+  #pragma clang diagnostic ignored                                             \
+      "-Wcast-function-type" // warning: cast between incompatible function
+                             // types (for loader)
+ #endif
+ #if defined(__GNUC__)
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wpragmas" // warning: unknown option after
+                                             // '#pragma GCC diagnostic' kind
+  #pragma GCC diagnostic ignored                                               \
+      "-Wunknown-warning-option" // warning: unknown warning group 'xxx'
+  #pragma GCC diagnostic ignored                                               \
+      "-Wcast-function-type"     // warning: cast between incompatible function
+                                 // types (for loader)
+ #endif
 
-// GL includes
-#if defined(IMGUI_IMPL_OPENGL_ES2)
-#if (defined(__APPLE__) && (TARGET_OS_IOS || TARGET_OS_TV))
-#include <OpenGLES/ES2/gl.h> // Use GL ES 2
-#else
-#include <GLES2/gl2.h> // Use GL ES 2
-#endif
-#if defined(__EMSCRIPTEN__)
-#ifndef GL_GLEXT_PROTOTYPES
-#define GL_GLEXT_PROTOTYPES
-#endif
-#include <GLES2/gl2ext.h>
-// Desktop GL 2.0+ has glPolygonMode() which GL ES and WebGL don't have.
-#ifdef GL_POLYGON_MODE
-#define IMGUI_IMPL_HAS_POLYGON_MODE
-#endif
-#endif
-#elif defined(IMGUI_IMPL_OPENGL_ES3)
-#if (defined(__APPLE__) && (TARGET_OS_IOS || TARGET_OS_TV))
-#include <glad/glad.h> // Use GL ES 3
-#else
-#ifdef __ANDROID__
-#include <GLES3/gl3.h>
-#else
-#include <glad/glad.h> // Use GL ES 3
-#endif
-#endif
-#elif !defined(IMGUI_IMPL_OPENGL_LOADER_CUSTOM)
-// Modern desktop OpenGL doesn't have a standard portable header file to load
-// OpenGL function pointers. Helper libraries are often used for this purpose!
-// Here we are using our own minimal custom loader based on gl3w. In the rest of
-// your app/engine, you can use another loader of your choice (gl3w, glew, glad,
-// glbinding, glext, glLoadGen, etc.). If you happen to be developing a new
-// feature for this backend (imgui_impl_opengl3.cpp):
-// - You may need to regenerate imgui_impl_opengl3_loader.h to add new symbols.
-// See https://github.com/dearimgui/gl3w_stripped
-// - You can temporarily use an unstripped version. See
-// https://github.com/dearimgui/gl3w_stripped/releases Changes to this backend
-// using new APIs should be accompanied by a regenerated stripped loader
-// version.
-#define IMGL3W_IMPL
-#include "imgui_impl_opengl3_loader.h"
-#endif
+ // GL includes
+ #if defined(IMGUI_IMPL_OPENGL_ES2)
+  #if (defined(__APPLE__) && (TARGET_OS_IOS || TARGET_OS_TV))
+   #include <OpenGLES/ES2/gl.h> // Use GL ES 2
+  #else
+   #include <GLES2/gl2.h>       // Use GL ES 2
+  #endif
+  #if defined(__EMSCRIPTEN__)
+   #ifndef GL_GLEXT_PROTOTYPES
+    #define GL_GLEXT_PROTOTYPES
+   #endif
+   #include <GLES2/gl2ext.h>
+        // Desktop GL 2.0+ has glPolygonMode() which GL ES and WebGL don't have.
+   #ifdef GL_POLYGON_MODE
+    #define IMGUI_IMPL_HAS_POLYGON_MODE
+   #endif
+  #endif
+ #elif defined(IMGUI_IMPL_OPENGL_ES3)
+  #if (defined(__APPLE__) && (TARGET_OS_IOS || TARGET_OS_TV))
+   #include <glad/glad.h> // Use GL ES 3
+  #else
+   #ifdef __ANDROID__
+    #include <GLES3/gl3.h>
+   #else
+    #include <glad/glad.h> // Use GL ES 3
+   #endif
+  #endif
+ #elif !defined(IMGUI_IMPL_OPENGL_LOADER_CUSTOM)
+  // Modern desktop OpenGL doesn't have a standard portable header file to load
+  // OpenGL function pointers. Helper libraries are often used for this purpose!
+  // Here we are using our own minimal custom loader based on gl3w. In the rest
+  // of your app/engine, you can use another loader of your choice (gl3w, glew,
+  // glad, glbinding, glext, glLoadGen, etc.). If you happen to be developing a
+  // new feature for this backend (imgui_impl_opengl3.cpp):
+  // - You may need to regenerate imgui_impl_opengl3_loader.h to add new
+  // symbols. See https://github.com/dearimgui/gl3w_stripped
+  // - You can temporarily use an unstripped version. See
+  // https://github.com/dearimgui/gl3w_stripped/releases Changes to this backend
+  // using new APIs should be accompanied by a regenerated stripped loader
+  // version.
+  #define IMGL3W_IMPL
+  #include "imgui_impl_opengl3_loader.h"
+ #endif
 
-// Vertex arrays are not supported on ES2/WebGL1 unless Emscripten which uses an
-// extension
-#ifndef IMGUI_IMPL_OPENGL_ES2
-#define IMGUI_IMPL_OPENGL_USE_VERTEX_ARRAY
-#elif defined(__EMSCRIPTEN__)
-#define IMGUI_IMPL_OPENGL_USE_VERTEX_ARRAY
-#define glBindVertexArray glBindVertexArrayOES
-#define glGenVertexArrays glGenVertexArraysOES
-#define glDeleteVertexArrays glDeleteVertexArraysOES
-#define GL_VERTEX_ARRAY_BINDING GL_VERTEX_ARRAY_BINDING_OES
-#endif
+ // Vertex arrays are not supported on ES2/WebGL1 unless Emscripten which uses
+ // an extension
+ #ifndef IMGUI_IMPL_OPENGL_ES2
+  #define IMGUI_IMPL_OPENGL_USE_VERTEX_ARRAY
+ #elif defined(__EMSCRIPTEN__)
+  #define IMGUI_IMPL_OPENGL_USE_VERTEX_ARRAY
+  #define glBindVertexArray       glBindVertexArrayOES
+  #define glGenVertexArrays       glGenVertexArraysOES
+  #define glDeleteVertexArrays    glDeleteVertexArraysOES
+  #define GL_VERTEX_ARRAY_BINDING GL_VERTEX_ARRAY_BINDING_OES
+ #endif
 
-// Desktop GL 3.2+ has glDrawElementsBaseVertex() which GL ES and WebGL don't
-// have.
-#if !defined(IMGUI_IMPL_OPENGL_ES2) && !defined(IMGUI_IMPL_OPENGL_ES3) &&      \
-    defined(GL_VERSION_3_2)
-#define IMGUI_IMPL_OPENGL_MAY_HAVE_VTX_OFFSET
-#endif
+ // Desktop GL 3.2+ has glDrawElementsBaseVertex() which GL ES and WebGL don't
+ // have.
+ #if !defined(IMGUI_IMPL_OPENGL_ES2) && !defined(IMGUI_IMPL_OPENGL_ES3) &&     \
+     defined(GL_VERSION_3_2)
+  #define IMGUI_IMPL_OPENGL_MAY_HAVE_VTX_OFFSET
+ #endif
 
-// Desktop GL 3.3+ and GL ES 3.0+ have glBindSampler()
-#if !defined(IMGUI_IMPL_OPENGL_ES2) &&                                         \
-    (defined(IMGUI_IMPL_OPENGL_ES3) || defined(GL_VERSION_3_3))
-#define IMGUI_IMPL_OPENGL_MAY_HAVE_BIND_SAMPLER
-#endif
+ // Desktop GL 3.3+ and GL ES 3.0+ have glBindSampler()
+ #if !defined(IMGUI_IMPL_OPENGL_ES2) &&                                        \
+     (defined(IMGUI_IMPL_OPENGL_ES3) || defined(GL_VERSION_3_3))
+  #define IMGUI_IMPL_OPENGL_MAY_HAVE_BIND_SAMPLER
+ #endif
 
-// Desktop GL 3.1+ has GL_PRIMITIVE_RESTART state
-#if !defined(IMGUI_IMPL_OPENGL_ES2) && !defined(IMGUI_IMPL_OPENGL_ES3) &&      \
-    defined(GL_VERSION_3_1)
-#define IMGUI_IMPL_OPENGL_MAY_HAVE_PRIMITIVE_RESTART
-#endif
+ // Desktop GL 3.1+ has GL_PRIMITIVE_RESTART state
+ #if !defined(IMGUI_IMPL_OPENGL_ES2) && !defined(IMGUI_IMPL_OPENGL_ES3) &&     \
+     defined(GL_VERSION_3_1)
+  #define IMGUI_IMPL_OPENGL_MAY_HAVE_PRIMITIVE_RESTART
+ #endif
 
-// Desktop GL use extension detection
-#if !defined(IMGUI_IMPL_OPENGL_ES2) && !defined(IMGUI_IMPL_OPENGL_ES3)
-#define IMGUI_IMPL_OPENGL_MAY_HAVE_EXTENSIONS
-#endif
+ // Desktop GL use extension detection
+ #if !defined(IMGUI_IMPL_OPENGL_ES2) && !defined(IMGUI_IMPL_OPENGL_ES3)
+  #define IMGUI_IMPL_OPENGL_MAY_HAVE_EXTENSIONS
+ #endif
 
-// [Debugging]
-// #define IMGUI_IMPL_OPENGL_DEBUG
-#ifdef IMGUI_IMPL_OPENGL_DEBUG
-#include <stdio.h>
-#define GL_CALL(_CALL)                                                         \
-    do                                                                         \
-    {                                                                          \
-        _CALL;                                                                 \
-        GLenum gl_err = glGetError();                                          \
-        if (gl_err != 0)                                                       \
-            fprintf(stderr,                                                    \
-                    "GL error 0x%x returned from '%s'.\n",                     \
-                    gl_err,                                                    \
-                    #_CALL);                                                   \
-    } while (0) // Call with error check
-#else
-#define GL_CALL(_CALL) _CALL // Call without error check
-#endif
+ // [Debugging]
+ // #define IMGUI_IMPL_OPENGL_DEBUG
+ #ifdef IMGUI_IMPL_OPENGL_DEBUG
+  #include <stdio.h>
+  #define GL_CALL(_CALL)                                                       \
+      do                                                                       \
+      {                                                                        \
+          _CALL;                                                               \
+          GLenum gl_err = glGetError();                                        \
+          if (gl_err != 0)                                                     \
+              fprintf(stderr,                                                  \
+                      "GL error 0x%x returned from '%s'.\n",                   \
+                      gl_err,                                                  \
+                      #_CALL);                                                 \
+      } while (0)              // Call with error check
+ #else
+  #define GL_CALL(_CALL) _CALL // Call without error check
+ #endif
 
 // OpenGL Data
 struct ImGui_ImplOpenGL3_Data
@@ -292,7 +305,7 @@ struct ImGui_ImplOpenGL3_Data
     GLint        GlProfileMask;
     GLuint       FontTexture;
     GLuint       ShaderHandle;
-    GLint        AttribLocationTex; // Uniforms location
+    GLint        AttribLocationTex;    // Uniforms location
     GLint        AttribLocationProjMtx;
     GLuint       AttribLocationVtxPos; // Vertex attributes location
     GLuint       AttribLocationVtxUV;
@@ -317,8 +330,12 @@ static ImGui_ImplOpenGL3_Data* ImGui_ImplOpenGL3_GetBackendData()
                : nullptr;
 }
 
-// OpenGL vertex attribute state (for ES 1.0 and ES 2.0 only)
-#ifndef IMGUI_IMPL_OPENGL_USE_VERTEX_ARRAY
+// Forward Declarations
+static void ImGui_ImplOpenGL3_InitPlatformInterface();
+static void ImGui_ImplOpenGL3_ShutdownPlatformInterface();
+
+ // OpenGL vertex attribute state (for ES 1.0 and ES 2.0 only)
+ #ifndef IMGUI_IMPL_OPENGL_USE_VERTEX_ARRAY
 struct ImGui_ImplOpenGL3_VtxAttribState
 {
     GLint   Enabled, Size, Type, Normalized, Stride;
@@ -334,6 +351,7 @@ struct ImGui_ImplOpenGL3_VtxAttribState
         glGetVertexAttribiv(index, GL_VERTEX_ATTRIB_ARRAY_STRIDE, &Stride);
         glGetVertexAttribPointerv(index, GL_VERTEX_ATTRIB_ARRAY_POINTER, &Ptr);
     }
+
     void SetState(GLint index)
     {
         glVertexAttribPointer(
@@ -344,7 +362,7 @@ struct ImGui_ImplOpenGL3_VtxAttribState
             glDisableVertexAttribArray(index);
     }
 };
-#endif
+ #endif
 
 // Functions
 bool ImGui_ImplOpenGL3_Init(const char* glsl_version)
@@ -354,14 +372,14 @@ bool ImGui_ImplOpenGL3_Init(const char* glsl_version)
               "Already initialized a renderer backend!");
 
     // Initialize our loader
-#if !defined(IMGUI_IMPL_OPENGL_ES2) && !defined(IMGUI_IMPL_OPENGL_ES3) &&      \
-    !defined(IMGUI_IMPL_OPENGL_LOADER_CUSTOM)
+ #if !defined(IMGUI_IMPL_OPENGL_ES2) && !defined(IMGUI_IMPL_OPENGL_ES3) &&     \
+     !defined(IMGUI_IMPL_OPENGL_LOADER_CUSTOM)
     if (imgl3wInit() != 0)
     {
         fprintf(stderr, "Failed to initialize OpenGL loader!\n");
         return false;
     }
-#endif
+ #endif
 
     // Setup backend capabilities flags
     ImGui_ImplOpenGL3_Data* bd = IM_NEW(ImGui_ImplOpenGL3_Data)();
@@ -369,7 +387,12 @@ bool ImGui_ImplOpenGL3_Init(const char* glsl_version)
     io.BackendRendererName     = "imgui_impl_opengl3";
 
     // Query for GL version (e.g. 320 for GL 3.2)
-#if !defined(IMGUI_IMPL_OPENGL_ES2)
+ #if defined(IMGUI_IMPL_OPENGL_ES2)
+    // GLES 2
+    bd->GlVersion      = 200;
+    bd->GlProfileIsES2 = true;
+ #else
+    // Desktop or GLES 3
     GLint major = 0;
     GLint minor = 0;
     glGetIntegerv(GL_MAJOR_VERSION, &major);
@@ -382,63 +405,68 @@ bool ImGui_ImplOpenGL3_Init(const char* glsl_version)
         sscanf(gl_version, "%d.%d", &major, &minor);
     }
     bd->GlVersion = (GLuint)(major * 100 + minor * 10);
-#if defined(GL_CONTEXT_PROFILE_MASK)
+  #if defined(GL_CONTEXT_PROFILE_MASK)
     if (bd->GlVersion >= 320)
         glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &bd->GlProfileMask);
     bd->GlProfileIsCompat =
         (bd->GlProfileMask & GL_CONTEXT_COMPATIBILITY_PROFILE_BIT) != 0;
-#endif
+  #endif
+
+  #if defined(IMGUI_IMPL_OPENGL_ES3)
+    bd->GlProfileIsES3 = true;
+  #endif
 
     bd->UseBufferSubData = false;
-    /*
-    // Query vendor to enable glBufferSubData kludge
-#ifdef _WIN32
-    if (const char* vendor = (const char*)glGetString(GL_VENDOR))
-        if (strncmp(vendor, "Intel", 5) == 0)
-            bd->UseBufferSubData = true;
-#endif
-    */
-#elif defined(IMGUI_IMPL_OPENGL_ES2)
-    bd->GlVersion      = 200; // GLES 2
-    bd->GlProfileIsES2 = true;
-#elif defined(IMGUI_IMPL_OPENGL_ES3)
-    bd->GlVersion = 200; // Don't raise version as it is intended as a desktop
-                         // version check for now.
-    bd->GlProfileIsES3 = true;
-#endif
+        /*
+        // Query vendor to enable glBufferSubData kludge
+    #ifdef _WIN32
+        if (const char* vendor = (const char*)glGetString(GL_VENDOR))
+            if (strncmp(vendor, "Intel", 5) == 0)
+                bd->UseBufferSubData = true;
+    #endif
+        */
+ #endif
 
-#ifdef IMGUI_IMPL_OPENGL_DEBUG
-    printf("GL_MAJOR_VERSION = %d\nGL_MINOR_VERSION = %d\nGL_VENDOR = "
+ #ifdef IMGUI_IMPL_OPENGL_DEBUG
+    printf("GlVersion = %d\nGlProfileIsCompat = %d\nGlProfileMask = "
+           "0x%X\nGlProfileIsES2 = %d, GlProfileIsES3 = %d\nGL_VENDOR = "
            "'%s'\nGL_RENDERER = '%s'\n",
-           major,
-           minor,
+           bd->GlVersion,
+           bd->GlProfileIsCompat,
+           bd->GlProfileMask,
+           bd->GlProfileIsES2,
+           bd->GlProfileIsES3,
            (const char*)glGetString(GL_VENDOR),
            (const char*)glGetString(GL_RENDERER)); // [DEBUG]
-#endif
+ #endif
 
-#ifdef IMGUI_IMPL_OPENGL_MAY_HAVE_VTX_OFFSET
+ #ifdef IMGUI_IMPL_OPENGL_MAY_HAVE_VTX_OFFSET
     if (bd->GlVersion >= 320)
         io.BackendFlags |=
             ImGuiBackendFlags_RendererHasVtxOffset; // We can honor the
                                                     // ImDrawCmd::VtxOffset
                                                     // field, allowing for large
                                                     // meshes.
-#endif
+ #endif
+    io.BackendFlags |=
+        ImGuiBackendFlags_RendererHasViewports; // We can create multi-viewports
+                                                // on the Renderer side
+                                                // (optional)
 
     // Store GLSL version string so we can refer to it later in case we recreate
     // shaders. Note: GLSL version is NOT the same as GL version. Leave this to
     // nullptr if unsure.
     if (glsl_version == nullptr)
     {
-#if defined(IMGUI_IMPL_OPENGL_ES2)
+ #if defined(IMGUI_IMPL_OPENGL_ES2)
         glsl_version = "#version 100";
-#elif defined(IMGUI_IMPL_OPENGL_ES3)
+ #elif defined(IMGUI_IMPL_OPENGL_ES3)
         glsl_version = "#version 300 es";
-#elif defined(__APPLE__)
+ #elif defined(__APPLE__)
         glsl_version = "#version 150";
-#else
+ #else
         glsl_version = "#version 130";
-#endif
+ #endif
     }
     IM_ASSERT((int)strlen(glsl_version) + 2 <
               IM_ARRAYSIZE(bd->GlslVersionString));
@@ -453,7 +481,7 @@ bool ImGui_ImplOpenGL3_Init(const char* glsl_version)
 
     // Detect extensions we support
     bd->HasClipOrigin = (bd->GlVersion >= 450);
-#ifdef IMGUI_IMPL_OPENGL_MAY_HAVE_EXTENSIONS
+ #ifdef IMGUI_IMPL_OPENGL_MAY_HAVE_EXTENSIONS
     GLint num_extensions = 0;
     glGetIntegerv(GL_NUM_EXTENSIONS, &num_extensions);
     for (GLint i = 0; i < num_extensions; i++)
@@ -463,7 +491,10 @@ bool ImGui_ImplOpenGL3_Init(const char* glsl_version)
             strcmp(extension, "GL_ARB_clip_control") == 0)
             bd->HasClipOrigin = true;
     }
-#endif
+ #endif
+
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        ImGui_ImplOpenGL3_InitPlatformInterface();
 
     return true;
 }
@@ -475,10 +506,12 @@ void ImGui_ImplOpenGL3_Shutdown()
               "No renderer backend to shutdown, or already shutdown?");
     ImGuiIO& io = ImGui::GetIO();
 
+    ImGui_ImplOpenGL3_ShutdownPlatformInterface();
     ImGui_ImplOpenGL3_DestroyDeviceObjects();
     io.BackendRendererName     = nullptr;
     io.BackendRendererUserData = nullptr;
-    io.BackendFlags &= ~ImGuiBackendFlags_RendererHasVtxOffset;
+    io.BackendFlags &= ~(ImGuiBackendFlags_RendererHasVtxOffset |
+                         ImGuiBackendFlags_RendererHasViewports);
     IM_DELETE(bd);
 }
 
@@ -508,16 +541,16 @@ static void ImGui_ImplOpenGL3_SetupRenderState(ImDrawData* draw_data,
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_STENCIL_TEST);
     glEnable(GL_SCISSOR_TEST);
-#ifdef IMGUI_IMPL_OPENGL_MAY_HAVE_PRIMITIVE_RESTART
+ #ifdef IMGUI_IMPL_OPENGL_MAY_HAVE_PRIMITIVE_RESTART
     if (bd->GlVersion >= 310)
         glDisable(GL_PRIMITIVE_RESTART);
-#endif
-#ifdef IMGUI_IMPL_HAS_POLYGON_MODE
+ #endif
+ #ifdef IMGUI_IMPL_HAS_POLYGON_MODE
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-#endif
+ #endif
 
     // Support for GL 4.5 rarely used glClipControl(GL_UPPER_LEFT)
-#if defined(GL_CLIP_ORIGIN)
+ #if defined(GL_CLIP_ORIGIN)
     bool clip_origin_lower_left = true;
     if (bd->HasClipOrigin)
     {
@@ -526,7 +559,7 @@ static void ImGui_ImplOpenGL3_SetupRenderState(ImDrawData* draw_data,
         if (current_clip_origin == GL_UPPER_LEFT)
             clip_origin_lower_left = false;
     }
-#endif
+ #endif
 
     // Setup viewport, orthographic projection matrix
     // Our visible imgui space lies from draw_data->DisplayPos (top left) to
@@ -537,36 +570,36 @@ static void ImGui_ImplOpenGL3_SetupRenderState(ImDrawData* draw_data,
     float R = draw_data->DisplayPos.x + draw_data->DisplaySize.x;
     float T = draw_data->DisplayPos.y;
     float B = draw_data->DisplayPos.y + draw_data->DisplaySize.y;
-#if defined(GL_CLIP_ORIGIN)
+ #if defined(GL_CLIP_ORIGIN)
     if (!clip_origin_lower_left)
     {
         float tmp = T;
         T         = B;
         B         = tmp;
     } // Swap top and bottom if origin is upper left
-#endif
+ #endif
     const float ortho_projection[4][4] = {
-        { 2.0f / (R - L), 0.0f, 0.0f, 0.0f },
-        { 0.0f, 2.0f / (T - B), 0.0f, 0.0f },
-        { 0.0f, 0.0f, -1.0f, 0.0f },
-        { (R + L) / (L - R), (T + B) / (B - T), 0.0f, 1.0f },
+        {2.0f / (R - L),     0.0f,              0.0f,  0.0f},
+        { 0.0f,              2.0f / (T - B),    0.0f,  0.0f},
+        { 0.0f,              0.0f,              -1.0f, 0.0f},
+        { (R + L) / (L - R), (T + B) / (B - T), 0.0f,  1.0f},
     };
     glUseProgram(bd->ShaderHandle);
     glUniform1i(bd->AttribLocationTex, 0);
     glUniformMatrix4fv(
         bd->AttribLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0]);
 
-#ifdef IMGUI_IMPL_OPENGL_MAY_HAVE_BIND_SAMPLER
+ #ifdef IMGUI_IMPL_OPENGL_MAY_HAVE_BIND_SAMPLER
     if (bd->GlVersion >= 330 || bd->GlProfileIsES3)
         glBindSampler(0,
                       0); // We use combined texture/sampler state. Applications
                           // using GL 3.3 and GL ES 3.0 may set that otherwise.
-#endif
+ #endif
 
     (void)vertex_array_object;
-#ifdef IMGUI_IMPL_OPENGL_USE_VERTEX_ARRAY
+ #ifdef IMGUI_IMPL_OPENGL_USE_VERTEX_ARRAY
     glBindVertexArray(vertex_array_object);
-#endif
+ #endif
 
     // Bind vertex/index buffers and setup attributes for ImDrawVert
     GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, bd->VboHandle));
@@ -579,19 +612,19 @@ static void ImGui_ImplOpenGL3_SetupRenderState(ImDrawData* draw_data,
                                   GL_FLOAT,
                                   GL_FALSE,
                                   sizeof(ImDrawVert),
-                                  (GLvoid*)IM_OFFSETOF(ImDrawVert, pos)));
+                                  (GLvoid*)offsetof(ImDrawVert, pos)));
     GL_CALL(glVertexAttribPointer(bd->AttribLocationVtxUV,
                                   2,
                                   GL_FLOAT,
                                   GL_FALSE,
                                   sizeof(ImDrawVert),
-                                  (GLvoid*)IM_OFFSETOF(ImDrawVert, uv)));
+                                  (GLvoid*)offsetof(ImDrawVert, uv)));
     GL_CALL(glVertexAttribPointer(bd->AttribLocationVtxColor,
                                   4,
                                   GL_UNSIGNED_BYTE,
                                   GL_TRUE,
                                   sizeof(ImDrawVert),
-                                  (GLvoid*)IM_OFFSETOF(ImDrawVert, col)));
+                                  (GLvoid*)offsetof(ImDrawVert, col)));
 }
 
 // OpenGL3 Render function.
@@ -619,7 +652,7 @@ void ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
     glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*)&last_program);
     GLuint last_texture;
     glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint*)&last_texture);
-#ifdef IMGUI_IMPL_OPENGL_MAY_HAVE_BIND_SAMPLER
+ #ifdef IMGUI_IMPL_OPENGL_MAY_HAVE_BIND_SAMPLER
     GLuint last_sampler;
     if (bd->GlVersion >= 330 || bd->GlProfileIsES3)
     {
@@ -629,10 +662,10 @@ void ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
     {
         last_sampler = 0;
     }
-#endif
+ #endif
     GLuint last_array_buffer;
     glGetIntegerv(GL_ARRAY_BUFFER_BINDING, (GLint*)&last_array_buffer);
-#ifndef IMGUI_IMPL_OPENGL_USE_VERTEX_ARRAY
+ #ifndef IMGUI_IMPL_OPENGL_USE_VERTEX_ARRAY
     // This is part of VAO on OpenGL 3.0+ and OpenGL ES 3.0+.
     GLint last_element_array_buffer;
     glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &last_element_array_buffer);
@@ -642,15 +675,15 @@ void ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
     last_vtx_attrib_state_uv.GetState(bd->AttribLocationVtxUV);
     ImGui_ImplOpenGL3_VtxAttribState last_vtx_attrib_state_color;
     last_vtx_attrib_state_color.GetState(bd->AttribLocationVtxColor);
-#endif
-#ifdef IMGUI_IMPL_OPENGL_USE_VERTEX_ARRAY
+ #endif
+ #ifdef IMGUI_IMPL_OPENGL_USE_VERTEX_ARRAY
     GLuint last_vertex_array_object;
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, (GLint*)&last_vertex_array_object);
-#endif
-#ifdef IMGUI_IMPL_HAS_POLYGON_MODE
+ #endif
+ #ifdef IMGUI_IMPL_HAS_POLYGON_MODE
     GLint last_polygon_mode[2];
     glGetIntegerv(GL_POLYGON_MODE, last_polygon_mode);
-#endif
+ #endif
     GLint last_viewport[4];
     glGetIntegerv(GL_VIEWPORT, last_viewport);
     GLint last_scissor_box[4];
@@ -672,10 +705,10 @@ void ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
     GLboolean last_enable_depth_test   = glIsEnabled(GL_DEPTH_TEST);
     GLboolean last_enable_stencil_test = glIsEnabled(GL_STENCIL_TEST);
     GLboolean last_enable_scissor_test = glIsEnabled(GL_SCISSOR_TEST);
-#ifdef IMGUI_IMPL_OPENGL_MAY_HAVE_PRIMITIVE_RESTART
+ #ifdef IMGUI_IMPL_OPENGL_MAY_HAVE_PRIMITIVE_RESTART
     GLboolean last_enable_primitive_restart =
         (bd->GlVersion >= 310) ? glIsEnabled(GL_PRIMITIVE_RESTART) : GL_FALSE;
-#endif
+ #endif
 
     // Setup desired GL state
     // Recreate the VAO every time (this is to easily allow multiple GL contexts
@@ -683,15 +716,15 @@ void ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
     // would actually work without any VAO bound, but then our VertexAttrib
     // calls would overwrite the default one currently bound.
     GLuint vertex_array_object = 0;
-#ifdef IMGUI_IMPL_OPENGL_USE_VERTEX_ARRAY
+ #ifdef IMGUI_IMPL_OPENGL_USE_VERTEX_ARRAY
     GL_CALL(glGenVertexArrays(1, &vertex_array_object));
-#endif
+ #endif
     ImGui_ImplOpenGL3_SetupRenderState(
         draw_data, fb_width, fb_height, vertex_array_object);
 
     // Will project scissor/clipping rectangles into framebuffer space
     ImVec2 clip_off =
-        draw_data->DisplayPos; // (0,0) unless using multi-viewports
+        draw_data->DisplayPos;       // (0,0) unless using multi-viewports
     ImVec2 clip_scale =
         draw_data->FramebufferScale; // (1,1) unless using retina display which
                                      // are often (2,2)
@@ -792,7 +825,7 @@ void ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
                 // Bind texture, Draw
                 GL_CALL(glBindTexture(GL_TEXTURE_2D,
                                       (GLuint)(intptr_t)pcmd->GetTexID()));
-#ifdef IMGUI_IMPL_OPENGL_MAY_HAVE_VTX_OFFSET
+ #ifdef IMGUI_IMPL_OPENGL_MAY_HAVE_VTX_OFFSET
                 if (bd->GlVersion >= 320)
                     GL_CALL(glDrawElementsBaseVertex(
                         GL_TRIANGLES,
@@ -802,7 +835,7 @@ void ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
                         (void*)(intptr_t)(pcmd->IdxOffset * sizeof(ImDrawIdx)),
                         (GLint)pcmd->VtxOffset));
                 else
-#endif
+ #endif
                     GL_CALL(glDrawElements(
                         GL_TRIANGLES,
                         (GLsizei)pcmd->ElemCount,
@@ -815,9 +848,9 @@ void ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
     }
 
     // Destroy the temporary VAO
-#ifdef IMGUI_IMPL_OPENGL_USE_VERTEX_ARRAY
+ #ifdef IMGUI_IMPL_OPENGL_USE_VERTEX_ARRAY
     GL_CALL(glDeleteVertexArrays(1, &vertex_array_object));
-#endif
+ #endif
 
     // Restore modified GL state
     // This "glIsProgram()" check is required because if the program is "pending
@@ -826,21 +859,21 @@ void ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
     if (last_program == 0 || glIsProgram(last_program))
         glUseProgram(last_program);
     glBindTexture(GL_TEXTURE_2D, last_texture);
-#ifdef IMGUI_IMPL_OPENGL_MAY_HAVE_BIND_SAMPLER
+ #ifdef IMGUI_IMPL_OPENGL_MAY_HAVE_BIND_SAMPLER
     if (bd->GlVersion >= 330 || bd->GlProfileIsES3)
         glBindSampler(0, last_sampler);
-#endif
+ #endif
     glActiveTexture(last_active_texture);
-#ifdef IMGUI_IMPL_OPENGL_USE_VERTEX_ARRAY
+ #ifdef IMGUI_IMPL_OPENGL_USE_VERTEX_ARRAY
     glBindVertexArray(last_vertex_array_object);
-#endif
+ #endif
     glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
-#ifndef IMGUI_IMPL_OPENGL_USE_VERTEX_ARRAY
+ #ifndef IMGUI_IMPL_OPENGL_USE_VERTEX_ARRAY
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, last_element_array_buffer);
     last_vtx_attrib_state_pos.SetState(bd->AttribLocationVtxPos);
     last_vtx_attrib_state_uv.SetState(bd->AttribLocationVtxUV);
     last_vtx_attrib_state_color.SetState(bd->AttribLocationVtxColor);
-#endif
+ #endif
     glBlendEquationSeparate(last_blend_equation_rgb, last_blend_equation_alpha);
     glBlendFuncSeparate(last_blend_src_rgb,
                         last_blend_dst_rgb,
@@ -866,7 +899,7 @@ void ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
         glEnable(GL_SCISSOR_TEST);
     else
         glDisable(GL_SCISSOR_TEST);
-#ifdef IMGUI_IMPL_OPENGL_MAY_HAVE_PRIMITIVE_RESTART
+ #ifdef IMGUI_IMPL_OPENGL_MAY_HAVE_PRIMITIVE_RESTART
     if (bd->GlVersion >= 310)
     {
         if (last_enable_primitive_restart)
@@ -874,9 +907,9 @@ void ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
         else
             glDisable(GL_PRIMITIVE_RESTART);
     }
-#endif
+ #endif
 
-#ifdef IMGUI_IMPL_HAS_POLYGON_MODE
+ #ifdef IMGUI_IMPL_HAS_POLYGON_MODE
     // Desktop OpenGL 3.0 and OpenGL 3.1 had separate polygon draw modes for
     // front-facing and back-facing faces of polygons
     if (bd->GlVersion <= 310 || bd->GlProfileIsCompat)
@@ -888,7 +921,7 @@ void ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
     {
         glPolygonMode(GL_FRONT_AND_BACK, (GLenum)last_polygon_mode[0]);
     }
-#endif // IMGUI_IMPL_HAS_POLYGON_MODE
+ #endif // IMGUI_IMPL_HAS_POLYGON_MODE
 
     glViewport(last_viewport[0],
                last_viewport[1],
@@ -929,9 +962,9 @@ bool ImGui_ImplOpenGL3_CreateFontsTexture()
     GL_CALL(glBindTexture(GL_TEXTURE_2D, bd->FontTexture));
     GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
     GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-#ifdef GL_UNPACK_ROW_LENGTH // Not on WebGL/ES
+ #ifdef GL_UNPACK_ROW_LENGTH // Not on WebGL/ES
     GL_CALL(glPixelStorei(GL_UNPACK_ROW_LENGTH, 0));
-#endif
+ #endif
     GL_CALL(glTexImage2D(GL_TEXTURE_2D,
                          0,
                          GL_RGBA,
@@ -1019,10 +1052,10 @@ bool ImGui_ImplOpenGL3_CreateDeviceObjects()
     GLint last_texture, last_array_buffer;
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
     glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
-#ifdef IMGUI_IMPL_OPENGL_USE_VERTEX_ARRAY
+ #ifdef IMGUI_IMPL_OPENGL_USE_VERTEX_ARRAY
     GLint last_vertex_array;
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);
-#endif
+ #endif
 
     // Parse GLSL version string
     int glsl_version = 130;
@@ -1198,9 +1231,9 @@ bool ImGui_ImplOpenGL3_CreateDeviceObjects()
     // Restore modified GL state
     glBindTexture(GL_TEXTURE_2D, last_texture);
     glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
-#ifdef IMGUI_IMPL_OPENGL_USE_VERTEX_ARRAY
+ #ifdef IMGUI_IMPL_OPENGL_USE_VERTEX_ARRAY
     glBindVertexArray(last_vertex_array);
-#endif
+ #endif
 
     return true;
 }
@@ -1226,9 +1259,44 @@ void ImGui_ImplOpenGL3_DestroyDeviceObjects()
     ImGui_ImplOpenGL3_DestroyFontsTexture();
 }
 
-#if defined(__GNUC__)
-#pragma GCC diagnostic pop
-#endif
-#if defined(__clang__)
-#pragma clang diagnostic pop
-#endif
+//--------------------------------------------------------------------------------------------------------
+// MULTI-VIEWPORT / PLATFORM INTERFACE SUPPORT
+// This is an _advanced_ and _optional_ feature, allowing the backend to create
+// and handle multiple viewports simultaneously. If you are new to dear imgui or
+// creating a new binding for dear imgui, it is recommended that you completely
+// ignore this section first..
+//--------------------------------------------------------------------------------------------------------
+
+static void ImGui_ImplOpenGL3_RenderWindow(ImGuiViewport* viewport, void*)
+{
+    if (!(viewport->Flags & ImGuiViewportFlags_NoRendererClear))
+    {
+        ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor(
+            clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
+    ImGui_ImplOpenGL3_RenderDrawData(viewport->DrawData);
+}
+
+static void ImGui_ImplOpenGL3_InitPlatformInterface()
+{
+    ImGuiPlatformIO& platform_io      = ImGui::GetPlatformIO();
+    platform_io.Renderer_RenderWindow = ImGui_ImplOpenGL3_RenderWindow;
+}
+
+static void ImGui_ImplOpenGL3_ShutdownPlatformInterface()
+{
+    ImGui::DestroyPlatformWindows();
+}
+
+//-----------------------------------------------------------------------------
+
+ #if defined(__GNUC__)
+  #pragma GCC diagnostic pop
+ #endif
+ #if defined(__clang__)
+  #pragma clang diagnostic pop
+ #endif
+
+#endif // #ifndef IMGUI_DISABLE

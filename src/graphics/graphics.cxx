@@ -3,6 +3,7 @@
 
 #include "../opengl/opengl-debug.hxx"
 #include "../window/window.hxx"
+#include "Kengine/components/camera-component.hxx"
 #include "Kengine/components/render-component.hxx"
 #include "Kengine/components/transform-component.hxx"
 #include "Kengine/graphics/uniformbuffer.hxx"
@@ -236,11 +237,29 @@ namespace Kengine::graphics
         }
     };
 
-    void on_render(int delta_ms)
+    void on_update(scene& sc, int delta_ms)
     {
-        auto current_scene = scene_manager::get_current_scene();
+        auto camera_view =
+            sc.registry.view<transform_component, camera_component>();
+        for (auto [entity, ent_transform, ent_camera] : camera_view.each())
+        {
+            const vec3 eye    = ent_transform.position;
+            const vec3 center = { eye.x, eye.y, eye.z - 1 };
+            const vec3 up     = { std::sin(ent_transform.angle),
+                                  std::cos(ent_transform.angle),
+                                  0 };
 
-        auto render_view = current_scene->registry.view<render_component>();
+            const auto view_matrix = glm::lookAt(eye, center, up);
+
+            ent_camera.camera.set_view(view_matrix);
+        };
+    }
+
+    void on_render(scene& sc, int delta_ms)
+    {
+        set_clear_color(sc.clear_color);
+
+        auto render_view = sc.registry.view<render_component>();
         for (auto [entity, ent_render] : render_view.each())
         {
             bind_material(ent_render.material);
@@ -251,8 +270,8 @@ namespace Kengine::graphics
                                  ent_render.vertices_start);
         };
 
-        auto sprite_view = current_scene->registry
-                               .view<transform_component, sprite_component>();
+        auto sprite_view =
+            sc.registry.view<transform_component, sprite_component>();
 
         sprite_vao->bind();
         sprite_components_vbo->bind();

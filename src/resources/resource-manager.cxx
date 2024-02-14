@@ -1,5 +1,6 @@
 #include "Kengine/resources/resource-manager.hxx"
 
+#include "../scene/scene-manager.hxx"
 #include "Kengine/io/file-manager.hxx"
 #include "Kengine/log/log.hxx"
 
@@ -22,7 +23,8 @@ namespace Kengine::resource_manager
 
     res_ptr<resource> load_resource(path res_path)
     {
-        auto         res_file = file_manager::load_file(res_path);
+        auto res_file = file_manager::load_file(
+            scene_manager::assets_base_folder / res_path);
         std::istream res_is(res_file.get());
 
         res_ptr<resource> loaded_res = nullptr;
@@ -37,8 +39,9 @@ namespace Kengine::resource_manager
     {
         if (res)
         {
-            auto res_file =
-                file_manager::open_file(res_path, std::ios_base::out);
+            auto res_file = file_manager::open_file(
+                scene_manager::assets_base_folder / res_path,
+                std::ios_base::out);
             std::ostream res_os(res_file.get());
 
             resource::serialize(res_os, res);

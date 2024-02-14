@@ -1,30 +1,49 @@
 #include "editor.hxx"
 
+#include "assets-browser.hxx"
+#include "game-properties-wnd.hxx"
+
+#include "Kengine/configuration/configuration-file.hxx"
 #include "Kengine/engine.hxx"
 #include "Kengine/graphics/graphics.hxx"
 #include "Kengine/imgui/imgui.hxx"
 #include "Kengine/io/file-manager.hxx"
 #include "Kengine/log/log.hxx"
+#include "Kengine/scene/scene-manager.hxx"
 
+#include "imgui-filebrowser/imfilebrowser.h"
 #include "imgui.h"
 
 #include <filesystem>
 
-static char game_lib_path[100] = "";
-static char base_lib_path[100] = "";
-static char temp_lib_path[]    = "./temp.dll";
+static std::filesystem::path game_lib_path{ "" };
+static std::filesystem::path assets_base_path{ "" };
+static std::filesystem::path temp_lib_path{ "./temp.dll" };
+
+ImGui::FileBrowser game_lib_file_browser{ "Select game lib" };
+ImGui::FileBrowser base_assets_file_browser{
+    "Select assets root folder",
+    ImGuiFileBrowserFlags_SelectDirectory |
+        ImGuiFileBrowserFlags_HideRegularFiles
+};
+
+game_properties_wnd game_properties_window{};
+assets_browser      a_browser{};
+
+Kengine::configuration_file editor_config{ "kengine-editor" };
 
 editor* editor::instance = nullptr;
 
 void editor::render_imgui()
 {
-    static bool show_open_game_wnd = false;
-
     if (ImGui::BeginMainMenuBar())
     {
         if (ImGui::BeginMenu("File"))
         {
-            ImGui::MenuItem("Open game", NULL, &show_open_game_wnd);
+            if (ImGui::MenuItem("Open game", NULL, false))
+            {
+                game_lib_file_browser.Open();
+            }
 
             ImGui::EndMenu();
         }
@@ -32,26 +51,52 @@ void editor::render_imgui()
         ImGui::EndMainMenuBar();
     }
 
-    if (show_open_game_wnd)
+    if (game_lib_file_browser.HasSelected())
     {
-        ImGui::Begin("Open game");
-        ImGui::InputText(
-            "Path to game lib", game_lib_path, sizeof(game_lib_path));
-        ImGui::InputText("Base path", base_lib_path, sizeof(base_lib_path));
-        if (ImGui::Button("Load"))
-        {
-            instance->need_reload = true;
-        }
-        ImGui::End();
+        game_lib_path = game_lib_file_browser.GetSelected();
+
+        base_assets_file_browser.Open();
+
+        game_lib_file_browser.ClearSelected();
     }
 
-    ImGui::Begin("Game");
+    if (base_assets_file_browser.HasSelected())
+    {
+        assets_base_path = base_assets_file_browser.GetSelected();
 
-    ImGui::Image(reinterpret_cast<ImTextureID>(
-                     instance->game_framebuffer.get_color_texture_id()),
-                 { 800, 600 });
+        a_browser.assets_file_browser.SetPwd(assets_base_path);
 
-    ImGui::End();
+        instance->need_reload = true;
+        base_assets_file_browser.ClearSelected();
+    }
+
+    ImGui::ShowDemoWindow();
+    {
+        const ImGuiViewport* viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(viewport->WorkPos);
+        ImGui::SetNextWindowSize(viewport->WorkSize);
+        ImGui::Begin("GUI",
+                     nullptr,
+                     ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
+                         ImGuiWindowFlags_NoBringToFrontOnFocus);
+        ImGui::End();
+
+        game_lib_file_browser.Display();
+        base_assets_file_browser.Display();
+
+        a_browser.display();
+        game_properties_window.display();
+
+        {
+            ImGui::Begin("Game");
+
+            ImGui::Image(reinterpret_cast<ImTextureID>(
+                             instance->game_framebuffer.get_color_texture_id()),
+                         { 800, 600 });
+
+            ImGui::End();
+        }
+    }
 
     if (instance->game_imgui)
         instance->game_imgui();
@@ -73,7 +118,7 @@ bool editor::load_game()
         if (!remove(temp_lib_path, remove_error))
         {
             KENGINE_ERROR("Failed to remove temp lib [{}]. Error: {}",
-                          temp_lib_path,
+                          temp_lib_path.string().c_str(),
                           remove_error.message());
             return false;
         }
@@ -86,13 +131,13 @@ bool editor::load_game()
     catch (const std::exception* ex)
     {
         KENGINE_ERROR("Failed to copy from [{}] to [{}]: {}",
-                      game_lib_path,
-                      temp_lib_path,
+                      game_lib_path.string().c_str(),
+                      temp_lib_path.string().c_str(),
                       ex->what());
         return false;
     }
 
-    game_lib = Kengine::load_lib(temp_lib_path);
+    game_lib = Kengine::load_lib(temp_lib_path.string().c_str());
 
     if (game_lib == nullptr)
     {
@@ -106,7 +151,7 @@ bool editor::load_game()
     if (create_game_func_ptr == nullptr)
     {
         KENGINE_ERROR("Failed to load function [create_game] from [{}].",
-                      temp_lib_path);
+                      temp_lib_path.string().c_str());
         return false;
     }
 
@@ -127,14 +172,15 @@ bool editor::load_game()
 
     current_game = new_game;
 
-    if (strlen(base_lib_path) > 0)
-        Kengine::file_manager::set_base_path(base_lib_path);
+    if (!assets_base_path.empty())
+        Kengine::scene_manager::set_assets_base_folder(assets_base_path);
     else
     {
-        std::filesystem::path base_path(game_lib_path);
-        base_path = base_path.parent_path();
-        Kengine::file_manager::set_base_path(base_path);
+        assets_base_path = game_lib_path.parent_path();
+        Kengine::scene_manager::set_assets_base_folder(assets_base_path);
     }
+
+    current_game->load_scene_links();
 
     game_imgui = current_game->get_imgui_render();
 
@@ -144,12 +190,37 @@ bool editor::load_game()
     return true;
 };
 
+editor::editor()
+{
+    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    current_game = nullptr;
+    game_lib     = nullptr;
+    need_reload  = false;
+    game_imgui   = nullptr;
+
+    editor_config.load();
+    game_lib_path =
+        editor_config.get_setting("game", "lib_path", std::filesystem::path());
+    assets_base_path = editor_config.get_setting(
+        "game", "assets_base_path", std::filesystem::path());
+
+    if (!game_lib_path.empty())
+    {
+        a_browser.assets_file_browser.SetPwd(assets_base_path);
+        need_reload = true;
+    }
+};
+
 editor::~editor()
 {
     game_framebuffer      = Kengine::graphics::framebuffer();
     game_texture_res      = nullptr;
     game_renderbuffer_res = nullptr;
     game_framebuffer_res  = nullptr;
+
+    editor_config.set_setting("game", "lib_path", game_lib_path);
+    editor_config.set_setting("game", "assets_base_path", assets_base_path);
+    editor_config.save();
 }
 
 void editor::on_start()

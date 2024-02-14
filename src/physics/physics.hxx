@@ -10,5 +10,5 @@ namespace Kengine::physics
 {
     void initialize(vec2 gravity = { 0, 9.81f });
     void shutdown();
-    void update(int delta_ms);
+    void on_update(int delta_ms);
 } // namespace Kengine::physics

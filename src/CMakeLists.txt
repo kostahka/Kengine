@@ -8,7 +8,10 @@ set(KENGINE_SOURCES
     # cmake-format: sortable
     ${CMAKE_CURRENT_LIST_DIR}/audio/audio.cxx
     ${CMAKE_CURRENT_LIST_DIR}/audio/audio.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/components/camera-component.cxx
     ${CMAKE_CURRENT_LIST_DIR}/components/component.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/components/custom-component.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/components/custom-component.hxx
     ${CMAKE_CURRENT_LIST_DIR}/components/physics-component.cxx
     ${CMAKE_CURRENT_LIST_DIR}/components/render-component.cxx
     ${CMAKE_CURRENT_LIST_DIR}/components/sprite-component.cxx
@@ -22,6 +25,7 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/event/handle-user-event.hxx
     ${CMAKE_CURRENT_LIST_DIR}/event/user-events.cxx
     ${CMAKE_CURRENT_LIST_DIR}/file-last-modify-listener.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/game.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/camera.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/element-buffer.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/framebuffer.cxx
@@ -67,11 +71,16 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/resources/shader-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/sprite-material-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/texture-resource.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/scene/prefab.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/scene/scene-link.cxx
     ${CMAKE_CURRENT_LIST_DIR}/scene/scene-manager.cxx
     ${CMAKE_CURRENT_LIST_DIR}/scene/scene-manager.hxx
     ${CMAKE_CURRENT_LIST_DIR}/scene/scene.cxx
     ${CMAKE_CURRENT_LIST_DIR}/serialization/archive.cxx
     ${CMAKE_CURRENT_LIST_DIR}/string/string-id.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/system/graphics-system.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/system/physics-system.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/system/system.cxx
     ${CMAKE_CURRENT_LIST_DIR}/window/display.cxx
     ${CMAKE_CURRENT_LIST_DIR}/window/display.hxx
     ${CMAKE_CURRENT_LIST_DIR}/window/window.cxx
@@ -81,8 +90,11 @@ set(KENGINE_SOURCES
 set(KENGINE_HEADERS
     # cmake-format: sortable
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/audio/audio.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/camera-component.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/component-info.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/component-types.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/component.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/custom-component.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/physics-component.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/render-component.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/sprite-component.hxx
@@ -127,11 +139,16 @@ set(KENGINE_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/shader-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/sprite-material-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/texture-resource.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/scene/prefab.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/scene/scene-link.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/scene/scene-manager.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/scene/scene.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/serialization/archive.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/serialization/serialization.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/string/string-id.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/system/graphics-system.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/system/physics-system.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/system/system.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/units/matrix.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/units/rect.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/units/transform.hxx
@@ -140,10 +157,6 @@ set(KENGINE_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/window/display.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/window/window.hxx
 )
-# Windows export all symbols TODO: use __declspec(dllexport)
-if(WIN32)
-    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-endif()
 
 set(KENGINE_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/../include)
 set(IMGUI_IMPL_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/imgui-impl)
@@ -200,6 +213,12 @@ if(MSVC)
     )
     target_compile_definitions(
         kengine-interface INTERFACE "-DE_DECLSPEC=__declspec(dllimport)"
+    )
+    target_compile_definitions(
+        kengine-private INTERFACE "-DGAME_DECLSPEC=__declspec(dllimport)"
+    )
+    target_compile_definitions(
+        kengine-interface INTERFACE "-DGAME_DECLSPEC=__declspec(dllexport)"
     )
 else()
     target_compile_definitions(kengine-public INTERFACE "-DE_DECLSPEC=")

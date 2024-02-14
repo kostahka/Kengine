@@ -6,8 +6,7 @@
 
 #include <chrono>
 
-typedef Kengine::game*    create_game_func();
-extern "C" Kengine::game* create_game();
+
 
 namespace Kengine
 {

@@ -20,8 +20,8 @@ namespace Kengine::file_manager
 
         virtual bool open(std::filesystem::path   path,
                           std::ios_base::openmode mode,
-                          size_t                  buf_size = 10) = 0;
-        virtual void close()                    = 0;
+                          size_t                  buf_size = 100) = 0;
+        virtual void close()                     = 0;
 
         virtual ~file_buffer();
 
@@ -39,9 +39,6 @@ namespace Kengine::file_manager
     std::unique_ptr<file_buffer> open_file(std::filesystem::path   path,
                                            std::ios_base::openmode mode,
                                            size_t buf_size = 0);
-
-    void                  set_base_path(std::filesystem::path path);
-    std::filesystem::path get_base_path();
 
     bool file_exists(std::filesystem::path path);
 } // namespace Kengine::file_manager

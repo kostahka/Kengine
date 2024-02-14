@@ -10,6 +10,12 @@ namespace Kengine
     {
     }
 
+    resource_link::resource_link(res_ptr<resource> res, path res_path)
+        : res(res)
+        , res_path(res_path)
+    {
+    }
+
     std::size_t resource_link::serialize(std::ostream& os) const
     {
         std::size_t size = 0;

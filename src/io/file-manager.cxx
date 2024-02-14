@@ -11,8 +11,6 @@
 
 namespace Kengine::file_manager
 {
-    static std::filesystem::path base_path;
-
     std::unordered_map<std::ios_base::openmode, const char*> openmodes{
         {std::ios_base::in,                                                "r" },
         { std::ios_base::in | std::ios_base::binary,                       "rb"},
@@ -74,7 +72,7 @@ namespace Kengine::file_manager
 
         bool open(std::filesystem::path   path,
                   std::ios_base::openmode mode,
-                  size_t                  buf_size) override
+                  size_t                  abuf_size) override
         {
             auto sdl_openmode_map = openmodes.find(mode);
             if (sdl_openmode_map == openmodes.end())
@@ -83,25 +81,23 @@ namespace Kengine::file_manager
                 return false;
             }
 
-            std::filesystem::path sum_path = base_path / path;
-
-            file = SDL_RWFromFile(sum_path.string().c_str(),
-                                  sdl_openmode_map->second);
+            file =
+                SDL_RWFromFile(path.string().c_str(), sdl_openmode_map->second);
             if (!file)
             {
                 KENGINE_ERROR("Failed to open file [{}], error: {}",
-                              sum_path.string().c_str(),
+                              path.string().c_str(),
                               SDL_GetError());
                 return false;
             }
             is_file_open = true;
-            if (buf_size)
+            if (abuf_size)
             {
-                this->buf_size = buf_size;
+                buf_size = abuf_size;
             }
             else
             {
-                this->buf_size = 10;
+                buf_size = 10;
             }
             file_size      = file->size(file);
             file_curr_pos  = mode & std::ios_base::app ? file_size : 0;
@@ -127,20 +123,18 @@ namespace Kengine::file_manager
                 return false;
             }
 
-            KENGINE_INFO("Loaded file: {}", sum_path.string().c_str());
+            KENGINE_INFO("Loaded file: {}", path.string().c_str());
 
             return true;
         }
 
         bool load(std::filesystem::path path)
         {
-            std::filesystem::path sum_path = base_path / path;
-
-            file = SDL_RWFromFile(sum_path.string().c_str(), "rb");
+            file = SDL_RWFromFile(path.string().c_str(), "rb");
             if (!file)
             {
                 KENGINE_ERROR("Failed to open file [{}], error: {}",
-                              sum_path.string().c_str(),
+                              path.string().c_str(),
                               SDL_GetError());
                 return false;
             }
@@ -148,9 +142,16 @@ namespace Kengine::file_manager
             is_file_open   = true;
             file_size      = file->size(file);
             file_curr_pos  = 0;
-            file_write_pos = file_read_pos = file_curr_pos;
+            file_write_pos = 0;
+            file_read_pos  = 0;
 
-            buf_size = file_size;
+            if (file_size)
+                buf_size = file_size;
+            else
+            {
+                close();
+                return false;
+            }
 
             read_buffer = std::make_unique<char[]>(buf_size);
             setg(read_buffer.get(),
@@ -163,7 +164,7 @@ namespace Kengine::file_manager
                 return false;
             }
 
-            KENGINE_INFO("Loaded file: {}", sum_path.string().c_str());
+            KENGINE_INFO("Loaded file: {}", path.string().c_str());
 
             return true;
         }
@@ -226,6 +227,7 @@ namespace Kengine::file_manager
             }
             if (gptr() != eback())
             {
+                file_read_pos -= egptr() - gptr();
                 if (file_curr_pos != file_read_pos)
                 {
                     file_curr_pos =
@@ -246,7 +248,7 @@ namespace Kengine::file_manager
 
                 setg(read_buffer.get(),
                      read_buffer.get(),
-                     read_buffer.get() + buf_size);
+                     read_buffer.get() + read_bytes);
 
                 if (read_bytes < static_cast<Sint64>(buf_size))
                 {
@@ -271,6 +273,7 @@ namespace Kengine::file_manager
                 return traits_type::eof();
 
             *pptr() = c;
+            pbump(1);
             return c;
         }
 
@@ -293,31 +296,55 @@ namespace Kengine::file_manager
             if (sync() != 0)
                 return -1;
 
+            size_t new_read_pos  = 0;
+            size_t new_write_pos = 0;
+
             switch (dir)
             {
                 case std::ios_base::beg:
-                    if (which & std::ios_base::in)
-                        file_read_pos = off;
-                    if (which & std::ios_base::out)
-                        file_write_pos = off;
+                    new_read_pos  = off;
+                    new_write_pos = off;
                     break;
                 case std::ios_base::end:
-                    if (which & std::ios_base::in)
-                        file_read_pos = file_size + off;
-                    if (which & std::ios_base::out)
-                        file_write_pos = file_size + off;
+                    new_read_pos  = file_size + off;
+                    new_write_pos = file_size + off;
                     break;
                 case std::ios_base::cur:
-                    if (which & std::ios_base::in)
-                        file_read_pos += off;
-                    if (which & std::ios_base::out)
-                        file_write_pos += off;
+                    new_read_pos  = file_read_pos - (egptr() - gptr()) + off;
+                    new_write_pos = file_write_pos + off;
                     break;
                 default:
                     return -1;
                     break;
             }
-            return 0;
+
+            pos_type pos = 0;
+
+            if (which & std::ios_base::in)
+            {
+                if (file_read_pos - new_read_pos <=
+                        static_cast<size_t>(egptr() - eback()) &&
+                    new_read_pos < file_read_pos)
+                {
+                    setg(eback(),
+                         egptr() - (file_read_pos - new_read_pos),
+                         egptr());
+
+                    pos = new_read_pos;
+                }
+                else
+                {
+                    pos = file_read_pos = new_read_pos;
+                    setg(eback(), egptr(), egptr());
+                }
+            }
+
+            if (which & std::ios_base::out)
+            {
+                pos = file_write_pos = new_write_pos;
+            }
+
+            return pos;
         }
 
         pos_type seekpos(pos_type                pos,
@@ -357,16 +384,6 @@ namespace Kengine::file_manager
             return f_buffer;
         else
             return nullptr;
-    }
-
-    void set_base_path(std::filesystem::path path)
-    {
-        base_path = path;
-    }
-
-    std::filesystem::path get_base_path()
-    {
-        return base_path;
     }
 
     bool file_exists(std::filesystem::path path)

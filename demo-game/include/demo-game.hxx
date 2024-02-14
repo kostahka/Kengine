@@ -22,22 +22,5 @@ public:
     void on_update(int delta_ms) override;
     void on_render(int delta_ms) override;
 
-    std::string name;
-
-    glm::mat4 projection;
-    glm::mat4 view;
-
 private:
-    vertex_array vao;
-
-    shader sh = shader(Kengine::make_resource<Kengine::shader_res>(
-        std::filesystem::path("assets/shaders/square.vs"),
-        std::filesystem::path("assets/shaders/square.fs"),
-        "square_program"));
-    Kengine::res_ptr<Kengine::texture_resource> checker_texture_res =
-        Kengine::make_resource<Kengine::texture_resource>(
-            std::filesystem::path("assets/textures/checker.png"),
-            "checker_texture");
-    texture checker_texture = texture(checker_texture_res);
-    camera  main_camera;
 };
