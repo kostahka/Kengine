@@ -1,8 +1,11 @@
 #include "Kengine/resources/shader-resource.hxx"
 
 #include "../opengl/opengl.hxx"
+#include "Kengine/imgui/imgui-edit.hxx"
 #include "Kengine/io/file-manager.hxx"
 #include "Kengine/resources/resource-manager.hxx"
+
+#include "imgui.h"
 
 #include <array>
 #include <sstream>
@@ -17,6 +20,13 @@ namespace Kengine
     // ------------------------
     // Fragment shader resource
     // ------------------------
+    fragment_shader_res::fragment_shader_res(std::string_view name)
+        : resource(resource_type::fragment_shader, name)
+        , code("")
+        , fragment_id(0)
+    {
+    }
+
     fragment_shader_res::fragment_shader_res(const path&      fragment_file,
                                              std::string_view name)
         : resource(resource_type::fragment_shader, fragment_file, name)
@@ -122,12 +132,27 @@ namespace Kengine
             KENGINE_INFO("Unloaded fragment shader, {}", fragment_id);
             fragment_id = 0;
         }
-        code.clear();
+    }
+
+    bool fragment_shader_res::imgui_editable_render()
+    {
+        bool edited = false;
+        ImGui::PushID(this);
+
+        ImGui::PopID();
+        return false;
     }
 
     // ------------------------
     // Vertex shader resource
     // ------------------------
+    vertex_shader_res::vertex_shader_res(std::string_view name)
+        : resource(resource_type::vertex_shader, name)
+        , code("")
+        , vertex_id(0)
+    {
+    }
+
     vertex_shader_res::vertex_shader_res(const path&      vertex_file,
                                          std::string_view name)
         : resource(resource_type::vertex_shader, vertex_file, name)
@@ -232,12 +257,27 @@ namespace Kengine
             KENGINE_INFO("Unloaded vertex shader, {}", vertex_id);
             vertex_id = 0;
         }
-        code.clear();
+    }
+
+    bool vertex_shader_res::imgui_editable_render()
+    {
+        bool edited = false;
+        ImGui::PushID(this);
+
+        ImGui::PopID();
+        return false;
     }
 
     // ------------------------
     // Geometry shader resource
     // ------------------------
+    geometry_shader_res::geometry_shader_res(std::string_view name)
+        : resource(resource_type::geometry_shader, name)
+        , code("")
+        , geometry_id(0)
+    {
+    }
+
     geometry_shader_res::geometry_shader_res(const path&      geometry_file,
                                              std::string_view name)
         : resource(resource_type::geometry_shader, geometry_file, name)
@@ -342,7 +382,15 @@ namespace Kengine
             KENGINE_INFO("Unloaded geometry shader, {}", geometry_id);
             geometry_id = 0;
         }
-        code.clear();
+    }
+
+    bool geometry_shader_res::imgui_editable_render()
+    {
+        bool edited = false;
+        ImGui::PushID(this);
+
+        ImGui::PopID();
+        return edited;
     }
 
     // ------------------------
@@ -594,6 +642,21 @@ namespace Kengine
                 KENGINE_GL_CHECK(glGetUniformBlockIndex(id, name.data()));
             KENGINE_GL_CHECK(glUniformBlockBinding(id, block_index, binding));
         }
+    }
+
+    bool shader_res::imgui_editable_render()
+    {
+        bool edited = false;
+        ImGui::PushID(this);
+
+        edited = edited || imgui::edit_resource("Vertex resource", &vertex_res);
+        edited =
+            edited || imgui::edit_resource("Geometry resource", &geometry_res);
+        edited =
+            edited || imgui::edit_resource("Fragment resource", &fragment_res);
+
+        ImGui::PopID();
+        return edited;
     }
 
 } // namespace Kengine

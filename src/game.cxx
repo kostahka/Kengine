@@ -2,22 +2,28 @@
 
 #include "../scene/scene-manager.hxx"
 #include "Kengine/io/file-manager.hxx"
+#include "Kengine/scene/scene-manager.hxx"
 
 namespace Kengine
 {
     game::game()
-        : scene_links()
     {
-        current_scene = std::make_shared<scene>();
+        current_scene = std::make_shared<scene>(this);
+        current_scene->set_game(this);
+        current_scene_id = 0;
     }
 
-    void game::set_current_scene(std::shared_ptr<scene> sc)
+    void game::set_current_scene(string_id scene_id)
     {
-        if (sc)
-            current_scene = sc;
+        auto scene_link = scene_links.find(scene_id);
+        if (scene_link != scene_links.end())
+        {
+            current_scene = scene_manager::load_scene(scene_link->second, this);
+            current_scene_id = scene_id;
+        }
     }
 
-    static path scene_links_path = "./scene-data.kpkg";
+    static std::filesystem::path scene_links_path = "scene-data.kpkg";
 
     void game::load_scene_links()
     {
@@ -57,8 +63,36 @@ namespace Kengine
     void game::add_scene_link(std::string_view name, std::filesystem::path path)
     {
         auto final_path =
-            std::filesystem::relative(path, scene_manager::assets_base_folder);
+            std::filesystem::proximate(path, scene_manager::assets_base_folder);
 
-        scene_links.push_back({ name, final_path });
+        auto name_id = hash_string(name.data());
+
+        scene_links[name_id] = final_path;
     }
+
+    void game::remove_scene_link(string_id link_id)
+    {
+        auto sc_link = scene_links.find(link_id);
+        if (sc_link != scene_links.end())
+        {
+            scene_links.erase(sc_link);
+        }
+    }
+
+    void game::save_scene(string_id scene_id, const scene& sc)
+    {
+        auto sc_link = scene_links.find(scene_id);
+        if (sc_link != scene_links.end())
+        {
+            auto path    = sc_link->second;
+            auto sc_file = file_manager::open_file(
+                scene_manager::assets_base_folder / path, std::ios_base::out);
+            if (sc_file)
+            {
+                std::ostream sc_stream(sc_file.get());
+                serialization::write(sc_stream, sc);
+            }
+        }
+    }
+
 } // namespace Kengine

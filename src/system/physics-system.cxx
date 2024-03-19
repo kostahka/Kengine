@@ -10,7 +10,7 @@ namespace Kengine
     static int position_iterations = 8;
 
     physics_system::physics_system()
-        : update_system(name)
+        : system(name, system_update_type)
     {
     }
 
@@ -37,5 +37,15 @@ namespace Kengine
             ent_transform.position.y = new_position.y;
             ent_transform.angle      = new_angle;
         }
+    }
+
+    std::size_t physics_system::serialize(std::ostream& os) const
+    {
+        return 0;
+    }
+
+    std::size_t physics_system::deserialize(std::istream& is)
+    {
+        return 0;
     }
 } // namespace Kengine

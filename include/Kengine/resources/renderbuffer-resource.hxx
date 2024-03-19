@@ -27,6 +27,8 @@ namespace Kengine
         std::size_t serialize(std::ostream& os) const override;
         std::size_t deserialize(std::istream& is) override;
 
+        bool imgui_editable_render() override;
+
     protected:
         virtual void load_data() override;
         virtual void unload_data() override;

@@ -2,6 +2,10 @@
 
 #include "assets-browser.hxx"
 #include "game-properties-wnd.hxx"
+#include "object-properties-wnd.hxx"
+#include "resource-wnd.hxx"
+#include "scene-objects-wnd.hxx"
+#include "scene-properties-wnd.hxx"
 
 #include "Kengine/configuration/configuration-file.hxx"
 #include "Kengine/engine.hxx"
@@ -10,6 +14,7 @@
 #include "Kengine/io/file-manager.hxx"
 #include "Kengine/log/log.hxx"
 #include "Kengine/scene/scene-manager.hxx"
+#include "Kengine/scene/scene.hxx"
 
 #include "imgui-filebrowser/imfilebrowser.h"
 #include "imgui.h"
@@ -27,8 +32,12 @@ ImGui::FileBrowser base_assets_file_browser{
         ImGuiFileBrowserFlags_HideRegularFiles
 };
 
-game_properties_wnd game_properties_window{};
-assets_browser      a_browser{};
+game_properties_wnd   game_properties_window{};
+assets_browser        a_browser{};
+scene_properties_wnd  scene_properties_window{};
+scene_objects_wnd     scene_objects_window{};
+object_properties_wnd object_properties_window{};
+resource_wnd          resource_window{};
 
 Kengine::configuration_file editor_config{ "kengine-editor" };
 
@@ -86,13 +95,28 @@ void editor::render_imgui()
 
         a_browser.display();
         game_properties_window.display();
+        scene_properties_window.display();
+        scene_objects_window.display();
+        object_properties_window.display();
+        resource_window.display();
 
         {
             ImGui::Begin("Game");
 
+            auto windowHeight = ImGui::GetWindowHeight();
+            auto windowWidth  = ImGui::GetWindowWidth();
+
+            auto gameImageHeight = windowHeight - 50;
+            auto gameImageWidth  = 800 * gameImageHeight / 600;
+
+            ImGui::SetCursorPosX((windowWidth - gameImageWidth) / 2);
+            ImGui::SetCursorPosY((windowHeight - gameImageHeight) / 2);
+
             ImGui::Image(reinterpret_cast<ImTextureID>(
                              instance->game_framebuffer.get_color_texture_id()),
-                         { 800, 600 });
+                         { gameImageWidth, gameImageHeight },
+                         { 0, 1 },
+                         { 1, 0 });
 
             ImGui::End();
         }
@@ -193,10 +217,6 @@ bool editor::load_game()
 editor::editor()
 {
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-    current_game = nullptr;
-    game_lib     = nullptr;
-    need_reload  = false;
-    game_imgui   = nullptr;
 
     editor_config.load();
     game_lib_path =
@@ -247,17 +267,23 @@ void editor::on_start()
 
 void editor::on_event(Kengine::event::game_event event)
 {
-    if (current_game)
+    if (play_mode && current_game)
         current_game->on_event(event);
 }
 
 void editor::on_update(int delta_ms)
 {
-    if (current_game)
+    if ((play_mode || !scene_update_valid) && current_game)
+    {
         current_game->on_update(delta_ms);
+        current_game->get_current_scene().on_update(delta_ms);
+
+        scene_update_valid = true;
+    }
 
     if (need_reload)
     {
+        get_current_scene().clear_resources();
         load_game();
         need_reload = false;
     }
@@ -265,12 +291,25 @@ void editor::on_update(int delta_ms)
 
 void editor::on_render(int delta_ms)
 {
-    if (current_game)
+    if (current_game &&
+        (play_mode || (!scene_render_valid && scene_update_valid)))
     {
+        game_framebuffer_res->set_clear_color(
+            current_game->get_current_scene().clear_color);
+
         Kengine::graphics::push_framebuffer(game_framebuffer);
         current_game->on_render(delta_ms);
+        current_game->get_current_scene().on_render(delta_ms);
         Kengine::graphics::pop_framebuffer();
+
+        scene_render_valid = true;
     }
+}
+
+void editor::invalid_scene_render()
+{
+    scene_render_valid = false;
+    scene_update_valid = false;
 }
 
 on_imgui_render* editor::get_imgui_render()

@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <filesystem>
 #include <iostream>
 #include <vector>
 
@@ -32,7 +33,16 @@ namespace Kengine
         concept String = std::is_same_v<T, std::string>;
 
         template <typename T>
-        concept Container = !String<T> && requires(T a) {
+        concept Path = std::is_same_v<T, std::filesystem::path>;
+
+        template <typename T>
+        concept Pair = !String<T> && !Path<T> && requires(T a) {
+            typename T::first_type;
+            typename T::second_type;
+        };
+
+        template <typename T>
+        concept Container = !String<T> && !Path<T> && requires(T a) {
             typename T::value_type;
             typename T::reference;
             typename T::const_reference;
@@ -108,6 +118,18 @@ namespace Kengine
         };
 
         template <typename T>
+            requires Path<T>
+        class stream_writer<T, void>
+        {
+        public:
+            static auto write(std::ostream& os, const T& value) -> std::size_t
+            {
+                std::string string_path = value.string();
+                return stream_writer<std::string>::write(os, string_path);
+            };
+        };
+
+        template <typename T>
             requires Boolean<T>
         class stream_writer<T, void>
         {
@@ -118,6 +140,20 @@ namespace Kengine
                 const auto write_value = value ? true_char : false_char;
                 os.write(&write_value, sizeof(write_value));
                 return static_cast<std::size_t>(os.tellp() - pos);
+            };
+        };
+
+        template <typename T>
+            requires Pair<T>
+        class stream_writer<T, void>
+        {
+        public:
+            static auto write(std::ostream& os, const T& value) -> std::size_t
+            {
+                using first_type  = typename T::first_type;
+                using second_type = typename T::second_type;
+                return stream_writer<first_type>::write(os, value.first) +
+                       stream_writer<second_type>::write(os, value.second);
             };
         };
 
@@ -221,6 +257,20 @@ namespace Kengine
         };
 
         template <typename T>
+            requires Path<T>
+        class stream_reader<T, void>
+        {
+        public:
+            static auto read(std::istream& is, T& value) -> std::size_t
+            {
+                std::string string_path;
+                auto        size = stream_reader<std::string>::read(is, string_path);
+                value            = std::filesystem::path(string_path);
+                return size;
+            };
+        };
+
+        template <typename T>
             requires Boolean<T>
         class stream_reader<T, void>
         {
@@ -232,6 +282,25 @@ namespace Kengine
                 is.read(reinterpret_cast<char*>(&read_char), sizeof(read_char));
                 value = read_char == true_char;
                 return static_cast<std::size_t>(is.tellg() - pos);
+            };
+        };
+
+        template <typename T>
+            requires Pair<T>
+        class stream_reader<T, void>
+        {
+        public:
+            static auto read(std::istream& is, T& value) -> std::size_t
+            {
+                using first_type  = typename T::first_type;
+                using second_type = typename T::second_type;
+                first_type  first_value{};
+                second_type second_value{};
+                auto size = stream_reader<first_type>::read(is, first_value) +
+                            stream_reader<second_type>::read(is, second_value);
+                T temp_value{ first_value, second_value };
+                value = temp_value;
+                return size;
             };
         };
 
@@ -265,6 +334,21 @@ namespace Kengine
             requires AssociativeContainer<T>
         class stream_reader<T, void>
         {
+            template <typename I, typename V = void>
+            struct converter
+            {
+                using type = I;
+            };
+
+            template <typename I>
+                requires Pair<I>
+            struct converter<I, void>
+            {
+                using type =
+                    std::pair<std::remove_const_t<typename I::first_type>,
+                              typename I::second_type>;
+            };
+
         public:
             static auto read(std::istream& is, T& value) -> std::size_t
             {
@@ -276,7 +360,8 @@ namespace Kengine
                 {
                     for (auto i = 0U; i < len; ++i)
                     {
-                        using value_t = typename T::value_type;
+                        using value_t =
+                            typename converter<typename T::value_type>::type;
                         value_t v{};
                         size += stream_reader<value_t>::read(is, v);
                         value.insert(std::move(v));

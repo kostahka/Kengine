@@ -1,6 +1,9 @@
 #include "Kengine/resources/material-resource.hxx"
 
+#include "Kengine/imgui/imgui-edit.hxx"
 #include "Kengine/log/log.hxx"
+
+#include "imgui.h"
 
 namespace Kengine
 {
@@ -91,5 +94,16 @@ namespace Kengine
         {
             texture->free_data();
         }
+    }
+
+    bool material_resource::imgui_editable_render()
+    {
+        bool edited = false;
+        ImGui::PushID(this);
+
+        edited = edited || imgui::edit_resource("Shader", &shader);
+
+        ImGui::PopID();
+        return edited;
     }
 } // namespace Kengine

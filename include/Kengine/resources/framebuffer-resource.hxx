@@ -58,6 +58,8 @@ namespace Kengine
 
         [[nodiscard]] inline const ivec2& get_size() const { return size; }
 
+        bool imgui_editable_render() override;
+
     protected:
         virtual void load_data() override;
         virtual void unload_data() override;

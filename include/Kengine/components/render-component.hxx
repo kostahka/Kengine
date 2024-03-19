@@ -8,6 +8,8 @@ namespace Kengine
 {
     struct render_component : public component
     {
+        static constexpr auto name = "render_component";
+
         render_component();
         render_component(const res_ptr<material_resource>& material,
                          const std::shared_ptr<graphics::vertex_array>& vao);

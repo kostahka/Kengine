@@ -20,17 +20,29 @@ public:
     void on_update(int delta_ms) override;
     void on_render(int delta_ms) override;
 
+    void invalid_scene_render();
+
     on_imgui_render* get_imgui_render() override;
 
     bool load_game();
 
-    game*               current_game;
-    Kengine::lib_handle game_lib;
-    bool                need_reload;
-    on_imgui_render*    game_imgui;
+    game*               current_game = nullptr;
+    Kengine::lib_handle game_lib     = nullptr;
+    bool                need_reload  = false;
+    on_imgui_render*    game_imgui   = nullptr;
 
-    Kengine::res_ptr<Kengine::texture_resource>      game_texture_res;
-    Kengine::res_ptr<Kengine::renderbuffer_resource> game_renderbuffer_res;
-    Kengine::res_ptr<Kengine::framebuffer_resource>  game_framebuffer_res;
-    Kengine::graphics::framebuffer                   game_framebuffer;
+    Kengine::res_ptr<Kengine::texture_resource>      game_texture_res = nullptr;
+    Kengine::res_ptr<Kengine::renderbuffer_resource> game_renderbuffer_res =
+        nullptr;
+    Kengine::res_ptr<Kengine::framebuffer_resource> game_framebuffer_res =
+        nullptr;
+    Kengine::graphics::framebuffer game_framebuffer;
+
+    bool play_mode          = false;
+    bool scene_render_valid = true;
+    bool scene_update_valid = true;
+
+    entt::entity selected_entity = entt::null;
+
+    Kengine::res_ptr<Kengine::resource> current_res = nullptr;
 };

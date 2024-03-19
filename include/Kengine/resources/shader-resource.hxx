@@ -15,6 +15,7 @@ namespace Kengine
     class fragment_shader_res : public resource
     {
     public:
+        fragment_shader_res(std::string_view name);
         fragment_shader_res(const path& fragment_file, std::string_view name);
         fragment_shader_res(const string_view& fragment_code,
                             std::string_view   name);
@@ -24,6 +25,8 @@ namespace Kengine
 
         std::size_t serialize(std::ostream& os) const override;
         std::size_t deserialize(std::istream& is) override;
+
+        bool imgui_editable_render() override;
 
     protected:
         void load_data() override;
@@ -37,6 +40,7 @@ namespace Kengine
     class vertex_shader_res : public resource
     {
     public:
+        vertex_shader_res(std::string_view name);
         vertex_shader_res(const path& vertex_file, std::string_view name);
         vertex_shader_res(const string_view& vertex_code,
                           std::string_view   name);
@@ -46,6 +50,8 @@ namespace Kengine
 
         std::size_t serialize(std::ostream& os) const override;
         std::size_t deserialize(std::istream& is) override;
+
+        bool imgui_editable_render() override;
 
     protected:
         void load_data() override;
@@ -59,6 +65,7 @@ namespace Kengine
     class geometry_shader_res : public resource
     {
     public:
+        geometry_shader_res(std::string_view name);
         geometry_shader_res(const path& geometry_file, std::string_view name);
         geometry_shader_res(const string_view& geometry_code,
                             std::string_view   name);
@@ -68,6 +75,8 @@ namespace Kengine
 
         std::size_t serialize(std::ostream& os) const override;
         std::size_t deserialize(std::istream& is) override;
+
+        bool imgui_editable_render() override;
 
     protected:
         void load_data() override;
@@ -120,6 +129,8 @@ namespace Kengine
 
         std::size_t serialize(std::ostream& os) const override;
         std::size_t deserialize(std::istream& is) override;
+
+        bool imgui_editable_render() override;
 
     protected:
         void load_data() override;

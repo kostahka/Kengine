@@ -1,6 +1,7 @@
 #include "Kengine/graphics/graphics.hxx"
 #include "graphics.hxx"
 
+#include "../engine.hxx"
 #include "../opengl/opengl-debug.hxx"
 #include "../window/window.hxx"
 #include "Kengine/components/camera-component.hxx"
@@ -23,44 +24,14 @@ namespace Kengine::graphics
     res_ptr<fragment_shader_res> sprite_fragment_shader = nullptr;
     res_ptr<shader_res>          sprite_shader          = nullptr;
 
+    camera_component* default_camera_component = nullptr;
+
     vec4 clear_color{ 0.0f, 0.0f, 0.0f, 1.0f };
-
-    struct sprite_data
-    {
-        rect   uv;
-        mat4x4 model;
-    };
-
-    static std::unordered_map<string_id, std::list<entt::entity>> sprites_map{};
-    static std::unordered_map<string_id, uint32_t>     sprite_count_map{};
-    static std::unique_ptr<vertex_element_array>       sprite_vao = nullptr;
-    static std::vector<sprite_data>                    sprite_component_data{};
-    static std::shared_ptr<vertex_buffer<sprite_data>> sprite_components_vbo =
-        nullptr;
-    static uint32_t sprite_max_count = 100;
 
     static std::stack<framebuffer> framebuffers{};
 
     static std::unique_ptr<uniformbuffer_std140<mat4x4, mat4x4>>
         global_matrices = nullptr;
-
-    void add_sprite(sprite_component* sprite)
-    {
-        const auto material_id = sprite->get_material()->get_resource_id();
-        const auto ent         = sprite->get_entity();
-
-        sprites_map[material_id].push_back(ent);
-        sprite_count_map[material_id]++;
-    }
-
-    void remove_sprite(sprite_component* sprite)
-    {
-        const auto material_id = sprite->get_material()->get_resource_id();
-        const auto ent         = sprite->get_entity();
-
-        sprites_map[material_id].remove(ent);
-        sprite_count_map[material_id]--;
-    }
 
     bool initialize()
     {
@@ -124,77 +95,10 @@ namespace Kengine::graphics
         sprite_shader = make_resource<shader_res>(
             sprite_vertex_shader, sprite_fragment_shader, "sprite_shader");
 
+        KENGINE_GL_CHECK(glUseProgram(sprite_shader->get_id()));
         sprite_shader->set_uniform_block_binding("Matrices", 0);
 
-        KENGINE_GL_CHECK(glUseProgram(sprite_shader->get_id()));
-
-        sprite_vao = std::make_unique<vertex_element_array>();
-        sprite_vao->bind();
-
-        auto sprite_vbo = std::make_shared<vertex_buffer<vec3>>();
-
-        static std::vector<vec3> sprite_pos_vertices{
-            {0,  0, 0},
-            { 0, 1, 0},
-            { 1, 1, 0},
-            { 1, 0, 0},
-        };
-
-        sprite_vbo->bind();
-        sprite_vbo->allocate_vertices(sprite_pos_vertices.data(), 4, false);
-        sprite_vbo->add_attribute_pointer(
-            vertex_attribute_pointer(g_float, 3, 0, sizeof(vec3)));
-
-        sprite_vao->add_vertex_buffer(sprite_vbo);
-
-        sprite_components_vbo = std::make_shared<vertex_buffer<sprite_data>>();
-
-        sprite_component_data.resize(sprite_max_count);
-
-        sprite_components_vbo->bind();
-
-        sprite_components_vbo->allocate_vertices(
-            sprite_component_data.data(), sprite_max_count, true);
-        sprite_components_vbo->add_attribute_pointer(vertex_attribute_pointer(
-            g_float, 2, offsetof(sprite_data, uv), sizeof(sprite_data), 1));
-        sprite_components_vbo->add_attribute_pointer(vertex_attribute_pointer(
-            g_float,
-            2,
-            offsetof(sprite_data, uv) + offsetof(rect, w),
-            sizeof(sprite_data),
-            1));
-        sprite_components_vbo->add_attribute_pointer(vertex_attribute_pointer(
-            g_float, 4, offsetof(sprite_data, model), sizeof(sprite_data), 1));
-        sprite_components_vbo->add_attribute_pointer(vertex_attribute_pointer(
-            g_float,
-            4,
-            offsetof(sprite_data, model) + sizeof(vec4),
-            sizeof(sprite_data),
-            1));
-        sprite_components_vbo->add_attribute_pointer(vertex_attribute_pointer(
-            g_float,
-            4,
-            offsetof(sprite_data, model) + 2 * sizeof(vec4),
-            sizeof(sprite_data),
-            1));
-        sprite_components_vbo->add_attribute_pointer(vertex_attribute_pointer(
-            g_float,
-            4,
-            offsetof(sprite_data, model) + 3 * sizeof(vec4),
-            sizeof(sprite_data),
-            1));
-
-        sprite_vao->add_vertex_buffer(sprite_components_vbo);
-
-        auto sprite_element_buffer = std::make_shared<element_buffer>();
-        sprite_element_buffer->bind();
-
-        static std::vector<uint32_t> sprite_indexes{ 0, 2, 1, 0, 3, 2 };
-
-        sprite_element_buffer->allocate_indexes(
-            sprite_indexes.data(), 6, false);
-
-        sprite_vao->set_elements(sprite_element_buffer);
+        default_camera_component = new camera_component();
 
         return true;
     }
@@ -202,17 +106,15 @@ namespace Kengine::graphics
     void shutdown()
     {
         global_matrices.release();
-        sprite_vao.release();
-        sprite_components_vbo.reset();
     }
 
     void begin_render()
     {
-        // TODO
+        set_clear_color(e_game->get_current_scene().clear_color);
         KENGINE_GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
     }
 
-    void bind_material(res_ptr<material_resource>& material)
+    void bind_material(const res_ptr<material_resource>& material)
     {
         const auto textures   = material->get_textures();
         const auto shader     = material->get_shader();
@@ -243,7 +145,9 @@ namespace Kengine::graphics
             sc.registry.view<transform_component, camera_component>();
         for (auto [entity, ent_transform, ent_camera] : camera_view.each())
         {
-            const vec3 eye    = ent_transform.position;
+            const vec3 eye    = { ent_transform.position.x,
+                                  ent_transform.position.y,
+                                  -1 };
             const vec3 center = { eye.x, eye.y, eye.z - 1 };
             const vec3 up     = { std::sin(ent_transform.angle),
                                   std::cos(ent_transform.angle),
@@ -251,14 +155,12 @@ namespace Kengine::graphics
 
             const auto view_matrix = glm::lookAt(eye, center, up);
 
-            ent_camera.camera.set_view(view_matrix);
+            ent_camera.camera.view = view_matrix;
         };
     }
 
     void on_render(scene& sc, int delta_ms)
     {
-        set_clear_color(sc.clear_color);
-
         auto render_view = sc.registry.view<render_component>();
         for (auto [entity, ent_render] : render_view.each())
         {
@@ -268,67 +170,6 @@ namespace Kengine::graphics
             ent_render.vao->draw(ent_render.draw_mode,
                                  ent_render.vertices_count,
                                  ent_render.vertices_start);
-        };
-
-        auto sprite_view =
-            sc.registry.view<transform_component, sprite_component>();
-
-        sprite_vao->bind();
-        sprite_components_vbo->bind();
-
-        for (auto& [material_id, entities] : sprites_map)
-        {
-            const uint32_t sprites_count = sprite_count_map[material_id];
-
-            if (sprites_count > sprite_max_count)
-            {
-                sprite_max_count *= 2;
-                sprite_component_data.resize(sprite_max_count);
-                sprite_components_vbo->allocate_vertices(
-                    sprite_component_data.data(), sprite_max_count, true);
-            }
-
-            if (sprites_count > 0)
-            {
-                res_ptr<material_resource> material =
-                    static_resource_cast<material_resource>(
-                        resource_manager::get_resource(material_id));
-
-                bind_material(material);
-
-                uint32_t sprite_index = 0;
-
-                for (auto& entity : entities)
-                {
-                    auto ent_iterator = sprite_view.find(entity);
-                    if (ent_iterator != sprite_view.end())
-                    {
-                        auto [ent_transform, ent_sprite] =
-                            sprite_view.get(entity);
-
-                        mat4x4 sprite_matrix(1);
-                        sprite_matrix = glm::translate(
-                            sprite_matrix,
-                            { -ent_sprite.origin.x, -ent_sprite.origin.y, 0 });
-                        sprite_matrix =
-                            glm::scale(sprite_matrix, ent_transform.scale);
-                        sprite_matrix = glm::rotate(
-                            sprite_matrix, ent_transform.angle, { 0, 0, 1 });
-                        sprite_matrix = glm::translate(sprite_matrix,
-                                                       ent_transform.position);
-
-                        sprite_component_data[sprite_index].model =
-                            sprite_matrix;
-                        sprite_component_data[sprite_index].uv = ent_sprite.uv;
-                        sprite_index++;
-                    }
-                }
-
-                sprite_components_vbo->set_vertices(
-                    sprite_component_data.data(), 0, sprite_index);
-                sprite_vao->draw_instanced(
-                    draw_mode::triangles, sprite_index, 6);
-            }
         };
     }
 
@@ -370,8 +211,6 @@ namespace Kengine::graphics
         }
         else
         {
-            KENGINE_GL_CHECK(glClearColor(
-                clear_color.r, clear_color.g, clear_color.b, clear_color.a));
             KENGINE_GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
         }
         update_viewport();

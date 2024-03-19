@@ -1,6 +1,8 @@
 #include "game-properties-wnd.hxx"
 
 #include "Kengine/log/log.hxx"
+#include "Kengine/scene/scene-manager.hxx"
+#include "Kengine/scene/scene.hxx"
 
 #include "imgui.h"
 
@@ -15,9 +17,11 @@ void game_properties_wnd::display()
         ImGui::Begin("Game properties");
         if (current_game)
         {
-            static unsigned int selected_sc_link      = 0;
-            static const char*  selected_sc_link_name = "";
-            static std::string  selected_sc_link_path = "";
+            auto game_scene_links = current_game->get_scene_links();
+
+            static Kengine::string_id selected_sc_link{};
+            static const char*        selected_sc_link_name = "";
+            static std::string        selected_sc_link_path = "";
             {
                 ImGui::Text("Scene links:");
                 ImGui::BeginChild("scene_links",
@@ -25,17 +29,16 @@ void game_properties_wnd::display()
                                   ImGuiChildFlags_ResizeX |
                                       ImGuiChildFlags_Border);
 
-                for (auto i = 0U; i < current_game->scene_links.size(); ++i)
+                for (auto& sc_link : game_scene_links)
                 {
-                    auto& sc_link = current_game->scene_links[i];
-                    auto  sc_link_name =
-                        Kengine::get_string(sc_link.get_name_id());
-                    if (ImGui::Selectable(sc_link_name, i == selected_sc_link))
+                    const auto sc_link_id   = sc_link.first;
+                    auto       sc_link_name = Kengine::get_string(sc_link_id);
+                    if (ImGui::Selectable(sc_link_name,
+                                          sc_link_id == selected_sc_link))
                     {
-                        selected_sc_link      = i;
+                        selected_sc_link      = sc_link_id;
                         selected_sc_link_name = sc_link_name;
-                        selected_sc_link_path =
-                            sc_link.get_path().string();
+                        selected_sc_link_path = sc_link.second.string();
                     }
                 }
                 ImGui::EndChild();
@@ -58,9 +61,9 @@ void game_properties_wnd::display()
                 }
             }
             ImGui::SameLine();
-            if (selected_sc_link < current_game->scene_links.size())
+            if (selected_sc_link && game_scene_links.contains(selected_sc_link))
             {
-                auto& sc_link = current_game->scene_links[selected_sc_link];
+                auto& sc_link = game_scene_links[selected_sc_link];
 
                 ImGui::BeginGroup();
                 ImGui::BeginChild("Scene link info",
@@ -68,6 +71,17 @@ void game_properties_wnd::display()
                 ImGui::Text(selected_sc_link_name);
                 ImGui::Separator();
                 ImGui::Text(selected_sc_link_path.c_str());
+                if (ImGui::Button("Remove"))
+                {
+                    current_game->remove_scene_link(selected_sc_link);
+                    selected_sc_link = 0;
+                }
+                if (ImGui::Button("Open"))
+                {
+                    editor::instance->get_current_scene().clear_resources();
+                    current_game->set_current_scene(selected_sc_link);
+                    editor::instance->invalid_scene_render();
+                }
                 ImGui::EndChild();
                 ImGui::EndGroup();
             }

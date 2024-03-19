@@ -2,7 +2,6 @@
 
 #include "Kengine/graphics/graphics.hxx"
 #include "Kengine/resources/res-ptr.hxx"
-#include "Kengine/resources/resource-link.hxx"
 #include "Kengine/serialization/serialization.hxx"
 #include "Kengine/system/system.hxx"
 
@@ -19,7 +18,7 @@ namespace Kengine
     class scene : public serializable
     {
     public:
-        scene();
+        scene(game*);
 
         void on_update(int delta_ms);
         void on_render(int delta_ms);
@@ -30,10 +29,12 @@ namespace Kengine
         void set_game(game*);
         void set_camera(camera_component*);
 
-        void add_render_system(string_id name_id);
-        void add_update_system(string_id name_id);
+        void add_system(string_id name_id);
+        void remove_system(string_id name_id);
 
-        void add_resource_link(resource_link);
+        void add_resource(res_ptr<resource>);
+        void remove_resource(string_id);
+        void clear_resources();
 
         inline const game* get_game() const { return scene_game; }
 
@@ -47,10 +48,15 @@ namespace Kengine
         entt::registry registry;
         vec4           clear_color;
 
+        inline const auto& get_systems() const { return systems; }
+
+        inline const auto& get_resources() const { return resources; }
+
     private:
-        std::vector<resource_link>                  resource_links;
-        std::vector<std::shared_ptr<render_system>> render_systems;
-        std::vector<std::shared_ptr<update_system>> update_systems;
+        std::unordered_map<string_id, res_ptr<resource>>       resources;
+        std::unordered_map<string_id, std::shared_ptr<system>> systems;
+        std::vector<system*>                                   render_systems;
+        std::vector<system*>                                   update_systems;
 
         camera_component* current_camera;
         game*             scene_game;

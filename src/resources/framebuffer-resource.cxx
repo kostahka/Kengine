@@ -1,7 +1,10 @@
 #include "Kengine/resources/framebuffer-resource.hxx"
 
 #include "../opengl/opengl.hxx"
+#include "Kengine/imgui/imgui-edit.hxx"
 #include "Kengine/resources/res-ptr.hxx"
+
+#include "imgui.h"
 
 namespace Kengine
 {
@@ -256,6 +259,21 @@ namespace Kengine
     void framebuffer_resource::set_clear_color(const vec4& clear_color)
     {
         this->clear_color = clear_color;
+    }
+
+    bool framebuffer_resource::imgui_editable_render()
+    {
+        bool edited = false;
+        ImGui::PushID(this);
+        edited = edited ||
+                 imgui::edit_resource("Color attachment", &color_attachment);
+        edited = edited || imgui::edit_resource("Depth-stencil attachment",
+                                                &depth_stencil_attachment);
+        edited =
+            edited || ImGui::ColorEdit4("Clear color", (float*)&clear_color);
+        edited = edited || ImGui::SliderInt2("Size", (int*)&size, -4096, 4096);
+        ImGui::PopID();
+        return edited;
     }
 
 } // namespace Kengine

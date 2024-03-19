@@ -14,7 +14,10 @@
 
 using namespace Kengine::graphics;
 
-void demo_game::on_start() {}
+void demo_game::on_start()
+{
+    set_current_scene("demo-main");
+}
 
 void demo_game::on_event(Kengine::event::game_event e)
 {
@@ -41,6 +44,8 @@ Kengine::game* create_game()
 
 int main()
 {
+    Kengine::scene_manager::set_assets_base_folder(
+        std::filesystem::current_path() / "assets");
     if (Kengine::run(&create_game, "Kengine Demo"))
         return EXIT_SUCCESS;
     else

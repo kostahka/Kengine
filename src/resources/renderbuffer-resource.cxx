@@ -2,6 +2,8 @@
 
 #include "../opengl/opengl.hxx"
 
+#include "imgui.h"
+
 namespace Kengine
 {
     renderbuffer_resource::renderbuffer_resource(std::string_view name)
@@ -74,5 +76,16 @@ namespace Kengine
             KENGINE_INFO("Unloaded renderbuffer: {}", id);
             id = 0;
         }
+    }
+
+    bool renderbuffer_resource::imgui_editable_render()
+    {
+        bool edited = false;
+        ImGui::PushID(this);
+
+        edited = edited || ImGui::SliderInt2("Size", (int*)&size, -4096, 4096);
+
+        ImGui::PopID();
+        return edited;
     }
 } // namespace Kengine

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Kengine/components/camera-component.hxx"
 #include "Kengine/components/sprite-component.hxx"
 #include "Kengine/resources/shader-resource.hxx"
 #include "Kengine/scene/scene.hxx"
@@ -12,9 +13,7 @@ namespace Kengine::graphics
     extern res_ptr<fragment_shader_res> sprite_fragment_shader;
     extern res_ptr<shader_res>          sprite_shader;
     extern vec4                         clear_color;
-
-    void add_sprite(sprite_component* sprite);
-    void remove_sprite(sprite_component* sprite);
+    extern camera_component*            default_camera_component;
 
     [[nodiscard]] bool initialize();
     void               shutdown();

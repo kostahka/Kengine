@@ -32,13 +32,15 @@ namespace Kengine
         }
 
         inline const std::unordered_map<string_id, graphics::shader_type_any>&
-        get_properties()
+        get_properties() const
         {
             return properties;
         }
 
         std::size_t serialize(std::ostream& os) const override;
         std::size_t deserialize(std::istream& is) override;
+
+        bool imgui_editable_render() override;
 
     protected:
         void load_data() override;

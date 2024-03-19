@@ -30,7 +30,7 @@ namespace Kengine::graphics
                                           uint32_t size,
                                           bool     dynamic)
     {
-        KENGINE_ASSERT(size != 0 && data, "No data to allocate");
+        KENGINE_ASSERT(size != 0, "No data to allocate");
         KENGINE_GL_CHECK(
             glBufferData(GL_ARRAY_BUFFER,
                          size,

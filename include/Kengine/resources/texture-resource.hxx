@@ -9,6 +9,7 @@ namespace Kengine
     class texture_resource : public resource
     {
     public:
+        texture_resource(std::string_view name);
         texture_resource(path             texture_path,
                          std::string_view name,
                          texture_filter   mag_filter = texture_filter::linear,
@@ -43,6 +44,8 @@ namespace Kengine
         {
             return format;
         }
+
+        bool imgui_editable_render() override;
 
     protected:
         virtual void load_data() override;

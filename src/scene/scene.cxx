@@ -1,6 +1,5 @@
 #include "Kengine/scene/scene.hxx"
 
-#include "../components/custom-component.hxx"
 #include "../graphics/graphics.hxx"
 #include "../physics/physics.hxx"
 #include "Kengine/components/camera-component.hxx"
@@ -13,12 +12,12 @@
 
 namespace Kengine
 {
-    static camera_component default_camera{};
-    static vec2             gravity = { 0, 9.81f };
+    static vec2 gravity = { 0, 9.81f };
 
-    scene::scene()
-        : scene_game(nullptr)
-        , current_camera(&default_camera)
+    scene::scene(game* sc_game)
+        : scene_game(sc_game)
+        , current_camera(graphics::default_camera_component)
+        , clear_color(0, 0, 0, 0)
     {
         scene_world = new b2World(gravity);
     };
@@ -27,41 +26,27 @@ namespace Kengine
     {
         std::size_t size = 0;
 
-        size += serialization::write(os, resource_links);
+        uint32_t systems_count = static_cast<uint32_t>(render_systems.size());
+        size += serialization::write(os, systems_count);
+        for (auto& system : systems)
+        {
+            auto name_id = system.first;
+            size += serialization::write(os, name_id);
+            size += serialization::write(os, *(system.second));
+        }
 
         archive_output output(os, *this);
 
         entt::snapshot snapshot{ registry };
-        snapshot.get<transform_component>(output)
-            .get<physics_component>(output)
-            .get<render_component>(output)
-            .get<sprite_component>(output)
-            .get<camera_component>(output);
 
-        for (auto& c_info : custom_component_infos)
+        snapshot.get<entt::entity>(output);
+
+        for (auto& c_info_it : scene_game->get_component_infos())
         {
-            c_info.serialize_component(snapshot, output);
+            c_info_it.second.serialize_component(snapshot, output);
         }
 
         size += output.get_size();
-
-        uint32_t render_systems_count =
-            static_cast<uint32_t>(render_systems.size());
-        size += serialization::write(os, render_systems_count);
-        for (auto& r_system : render_systems)
-        {
-            auto name_id = r_system->get_name_id();
-            size += serialization::write(os, name_id);
-        }
-
-        uint32_t update_systems_count =
-            static_cast<uint32_t>(update_systems.size());
-        size += serialization::write(os, update_systems_count);
-        for (auto& r_system : update_systems)
-        {
-            auto name_id = r_system->get_name_id();
-            size += serialization::write(os, name_id);
-        }
 
         size += serialization::write(os, clear_color.r);
         size += serialization::write(os, clear_color.g);
@@ -75,58 +60,54 @@ namespace Kengine
     {
         std::size_t size = 0;
 
-        size += serialization::read(is, resource_links);
+        systems.clear();
+        render_systems.clear();
+        update_systems.clear();
+
+        uint32_t systems_count = 0;
+        size += serialization::read(is, systems_count);
+        systems.reserve(systems_count);
+        for (auto i = 0U; i < systems_count; i++)
+        {
+            string_id name_id{};
+            size += serialization::read(is, name_id);
+
+            if (scene_game)
+            {
+                auto system_factory = scene_game->get_system_factory(name_id);
+                auto system         = system_factory();
+                serialization::read(is, *system);
+                systems[name_id] = system;
+
+                auto system_type_flags = system->get_type_flags();
+                if (system_type_flags & system_render_type)
+                {
+                    render_systems.push_back(system.get());
+                }
+                if (system_type_flags & system_update_type)
+                {
+                    update_systems.push_back(system.get());
+                }
+                system->on_create(*this);
+            }
+        }
+
+        registry.clear();
 
         archive_input input(is, *this);
 
         entt::snapshot_loader snapshot{ registry };
-        snapshot.get<transform_component>(input)
-            .get<physics_component>(input)
-            .get<render_component>(input)
-            .get<sprite_component>(input)
-            .get<camera_component>(input);
 
-        for (auto& c_info : custom_component_infos)
+        snapshot.get<entt::entity>(input);
+
+        for (auto& c_info_it : scene_game->get_component_infos())
         {
-            c_info.deserialize_component(snapshot, input);
+            c_info_it.second.deserialize_component(snapshot, input);
         }
 
         snapshot.orphans();
 
         size += input.get_size();
-
-        render_systems.clear();
-        update_systems.clear();
-
-        uint32_t render_systems_count = 0;
-        size += serialization::read(is, render_systems_count);
-        render_systems.reserve(render_systems_count);
-        for (auto i = 0U; i < render_systems_count; i++)
-        {
-            string_id name_id = 0;
-            size += serialization::read(is, name_id);
-
-            if (scene_game)
-            {
-                auto system = scene_game->get_render_system(name_id);
-                render_systems.push_back(system);
-            }
-        }
-
-        uint32_t update_systems_count = 0;
-        size += serialization::read(is, update_systems_count);
-        update_systems.reserve(update_systems_count);
-        for (auto i = 0U; i < update_systems_count; i++)
-        {
-            string_id name_id = 0;
-            size += serialization::read(is, name_id);
-
-            if (scene_game)
-            {
-                auto system = scene_game->get_update_system(name_id);
-                update_systems.push_back(system);
-            }
-        }
 
         size += serialization::read(is, clear_color.r);
         size += serialization::read(is, clear_color.g);
@@ -147,7 +128,7 @@ namespace Kengine
     void scene::on_render(int delta_ms)
     {
         graphics::update_matrices(current_camera->camera.get_projection(),
-                                  current_camera->camera.get_view());
+                                  current_camera->camera.view);
         for (auto& system : render_systems)
         {
             system->on_render(*this, delta_ms);
@@ -172,25 +153,80 @@ namespace Kengine
         }
         else
         {
-            current_camera = &default_camera;
+            current_camera = graphics::default_camera_component;
         }
     }
 
-    void scene::add_render_system(string_id name_id)
+    void scene::add_system(string_id name_id)
     {
-        auto system = scene_game->get_render_system(name_id);
-        render_systems.push_back(system);
+        remove_system(name_id);
+        auto system_factory = scene_game->get_system_factory(name_id);
+        if (system_factory)
+        {
+            auto system      = system_factory();
+            systems[name_id] = system;
+
+            auto system_type_flags = system->get_type_flags();
+            if (system_type_flags & system_render_type)
+            {
+                render_systems.push_back(system.get());
+            }
+            if (system_type_flags & system_update_type)
+            {
+                update_systems.push_back(system.get());
+            }
+            system->on_create(*this);
+        }
     }
 
-    void scene::add_update_system(string_id name_id)
+    void scene::remove_system(string_id name_id)
     {
-        auto system = scene_game->get_update_system(name_id);
-        update_systems.push_back(system);
+        auto system_it = systems.find(name_id);
+        if (system_it != systems.end())
+        {
+            auto system_type_flags = system_it->second->get_type_flags();
+            if (system_type_flags & system_render_type)
+            {
+                auto render_system_it = std::remove(render_systems.begin(),
+                                                    render_systems.end(),
+                                                    system_it->second.get());
+                if (render_system_it != render_systems.end())
+                {
+                    render_systems.erase(render_system_it);
+                }
+            }
+            if (system_type_flags & system_update_type)
+            {
+                auto update_system_it = std::remove(update_systems.begin(),
+                                                    update_systems.end(),
+                                                    system_it->second.get());
+                if (update_system_it != update_systems.end())
+                {
+                    update_systems.erase(update_system_it);
+                }
+            }
+
+            systems.erase(system_it);
+        }
     }
 
-    void scene::add_resource_link(resource_link res_link)
+    void scene::add_resource(res_ptr<resource> res)
     {
-        resource_links.push_back(res_link);
+        if (res)
+        {
+            resources[res->get_resource_id()] = res;
+        }
     }
 
+    void scene::remove_resource(string_id res_id)
+    {
+        auto res_it = resources.find(res_id);
+        if (res_it != resources.end())
+            resources.erase(res_it);
+    }
+
+    void scene::clear_resources()
+    {
+        resources.clear();
+    }
 } // namespace Kengine

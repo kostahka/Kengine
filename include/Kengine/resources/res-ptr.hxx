@@ -7,8 +7,10 @@
 namespace Kengine::resource_manager
 {
     res_ptr<resource> get_resource(string_id r_id);
-    void              initialize();
-    void              shutdown();
+    res_ptr<resource> load_resource(path res_path);
+
+    void initialize();
+    void shutdown();
 } // namespace Kengine::resource_manager
 
 namespace Kengine
@@ -47,6 +49,14 @@ namespace Kengine
         {
         }
 
+        res_ptr_counter(resource* res, path r_path)
+            : p_count(0)
+            , w_count(0)
+            , ptr(res)
+            , r_path(r_path)
+        {
+        }
+
         void free()
         {
             delete ptr;
@@ -63,6 +73,7 @@ namespace Kengine
         size_t    p_count;
         size_t    w_count;
         resource* ptr;
+        path      r_path;
     };
 
     template <class ResourceType>
@@ -162,12 +173,24 @@ namespace Kengine
             counter->p_count++;
         }
 
+        explicit res_ptr(ResourceType* res, path r_path)
+            : ptr(res)
+
+        {
+            counter = new res_ptr_counter(static_cast<resource*>(res), r_path);
+            counter->p_count++;
+        }
+
         explicit res_ptr(res_ptr_counter* counter)
             : counter(counter)
+            , ptr(nullptr)
         {
-            ptr = static_cast<ResourceType*>(counter->ptr);
             if (counter)
-                counter->p_count++;
+            {
+                ptr = static_cast<ResourceType*>(counter->ptr);
+                if (counter)
+                    counter->p_count++;
+            }
         }
 
         res_ptr(const res_ptr& other)
@@ -184,6 +207,11 @@ namespace Kengine
             counter       = other.counter;
             other.ptr     = nullptr;
             other.counter = nullptr;
+        }
+
+        operator res_ptr<resource>()
+        {
+            return res_ptr<resource>(this->counter);
         }
 
         res_ptr& operator=(const res_ptr& other)
@@ -225,21 +253,42 @@ namespace Kengine
 
         std::size_t serialize(std::ostream& os) const override
         {
+            path r_path;
+            if (counter)
+            {
+                r_path = counter->r_path;
+            }
+            std::size_t size = 0;
+            size += serialization::write(os, r_path.string());
+
             if (ptr)
-                return serialization::write(os, ptr->get_resource_id());
+                size += serialization::write(os, ptr->get_resource_id());
             else
-                return serialization::write(os, string_id(0));
+                size += serialization::write(os, string_id());
+
+            return size;
         }
 
         std::size_t deserialize(std::istream& is) override
         {
-            res_ptr<resource> res    = nullptr;
-            string_id         res_id = 0;
+            res_ptr<resource> res = nullptr;
+            string_id         res_id{};
 
-            std::size_t size = serialization::read(is, res_id);
+            std::string r_path_str;
+
+            std::size_t size = 0;
+
+            size += serialization::read(is, r_path_str);
+            size += serialization::read(is, res_id);
+
+            path r_path = r_path_str;
             if (res_id)
             {
-                res   = resource_manager::get_resource(res_id);
+                res = resource_manager::get_resource(res_id);
+                if (!res)
+                {
+                    res = resource_manager::load_resource(r_path);
+                }
                 *this = static_resource_cast<ResourceType>(res);
             }
             return size;
@@ -254,6 +303,16 @@ namespace Kengine
         inline ResourceType* operator->() { return ptr; }
 
         inline const ResourceType* operator->() const { return ptr; }
+
+        [[nodiscard]] inline path get_res_path()
+        {
+            if (counter)
+            {
+                return counter->r_path;
+            }
+
+            return {};
+        };
 
     private:
         ResourceType*    ptr;

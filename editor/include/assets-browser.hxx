@@ -1,6 +1,7 @@
 #pragma once
 
 #include "imgui-filebrowser/imfilebrowser.h"
+#include "Kengine/resources/resource.hxx"
 
 enum class file_type
 {
@@ -28,4 +29,5 @@ private:
     bool create_resource_modal = false;
 
     file_type create_file_type;
+    Kengine::resource_type create_res_type;
 };

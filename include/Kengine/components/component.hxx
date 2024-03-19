@@ -1,21 +1,23 @@
 #pragma once
 
-#include "Kengine/components/component-types.hxx"
 #include "Kengine/event/event.hxx"
-
+#include "Kengine/imgui/imgui-editable.hxx"
 #include "Kengine/serialization/serialization.hxx"
+#include "Kengine/string/string-id.hxx"
+
+#include <string_view>
 
 namespace Kengine
 {
-    class component : public serializable
+    class component : public serializable, public imgui::editable
     {
     public:
-        component(component_type type);
+        component(std::string_view name);
         ~component();
 
-        inline component_type get_type() const { return type; };
+        inline string_id get_name_id() const { return name_id; };
 
     private:
-        component_type type;
+        string_id name_id;
     };
 } // namespace Kengine

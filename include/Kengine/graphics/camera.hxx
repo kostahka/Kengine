@@ -11,19 +11,28 @@ namespace Kengine::graphics
         camera();
         ~camera();
 
-        void set_matrices(const mat4x4& projection, const mat4x4& view);
-        void set_projection(const mat4x4& projection);
-        void set_view(const mat4x4& view);
-
         std::size_t serialize(std::ostream& os) const override;
         std::size_t deserialize(std::istream& is) override;
 
-        inline const mat4x4& get_projection() const { return projection; }
+        mat4x4 view;
 
-        inline const mat4x4& get_view() const { return view; };
+        void set_projection(float width, float height, float zNear, float zFar);
+
+        inline float get_width() const { return width; }
+
+        inline float get_height() const { return height; }
+
+        inline float get_zNear() const { return zNear; }
+
+        inline float get_zFar() const { return zFar; }
+
+        inline const mat4x4& get_projection() const { return projection; }
 
     private:
         mat4x4 projection;
-        mat4x4 view;
+        float  width  = 2;
+        float  height = 2;
+        float  zNear  = -1;
+        float  zFar   = 1;
     };
 } // namespace Kengine::graphics

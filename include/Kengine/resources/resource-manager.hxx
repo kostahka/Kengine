@@ -10,11 +10,24 @@ namespace Kengine::resource_manager
     void remove_resource(string_id r_id);
 
     res_ptr<resource> load_resource(path res_path);
-    void              save_resource(path res_path, res_ptr<resource> res);
+    void              save_resource(res_ptr<resource> res);
+
+    path relative_assets_path(path full_path);
 } // namespace Kengine::resource_manager
 
 namespace Kengine
 {
+    template <class ResourceType, typename... Types>
+    res_ptr<ResourceType> make_resource_from_file(path r_path, Types&&... args)
+    {
+        ResourceType* res = new ResourceType(std::forward<Types>(args)...);
+        res_ptr<ResourceType> ptr(
+            res, resource_manager::relative_assets_path(r_path));
+        resource_manager::registrate_resource(
+            static_resource_cast<resource, ResourceType>(ptr));
+        return ptr;
+    }
+
     template <class ResourceType, typename... Types>
     res_ptr<ResourceType> make_resource(Types&&... args)
     {

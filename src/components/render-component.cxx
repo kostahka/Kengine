@@ -3,7 +3,7 @@
 namespace Kengine
 {
     render_component::render_component()
-        : component(component_type::render)
+        : component(name)
         , material(nullptr)
     {
         vao = std::make_shared<graphics::vertex_array>();
@@ -14,7 +14,7 @@ namespace Kengine
         const std::shared_ptr<graphics::vertex_array>& vao)
         : material(material)
         , vao(vao)
-        , component(component_type::render)
+        , component(name)
     {
         this->material->take_data();
     }
@@ -45,6 +45,7 @@ namespace Kengine
 
     render_component::~render_component()
     {
-        material->free_data();
+        if (material)
+            material->free_data();
     }
 } // namespace Kengine

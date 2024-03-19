@@ -6,13 +6,16 @@
 namespace Kengine
 {
     class scene;
+    struct component_info;
 
     struct camera_component : public component
     {
         friend class scene;
+        static constexpr auto name = "camera_component";
+        static component_info info;
 
         camera_component();
-        camera_component(mat4x4 projection);
+        camera_component(scene& sc);
         ~camera_component();
 
         void bind(scene&);
@@ -22,10 +25,12 @@ namespace Kengine
         std::size_t serialize(std::ostream& os) const override;
         std::size_t deserialize(std::istream& is) override;
 
+        bool imgui_editable_render() override;
+
         graphics::camera camera;
 
     private:
-        bool   binded;
+        bool   binded = false;
         scene* cam_scene;
     };
 

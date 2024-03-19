@@ -51,7 +51,6 @@ namespace ImGui
     {
     public:
         // pwd is set to current working directory by default
-        explicit FileBrowser(ImGuiFileBrowserFlags flags = 0);
         explicit FileBrowser(std::string           title,
                              ImGuiFileBrowserFlags flags = 0);
 
@@ -209,40 +208,6 @@ namespace ImGui
     };
 } // namespace ImGui
 
-inline ImGui::FileBrowser::FileBrowser(ImGuiFileBrowserFlags flags)
-    : width_(700)
-    , height_(450)
-    , posX_(0)
-    , posY_(0)
-    , flags_(flags)
-    , openFlag_(false)
-    , closeFlag_(false)
-    , isOpened_(false)
-    , ok_(false)
-    , posIsSet_(false)
-    , rangeSelectionStart_(0)
-    , inputNameBuf_(std::make_unique<std::array<char, INPUT_NAME_BUF_SIZE>>())
-{
-    if (flags_ & ImGuiFileBrowserFlags_CreateNewDir)
-    {
-        newDirNameBuf_ =
-            std::make_unique<std::array<char, INPUT_NAME_BUF_SIZE>>();
-    }
-
-    inputNameBuf_->front() = '\0';
-    inputNameBuf_->back()  = '\0';
-    SetTitle("file browser");
-    SetPwd(std::filesystem::current_path());
-
-    typeFilters_.clear();
-    typeFilterIndex_ = 0;
-    hasAllFilter_    = false;
-
-#ifdef _WIN32
-    drives_ = GetDrivesBitMask();
-#endif
-}
-
 inline ImGui::FileBrowser::FileBrowser(std::string           title,
                                        ImGuiFileBrowserFlags flags)
     : width_(700)
@@ -289,7 +254,7 @@ inline bool ImGui::FileBrowser::IsFocused() const noexcept
 }
 
 inline ImGui::FileBrowser::FileBrowser(const FileBrowser& copyFrom)
-    : FileBrowser()
+    : FileBrowser(copyFrom.title_)
 {
     *this = copyFrom;
 }
@@ -358,8 +323,7 @@ inline void ImGui::FileBrowser::SetWindowSize(int width, int height) noexcept
 inline void ImGui::FileBrowser::SetTitle(std::string title)
 {
     title_     = std::move(title);
-    openLabel_ = title_ + "##filebrowser_" +
-                 std::to_string(reinterpret_cast<size_t>(this));
+    openLabel_ = title_;
     openNewDirLabel_ =
         "new dir##new_dir_" + std::to_string(reinterpret_cast<size_t>(this));
 }

@@ -14,6 +14,8 @@ namespace Kengine
             std::string_view                    name);
         ~sprite_material_resource();
 
+        bool imgui_editable_render() override;
+
     private:
     };
 } // namespace Kengine

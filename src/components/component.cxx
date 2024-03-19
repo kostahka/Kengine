@@ -2,9 +2,9 @@
 
 namespace Kengine
 {
-    component::component(component_type type)
-        : type(type)
+    component::component(std::string_view name)
     {
+        name_id = hash_string(name.data());
     }
 
     component::~component() {}

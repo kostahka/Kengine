@@ -1,9 +1,10 @@
 #pragma once
 
+#include "Kengine/imgui/imgui-editable.hxx"
 #include "Kengine/io/file-manager.hxx"
+#include "Kengine/resources/resource-types.hxx"
 #include "Kengine/serialization/serialization.hxx"
 #include "Kengine/string/string-id.hxx"
-#include "resource-types.hxx"
 
 #include <filesystem>
 #include <string_view>
@@ -15,7 +16,7 @@ namespace Kengine
 
     using std::filesystem::path;
 
-    class resource : public serializable
+    class resource : public serializable, public imgui::editable
     {
     public:
         void take_data(); // Own resource. Load resource data if needed
@@ -24,6 +25,8 @@ namespace Kengine
 
         virtual ~resource();
 
+        void reload_data();
+
         [[nodiscard]] inline resource_type get_resource_type() const
         {
             return r_type;
@@ -31,13 +34,10 @@ namespace Kengine
 
         [[nodiscard]] inline string_id get_resource_id() const { return r_id; }
 
+        [[nodiscard]] inline path get_file_path() const { return f_path; }
+
         std::size_t serialize(std::ostream& os) const = 0;
         std::size_t deserialize(std::istream& is)     = 0;
-
-        static std::size_t serialize(std::ostream&            os,
-                                     const res_ptr<resource>& res);
-        static std::size_t deserialize(std::istream&      is,
-                                       res_ptr<resource>& res);
 
     protected:
         virtual void load_data()   = 0; // What do to load data for resource
@@ -51,5 +51,7 @@ namespace Kengine
         resource_type r_type;
         string_id     r_id;
     };
+
+    const char* get_resource_type_str(resource_type);
 
 } // namespace Kengine

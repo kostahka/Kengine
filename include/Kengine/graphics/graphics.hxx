@@ -2,7 +2,9 @@
 
 #include "Kengine/graphics/camera.hxx"
 #include "Kengine/graphics/framebuffer.hxx"
+#include "Kengine/resources/material-resource.hxx"
 #include "Kengine/units/vector.hxx"
+
 
 #include <memory>
 
@@ -15,4 +17,6 @@ namespace Kengine::graphics
 
     void push_camera(std::shared_ptr<camera> cam);
     void pop_camera();
+
+    void bind_material(const res_ptr<material_resource>& material);
 } // namespace Kengine::graphics

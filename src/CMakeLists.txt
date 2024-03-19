@@ -9,9 +9,8 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/audio/audio.cxx
     ${CMAKE_CURRENT_LIST_DIR}/audio/audio.hxx
     ${CMAKE_CURRENT_LIST_DIR}/components/camera-component.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/components/component-container.cxx
     ${CMAKE_CURRENT_LIST_DIR}/components/component.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/components/custom-component.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/components/custom-component.hxx
     ${CMAKE_CURRENT_LIST_DIR}/components/physics-component.cxx
     ${CMAKE_CURRENT_LIST_DIR}/components/render-component.cxx
     ${CMAKE_CURRENT_LIST_DIR}/components/sprite-component.cxx
@@ -36,6 +35,7 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/graphics/shader-utils/shader-type.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/shader-utils/shader-utils.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/shader.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/graphics/texture-common.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/texture.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/uniformbuffer.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/vertex-array.cxx
@@ -48,6 +48,8 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/imgui-impl/imgui_impl_sdl3.h
     ${CMAKE_CURRENT_LIST_DIR}/imgui-impl/imgui_impl_sdlrenderer3.cpp
     ${CMAKE_CURRENT_LIST_DIR}/imgui-impl/imgui_impl_sdlrenderer3.h
+    ${CMAKE_CURRENT_LIST_DIR}/imgui/imgui-edit.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/imgui/imgui-editable.cxx
     ${CMAKE_CURRENT_LIST_DIR}/imgui/imgui.cxx
     ${CMAKE_CURRENT_LIST_DIR}/imgui/imgui.hxx
     ${CMAKE_CURRENT_LIST_DIR}/io/file-manager.cxx
@@ -65,14 +67,12 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/resources/material-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/picopng.hxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/renderbuffer-resource.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/resources/resource-link.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/resource-manager.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/shader-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/sprite-material-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/texture-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/scene/prefab.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/scene/scene-link.cxx
     ${CMAKE_CURRENT_LIST_DIR}/scene/scene-manager.cxx
     ${CMAKE_CURRENT_LIST_DIR}/scene/scene-manager.hxx
     ${CMAKE_CURRENT_LIST_DIR}/scene/scene.cxx
@@ -91,10 +91,9 @@ set(KENGINE_HEADERS
     # cmake-format: sortable
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/audio/audio.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/camera-component.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/component-container.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/component-info.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/component-types.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/component.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/custom-component.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/physics-component.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/render-component.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/sprite-component.hxx
@@ -121,6 +120,8 @@ set(KENGINE_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/vertex-array.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/vertex-buffer.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/helpers/hash.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/imgui/imgui-edit.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/imgui/imgui-editable.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/imgui/imgui.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/io/file-manager.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/io/input.hxx
@@ -132,7 +133,6 @@ set(KENGINE_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/material-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/renderbuffer-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/res-ptr.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/resource-link.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/resource-manager.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/resource-types.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/resource.hxx
@@ -140,7 +140,6 @@ set(KENGINE_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/sprite-material-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/texture-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/scene/prefab.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/scene/scene-link.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/scene/scene-manager.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/scene/scene.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/serialization/archive.hxx

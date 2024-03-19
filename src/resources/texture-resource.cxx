@@ -1,8 +1,12 @@
 #include "Kengine/resources/texture-resource.hxx"
 
 #include "../opengl/opengl.hxx"
+#include "../scene/scene-manager.hxx"
+#include "Kengine/imgui/imgui-edit.hxx"
 #include "Kengine/log/log.hxx"
+#include "Kengine/scene/scene-manager.hxx"
 
+#include "imgui.h"
 #include "picopng.hxx"
 #include "stb_image.h"
 
@@ -10,6 +14,17 @@
 
 namespace Kengine
 {
+    texture_resource::texture_resource(std::string_view name)
+        : resource(resource_type::texture, name)
+        , id(0)
+        , size({ 1, 1 })
+        , num_channels(0)
+        , min_filter(texture_filter::linear)
+        , mag_filter(texture_filter::linear)
+        , format(texture_format::rgba)
+    {
+    }
+
     texture_resource::texture_resource(path             texture_path,
                                        std::string_view name,
                                        texture_filter   mag_filter,
@@ -109,7 +124,8 @@ namespace Kengine
     {
         if (!f_path.empty())
         {
-            auto texture_file = file_manager::load_file(f_path);
+            auto texture_file = file_manager::load_file(
+                scene_manager::assets_base_folder / f_path);
             if (texture_file == nullptr)
             {
                 load_invalid_texture();
@@ -253,6 +269,75 @@ namespace Kengine
         format = texture_format::rgb;
 
         KENGINE_WARN("Unable to load texture, defaulting to checkerboard");
+    }
+
+    static texture_format t_formats[]{
+        texture_format::none,
+        texture_format::red,
+        texture_format::rg,
+        texture_format::rgb,
+        texture_format::bgr,
+        texture_format::rgba,
+        texture_format::bgra,
+        texture_format::depth,
+        texture_format::depth_stencil,
+    };
+
+    static texture_filter t_filters[]{
+        texture_filter::nearest,
+        texture_filter::linear,
+        texture_filter::nearest_mipmap_nearest,
+        texture_filter::linear_mipmap_nearest,
+        texture_filter::nearest_mipmap_linear,
+        texture_filter::linear_mipmap_linear,
+    };
+
+    bool texture_resource::imgui_editable_render()
+    {
+        bool edited = false;
+        ImGui::PushID(this);
+
+        imgui::edit_file("Texture file", f_path);
+
+        if (f_path.empty())
+        {
+            edited = edited || ImGui::InputInt2("Size", (int*)&size);
+        }
+
+        auto current_min_filter = min_filter;
+        auto current_min_filter_str =
+            get_texture_filter_str(current_min_filter);
+        if (ImGui::BeginCombo("Min filter", current_min_filter_str))
+        {
+            for (auto i = 0U; i != _countof(t_filters); ++i)
+            {
+                if (ImGui::Selectable(get_texture_filter_str(t_filters[i])))
+                {
+                    min_filter = t_filters[i];
+                    edited     = true;
+                }
+            }
+            ImGui::EndCombo();
+        }
+
+        auto current_mag_filter = mag_filter;
+        auto current_mag_filter_str =
+            get_texture_filter_str(current_mag_filter);
+        if (ImGui::BeginCombo("Mag filter", current_mag_filter_str))
+        {
+            for (auto i = 0U; i != _countof(t_filters); ++i)
+            {
+                if (ImGui::Selectable(get_texture_filter_str(t_filters[i])))
+                {
+                    mag_filter = t_filters[i];
+                    edited     = true;
+                }
+            }
+            ImGui::EndCombo();
+        }
+
+        ImGui::PopID();
+        return edited;
     }
 
 } // namespace Kengine
