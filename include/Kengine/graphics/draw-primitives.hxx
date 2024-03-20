@@ -2,7 +2,7 @@
 
 #include "Kengine/units/vector.hxx"
 
-namespace Kengine
+namespace Kengine::graphics
 {
     enum class primitive_type
     {
@@ -24,4 +24,4 @@ namespace Kengine
     };
 
     gl_render_primitive* create_primitive_render(primitive_type);
-} // namespace Kengine
+} // namespace Kengine::graphics

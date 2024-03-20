@@ -1,10 +1,10 @@
-#include "Kengine/render/b2GLDraw.hxx"
+#include "Kengine/graphics/b2GLDraw.hxx"
 
 #include "../opengl/opengl.hxx"
 
-inline Kengine::vec vec_to_tr(const b2Vec2 v)
+inline Kengine::vec3 vec_to_tr(const b2Vec2 v)
 {
-    return { v.x, v.y, 10 };
+    return { v.x, v.y, -1 };
 }
 
 //
@@ -26,13 +26,14 @@ b2GLDraw::~b2GLDraw()
 //
 void b2GLDraw::Create()
 {
-    r_points =
-        Kengine::create_primitive_render(Kengine::primitive_type::points);
+    r_points = Kengine::graphics::create_primitive_render(
+        Kengine::graphics::primitive_type::points);
     r_points->create();
-    r_lines = Kengine::create_primitive_render(Kengine::primitive_type::lines);
+    r_lines = Kengine::graphics::create_primitive_render(
+        Kengine::graphics::primitive_type::lines);
     r_lines->create();
-    r_triangles =
-        Kengine::create_primitive_render(Kengine::primitive_type::triangles);
+    r_triangles = Kengine::graphics::create_primitive_render(
+        Kengine::graphics::primitive_type::triangles);
     r_triangles->create();
 }
 

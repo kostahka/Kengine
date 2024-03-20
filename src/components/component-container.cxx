@@ -12,7 +12,8 @@ namespace Kengine
     {
         register_component(hash_string(camera_component::name),
                            camera_component::info);
-        register_component<physics_component>(physics_component::name);
+        register_component(hash_string(physics_component::name),
+                           physics_component::info);
         register_component<render_component>(render_component::name);
         register_component<transform_component>(transform_component::name);
         register_component<sprite_component>(sprite_component::name);

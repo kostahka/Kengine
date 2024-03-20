@@ -6,6 +6,8 @@
 
 namespace Kengine
 {
+    struct component_info;
+
     class body_shape : public imgui::editable
     {
     public:
@@ -16,6 +18,8 @@ namespace Kengine
         std::size_t deserialize(std::istream& is);
 
         bool imgui_editable_render() override;
+
+        void reset(b2Shape* shape);
 
         inline b2Shape* get() { return shape; }
 
@@ -69,12 +73,16 @@ namespace Kengine
     struct physics_component : public component
     {
         static constexpr auto name = "physics_component";
+        static component_info info;
 
         physics_component();
-        physics_component(const b2BodyDef& definition);
+        physics_component(b2World* world);
+        physics_component(b2World* world, const b2BodyDef& definition);
 
         physics_component(physics_component& other) = delete;
         physics_component(physics_component&& other);
+
+        void set_world(b2World* world);
 
         physics_component& operator=(physics_component& other) = delete;
         physics_component& operator=(physics_component&& other);
@@ -105,6 +113,7 @@ namespace Kengine
 
     private:
         b2Body*                   body;
+        b2World*                  world;
         std::vector<body_fixture> fixtures;
     };
 } // namespace Kengine

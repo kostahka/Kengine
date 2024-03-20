@@ -25,7 +25,9 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/event/user-events.cxx
     ${CMAKE_CURRENT_LIST_DIR}/file-last-modify-listener.cxx
     ${CMAKE_CURRENT_LIST_DIR}/game.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/graphics/b2GLDraw.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/camera.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/graphics/draw-primitives.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/element-buffer.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/framebuffer.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/graphics.cxx
@@ -105,7 +107,9 @@ set(KENGINE_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/event/user-events.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/file-last-modify-listener.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/game.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/b2GLDraw.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/camera.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/draw-primitives.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/element-buffer.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/framebuffer.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/graphics.hxx
@@ -199,7 +203,7 @@ target_compile_definitions(
     INTERFACE $<TARGET_PROPERTY:spdlog,INTERFACE_COMPILE_DEFINITIONS>
     INTERFACE ENTT_NOEXCEPTION
     INTERFACE
-        $<IF:$<STREQUAL:${CMAKE_BUILD_TYPE},"Debug">,ENTT_ASSERT,ENTT_DISABLE_ASSERT>
+        $<$<STREQUAL:${CMAKE_BUILD_TYPE},"Debug">:ENTT_ASSERT,ENTT_DISABLE_ASSERT>
     INTERFACE $<TARGET_PROPERTY:box2d,INTERFACE_COMPILE_DEFINITIONS>
 )
 
@@ -227,6 +231,7 @@ endif()
 target_compile_options(
     kengine-public
     INTERFACE $<TARGET_PROPERTY:spdlog,INTERFACE_COMPILE_OPTIONS>
+    INTERFACE $<TARGET_PROPERTY:box2d,INTERFACE_COMPILE_OPTIONS>
 )
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")

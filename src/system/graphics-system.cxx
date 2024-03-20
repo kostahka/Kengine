@@ -101,7 +101,7 @@ namespace Kengine
     void graphics_system::draw_sprites(
         uint32_t count, res_ptr<sprite_material_resource>& material, int layer)
     {
-        if (count)
+        if (count && material)
         {
             graphics::bind_material(
                 static_resource_cast<material_resource>(material));

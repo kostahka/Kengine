@@ -24,6 +24,14 @@ namespace Kengine::graphics
     res_ptr<fragment_shader_res> sprite_fragment_shader = nullptr;
     res_ptr<shader_res>          sprite_shader          = nullptr;
 
+    res_ptr<vertex_shader_res>   primitive_lines_vertex_shader   = nullptr;
+    res_ptr<fragment_shader_res> primitive_lines_fragment_shader = nullptr;
+    res_ptr<shader_res>          primitive_lines_shader          = nullptr;
+
+    res_ptr<vertex_shader_res>   primitive_points_vertex_shader   = nullptr;
+    res_ptr<fragment_shader_res> primitive_points_fragment_shader = nullptr;
+    res_ptr<shader_res>          primitive_points_shader          = nullptr;
+
     camera_component* default_camera_component = nullptr;
 
     vec4 clear_color{ 0.0f, 0.0f, 0.0f, 1.0f };
@@ -97,6 +105,100 @@ namespace Kengine::graphics
 
         KENGINE_GL_CHECK(glUseProgram(sprite_shader->get_id()));
         sprite_shader->set_uniform_block_binding("Matrices", 0);
+
+        primitive_points_vertex_shader =
+            make_resource<vertex_shader_res>(std::string_view(R"(
+                #version 300 es
+                precision mediump float;
+
+                layout (location = 0) in vec3 v_position;
+                layout (location = 1) in vec4 v_color;
+                layout (location = 2) in float v_size;
+                out vec4 f_color;
+
+                layout (std140) uniform Matrices{
+                    mat4 projection;
+                    mat4 view;
+                };
+
+                void main()
+                {
+                    f_color = v_color;
+                    gl_Position = projection * view * vec4(v_position, 1.0);
+                    gl_PointSize = v_size;
+                }
+                )"),
+                                             "primitive_points_vertex");
+
+        primitive_points_fragment_shader =
+            make_resource<fragment_shader_res>(std::string_view(R"(
+                #version 300 es
+                precision mediump float;
+
+                in vec4 f_color;
+
+                out vec4 fragColor;
+
+                void main()
+                {
+                    fragColor = f_color;
+                }
+            )"),
+                                               "primitive_points_fragment");
+
+        primitive_points_shader =
+            make_resource<shader_res>(primitive_points_vertex_shader,
+                                      primitive_points_fragment_shader,
+                                      "primitive_points_shader");
+
+        KENGINE_GL_CHECK(glUseProgram(primitive_points_shader->get_id()));
+        primitive_points_shader->set_uniform_block_binding("Matrices", 0);
+
+        primitive_lines_vertex_shader =
+            make_resource<vertex_shader_res>(std::string_view(R"(
+                #version 300 es
+                precision mediump float;
+
+                layout (location = 0) in vec3 v_position;
+                layout (location = 1) in vec4 v_color;
+                out vec4 f_color;
+
+                layout (std140) uniform Matrices{
+                    mat4 projection;
+                    mat4 view;
+                };
+
+                void main()
+                {
+                    f_color = v_color;
+                    gl_Position = projection * view * vec4(v_position, 1.0);
+                }
+                )"),
+                                             "primitive_lines_vertex");
+
+        primitive_lines_fragment_shader =
+            make_resource<fragment_shader_res>(std::string_view(R"(
+                #version 300 es
+                precision mediump float;
+
+                in vec4 f_color;
+
+                out vec4 fragColor;
+
+                void main()
+                {
+                    fragColor = f_color;
+                }
+            )"),
+                                               "primitive_lines_fragment");
+
+        primitive_lines_shader =
+            make_resource<shader_res>(primitive_lines_vertex_shader,
+                                      primitive_lines_fragment_shader,
+                                      "primitive_lines_shader");
+
+        KENGINE_GL_CHECK(glUseProgram(primitive_lines_shader->get_id()));
+        primitive_lines_shader->set_uniform_block_binding("Matrices", 0);
 
         default_camera_component = new camera_component();
 

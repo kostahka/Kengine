@@ -78,9 +78,7 @@ void game_properties_wnd::display()
                 }
                 if (ImGui::Button("Open"))
                 {
-                    editor::instance->get_current_scene().clear_resources();
-                    current_game->set_current_scene(selected_sc_link);
-                    editor::instance->invalid_scene_render();
+                    editor::instance->set_game_scene(selected_sc_link);
                 }
                 ImGui::EndChild();
                 ImGui::EndGroup();

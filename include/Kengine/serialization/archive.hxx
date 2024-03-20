@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Kengine/components/camera-component.hxx"
+#include "Kengine/components/physics-component.hxx"
+#include "Kengine/scene/scene.hxx"
 #include "Kengine/serialization/serialization.hxx"
 #include "entt/entt.hpp"
 
@@ -17,16 +19,7 @@ namespace Kengine
         template <typename T>
         void operator()(T& value)
         {
-            serialization::read(is, value);
-        }
-
-        void operator()(camera_component& value)
-        {
-            serialization::read(is, value);
-            if (value.is_binded())
-            {
-                value.bind(sc);
-            }
+            total_size += serialization::read(is, value);
         }
 
         inline std::size_t get_size() const { return total_size; }
@@ -48,7 +41,7 @@ namespace Kengine
         template <typename T>
         void operator()(const T& value)
         {
-            serialization::write(os, value);
+            total_size += serialization::write(os, value);
         }
 
         inline std::size_t get_size() const { return total_size; }

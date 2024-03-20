@@ -20,6 +20,8 @@ public:
     void on_update(int delta_ms) override;
     void on_render(int delta_ms) override;
 
+    void set_game_scene(Kengine::string_id);
+
     void invalid_scene_render();
 
     on_imgui_render* get_imgui_render() override;

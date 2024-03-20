@@ -20,6 +20,28 @@ namespace Kengine
     {
     }
 
+    camera_component::camera_component(camera_component&& other)
+        : component(name)
+        , camera(other.camera)
+        , cam_scene(other.cam_scene)
+    {
+        if (other.binded)
+        {
+            bind(*other.cam_scene);
+        }
+    }
+
+    camera_component& camera_component::operator=(camera_component&& other)
+    {
+        camera    = other.camera;
+        cam_scene = other.cam_scene;
+        if (other.binded)
+        {
+            bind(*other.cam_scene);
+        }
+        return *this;
+    }
+
     camera_component::~camera_component()
     {
         if (binded)
@@ -89,6 +111,16 @@ namespace Kengine
         }
 #endif
         return edited;
+    }
+
+    template <>
+    void archive_input::operator()(camera_component& value)
+    {
+        total_size += serialization::read(is, value);
+        if (value.is_binded())
+        {
+            value.bind(sc);
+        }
     }
 
     component_info camera_component::info{

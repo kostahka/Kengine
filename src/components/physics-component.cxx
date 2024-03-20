@@ -1,6 +1,9 @@
 #include "Kengine/components/physics-component.hxx"
 
+#include "Kengine/components/component-info.hxx"
+#include "Kengine/log/log.hxx"
 #include "Kengine/physics/physics.hxx"
+
 #include "box2d/b2_body.h"
 #include "box2d/b2_chain_shape.h"
 #include "box2d/b2_circle_shape.h"
@@ -29,6 +32,14 @@ namespace Kengine
     body_shape::body_shape(b2Shape* shape)
         : shape(shape)
     {
+    }
+
+    void body_shape::reset(b2Shape* shape)
+    {
+        if (this->shape)
+            delete this->shape;
+
+        this->shape = shape;
     }
 
     std::size_t body_shape::serialize(std::ostream& os) const
@@ -129,22 +140,25 @@ namespace Kengine
             int32 vertices_count = 0;
             size += serialization::read(is, vertices_count);
 
-            b2Vec2* vertices = new b2Vec2[vertices_count];
-
-            for (auto i = 0; i < vertices_count; ++i)
+            if (vertices_count > 0)
             {
-                float x, y;
-                size += serialization::read(is, x);
-                size += serialization::read(is, y);
-                vertices[i].Set(x, y);
+                b2Vec2* vertices = new b2Vec2[vertices_count];
+
+                for (auto i = 0; i < vertices_count; ++i)
+                {
+                    float x, y;
+                    size += serialization::read(is, x);
+                    size += serialization::read(is, y);
+                    vertices[i].Set(x, y);
+                }
+
+                chain->CreateChain(vertices,
+                                   vertices_count,
+                                   { prev_x, prev_y },
+                                   { next_x, next_y });
+
+                delete[] vertices;
             }
-
-            chain->CreateChain(vertices,
-                               vertices_count,
-                               { prev_x, prev_y },
-                               { next_x, next_y });
-
-            delete[] vertices;
 
             shape = chain;
         }
@@ -183,22 +197,26 @@ namespace Kengine
         {
             b2PolygonShape* polygon = new b2PolygonShape();
 
-            int32   vertices_count = 0;
-            b2Vec2* vertices       = new b2Vec2[vertices_count];
+            int32 vertices_count = 0;
 
             size += serialization::read(is, vertices_count);
-            for (auto i = 0; i < vertices_count; ++i)
+
+            if (vertices_count > 0)
             {
-                float x, y;
-                size += serialization::read(is, x);
-                size += serialization::read(is, y);
+                b2Vec2* vertices = new b2Vec2[vertices_count];
+                for (auto i = 0; i < vertices_count; ++i)
+                {
+                    float x, y;
+                    size += serialization::read(is, x);
+                    size += serialization::read(is, y);
 
-                vertices[i].Set(x, y);
+                    vertices[i].Set(x, y);
+                }
+
+                polygon->Set(vertices, vertices_count);
+
+                delete[] vertices;
             }
-
-            polygon->Set(vertices, vertices_count);
-
-            delete[] vertices;
 
             shape = polygon;
         }
@@ -309,6 +327,8 @@ namespace Kengine
 
         fixture = body->CreateFixture(&fixture_def);
 
+        shape.reset(fixture->GetShape());
+
         return size;
     }
 
@@ -368,15 +388,25 @@ namespace Kengine
 
     physics_component::physics_component()
         : component(name)
+        , body(nullptr)
+        , world(nullptr)
     {
-        b2BodyDef emptyBodyDef{};
-        body = physics::main_world->CreateBody(&emptyBodyDef);
     }
 
-    physics_component::physics_component(const b2BodyDef& definition)
+    physics_component::physics_component(b2World* world)
         : component(name)
+        , world(world)
     {
-        body = physics::main_world->CreateBody(&definition);
+        static b2BodyDef defaultBodyDef{};
+        body = world->CreateBody(&defaultBodyDef);
+    }
+
+    physics_component::physics_component(b2World*         world,
+                                         const b2BodyDef& definition)
+        : component(name)
+        , world(world)
+    {
+        body = world->CreateBody(&definition);
     }
 
     physics_component::physics_component(physics_component&& other)
@@ -384,12 +414,14 @@ namespace Kengine
         , body(nullptr)
     {
         std::swap(body, other.body);
+        std::swap(world, other.world);
         std::swap(fixtures, other.fixtures);
     }
 
     physics_component& physics_component::operator=(physics_component&& other)
     {
         std::swap(body, other.body);
+        std::swap(world, other.world);
         std::swap(fixtures, other.fixtures);
         return *this;
     }
@@ -397,6 +429,7 @@ namespace Kengine
     body_fixture physics_component::create_fixture(
         const b2FixtureDef& definition)
     {
+        KENGINE_ASSERT(body, "Physics body is null");
         auto fixture = body->CreateFixture(&definition);
         fixtures.push_back(body_fixture(fixture));
         return fixture;
@@ -405,6 +438,7 @@ namespace Kengine
     body_fixture physics_component::create_fixture(const b2Shape* shape,
                                                    float          density)
     {
+        KENGINE_ASSERT(body, "Physics body is null");
         auto fixture = body->CreateFixture(shape, density);
         fixtures.push_back(body_fixture(fixture));
         return fixture;
@@ -423,13 +457,20 @@ namespace Kengine
     physics_component::~physics_component()
     {
         if (body)
-            physics::main_world->DestroyBody(body);
+            world->DestroyBody(body);
+    }
+
+    void physics_component::set_world(b2World* world)
+    {
+        if (world)
+            this->world = world;
     }
 
     std::size_t physics_component::serialize(std::ostream& os) const
     {
         std::size_t size = 0;
 
+        KENGINE_ASSERT(body, "Physics body is null");
         size += serialization::write(os, body->GetType());
         auto pos = body->GetPosition();
         size += serialization::write(os, pos.x);
@@ -483,7 +524,7 @@ namespace Kengine
         size += serialization::read(is, body_def.enabled);
         size += serialization::read(is, body_def.gravityScale);
 
-        body = physics::main_world->CreateBody(&body_def);
+        body = world->CreateBody(&body_def);
 
         int fixture_count = 0;
         size += serialization::read(is, fixture_count);
@@ -711,4 +752,36 @@ namespace Kengine
 #endif
         return edited;
     }
+
+    template <>
+    void archive_input::operator()(physics_component& value)
+    {
+        value.set_world(&(sc.get_world()));
+        total_size += serialization::read(is, value);
+    }
+
+    component_info physics_component::info{
+        [](scene& sc, entt::entity ent)
+        { return sc.registry.any_of<physics_component>(ent); },
+
+        [](scene& sc, entt::entity ent) {
+            return static_cast<component*>(
+                &sc.registry.get<physics_component>(ent));
+        },
+
+        [](entt::snapshot& snapshot, archive_output& output)
+        { snapshot.get<physics_component>(output); },
+
+        [](entt::snapshot_loader& snapshot, archive_input& input)
+        { snapshot.get<physics_component>(input); },
+
+        [](scene& sc, entt::entity ent)
+        { sc.registry.erase<physics_component>(ent); },
+
+        [](scene& sc, entt::entity ent)
+        { sc.registry.emplace<physics_component>(ent, &sc.get_world()); },
+
+        [](scene& sc, entt::entity ent)
+        { sc.registry.patch<physics_component>(ent); },
+    };
 } // namespace Kengine

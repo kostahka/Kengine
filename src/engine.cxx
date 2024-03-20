@@ -69,7 +69,7 @@ namespace Kengine
             return false;
         }
 
-        KENGINE_TRACE("Init engine resource...");
+        KENGINE_TRACE("Init engine systems...");
         // audio::init();
         resource_manager::initialize();
         physics::initialize();

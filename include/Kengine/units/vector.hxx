@@ -9,6 +9,8 @@ namespace Kengine
 {
     struct vec3 : public glm::vec3
     {
+        vec3()
+            : glm::vec3(){};
 
         constexpr vec3(float x, float y, float z)
             : glm::vec3(x, y, z){};
@@ -26,6 +28,9 @@ namespace Kengine
 
     struct vec2 : public glm::vec2
     {
+        vec2()
+            : glm::vec2(){};
+
         constexpr vec2(float x, float y)
             : glm::vec2(x, y){};
         constexpr vec2(const b2Vec2& v)

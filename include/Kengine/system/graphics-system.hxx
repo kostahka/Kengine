@@ -6,6 +6,8 @@
 #include "Kengine/system/system.hxx"
 #include "Kengine/units/rect.hxx"
 
+#include "entt/entt.hpp"
+
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>

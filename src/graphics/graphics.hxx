@@ -12,8 +12,17 @@ namespace Kengine::graphics
     extern res_ptr<vertex_shader_res>   sprite_vertex_shader;
     extern res_ptr<fragment_shader_res> sprite_fragment_shader;
     extern res_ptr<shader_res>          sprite_shader;
-    extern vec4                         clear_color;
-    extern camera_component*            default_camera_component;
+
+    extern res_ptr<vertex_shader_res>   primitive_points_vertex_shader;
+    extern res_ptr<fragment_shader_res> primitive_points_fragment_shader;
+    extern res_ptr<shader_res>          primitive_points_shader;
+
+    extern res_ptr<vertex_shader_res>   primitive_lines_vertex_shader;
+    extern res_ptr<fragment_shader_res> primitive_lines_fragment_shader;
+    extern res_ptr<shader_res>          primitive_lines_shader;
+
+    extern vec4              clear_color;
+    extern camera_component* default_camera_component;
 
     [[nodiscard]] bool initialize();
     void               shutdown();

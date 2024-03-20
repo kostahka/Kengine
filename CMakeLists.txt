@@ -44,6 +44,10 @@ option(BOX2D_USER_SETTINGS OFF)
 
 add_subdirectory(external/box2d)
 set_property(TARGET box2d PROPERTY POSITION_INDEPENDENT_CODE ON)
+if(MSVC)
+    target_compile_definitions(box2d PUBLIC B2_SHARED)
+    target_compile_definitions(box2d PRIVATE box2d_EXPORTS)
+endif()
 
 # EFSW - cross-platform file watcher and notifier
 add_subdirectory(external/efsw)

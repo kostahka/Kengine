@@ -18,6 +18,12 @@ namespace Kengine
         camera_component(scene& sc);
         ~camera_component();
 
+        camera_component(camera_component& other) = delete;
+        camera_component(camera_component&& other);
+
+        camera_component& operator=(camera_component& other) = delete;
+        camera_component& operator=(camera_component&& other);
+
         void bind(scene&);
 
         inline bool is_binded() const { return binded; }

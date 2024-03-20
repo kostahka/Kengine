@@ -1,13 +1,8 @@
 #pragma once
 
-#include "box2d/box2d.h"
-#include "draw-primitives.hxx"
+#include "Kengine/graphics/draw-primitives.hxx"
 
-struct b2AABB;
-struct GLRenderPoints;
-struct GLRenderLines;
-struct GLRenderTriangles;
-struct GLFWwindow;
+#include "box2d/box2d.h"
 
 class b2GLDraw : public b2Draw
 {
@@ -48,7 +43,7 @@ public:
     void Draw();
 
 private:
-    Kengine::gl_render_primitive* r_points;
-    Kengine::gl_render_primitive* r_lines;
-    Kengine::gl_render_primitive* r_triangles;
+    Kengine::graphics::gl_render_primitive* r_points;
+    Kengine::graphics::gl_render_primitive* r_lines;
+    Kengine::graphics::gl_render_primitive* r_triangles;
 };

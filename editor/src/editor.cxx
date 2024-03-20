@@ -9,6 +9,7 @@
 
 #include "Kengine/configuration/configuration-file.hxx"
 #include "Kengine/engine.hxx"
+#include "Kengine/graphics/b2GLDraw.hxx"
 #include "Kengine/graphics/graphics.hxx"
 #include "Kengine/imgui/imgui.hxx"
 #include "Kengine/io/file-manager.hxx"
@@ -18,6 +19,8 @@
 
 #include "imgui-filebrowser/imfilebrowser.h"
 #include "imgui.h"
+
+#include "box2d/box2d.h"
 
 #include <filesystem>
 
@@ -42,6 +45,9 @@ resource_wnd          resource_window{};
 Kengine::configuration_file editor_config{ "kengine-editor" };
 
 editor* editor::instance = nullptr;
+
+b2GLDraw b2_debug_draw{};
+bool     physics_debug_draw = false;
 
 void editor::render_imgui()
 {
@@ -99,6 +105,14 @@ void editor::render_imgui()
         scene_objects_window.display();
         object_properties_window.display();
         resource_window.display();
+
+        {
+            ImGui::Begin("Properties");
+
+            ImGui::Checkbox("Physics debug draw", &physics_debug_draw);
+
+            ImGui::End();
+        }
 
         {
             ImGui::Begin("Game");
@@ -241,6 +255,16 @@ editor::~editor()
     editor_config.set_setting("game", "lib_path", game_lib_path);
     editor_config.set_setting("game", "assets_base_path", assets_base_path);
     editor_config.save();
+
+    b2_debug_draw.Destroy();
+}
+
+void editor::set_game_scene(Kengine::string_id sc_link)
+{
+    get_current_scene().clear_resources();
+    current_game->set_current_scene(sc_link);
+    invalid_scene_render();
+    current_game->get_current_scene().get_world().SetDebugDraw(&b2_debug_draw);
 }
 
 void editor::on_start()
@@ -263,6 +287,9 @@ void editor::on_start()
             std::string_view("game_framebuffer"));
 
     game_framebuffer = Kengine::graphics::framebuffer(game_framebuffer_res);
+
+    b2_debug_draw.Create();
+    b2_debug_draw.SetFlags(b2Draw::e_shapeBit);
 }
 
 void editor::on_event(Kengine::event::game_event event)
@@ -300,6 +327,11 @@ void editor::on_render(int delta_ms)
         Kengine::graphics::push_framebuffer(game_framebuffer);
         current_game->on_render(delta_ms);
         current_game->get_current_scene().on_render(delta_ms);
+        if (physics_debug_draw)
+        {
+            current_game->get_current_scene().get_world().DebugDraw();
+            b2_debug_draw.Draw();
+        }
         Kengine::graphics::pop_framebuffer();
 
         scene_render_valid = true;

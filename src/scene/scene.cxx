@@ -26,7 +26,7 @@ namespace Kengine
     {
         std::size_t size = 0;
 
-        uint32_t systems_count = static_cast<uint32_t>(render_systems.size());
+        uint32_t systems_count = static_cast<uint32_t>(systems.size());
         size += serialization::write(os, systems_count);
         for (auto& system : systems)
         {
