@@ -84,8 +84,8 @@ namespace Kengine::event
                 case SDL_EVENT_FINGER_MOTION:
                     window_size           = window::get_size_in_pixels();
                     event.g_type          = type::touch_move_event;
-                    event.touch.touch_id  = sdl_event.tfinger.touchId;
-                    event.touch.finger_id = sdl_event.tfinger.fingerId;
+                    event.touch.touch_id  = sdl_event.tfinger.touchID;
+                    event.touch.finger_id = sdl_event.tfinger.fingerID;
                     event.touch.x         = sdl_event.tfinger.x * window_size.x;
                     event.touch.y         = sdl_event.tfinger.y * window_size.y;
                     event.touch.pressed   = true;
@@ -94,8 +94,8 @@ namespace Kengine::event
                 case SDL_EVENT_FINGER_DOWN:
                     window_size           = window::get_size_in_pixels();
                     event.g_type          = type::touch_event;
-                    event.touch.touch_id  = sdl_event.tfinger.touchId;
-                    event.touch.finger_id = sdl_event.tfinger.fingerId;
+                    event.touch.touch_id  = sdl_event.tfinger.touchID;
+                    event.touch.finger_id = sdl_event.tfinger.fingerID;
                     event.touch.x         = sdl_event.tfinger.x * window_size.x;
                     event.touch.y         = sdl_event.tfinger.y * window_size.y;
                     event.touch.pressed =

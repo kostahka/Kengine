@@ -1,8 +1,8 @@
 #include "Kengine/io/file-manager.hxx"
 
-#include "SDL3/SDL_filesystem.h"
-#include <SDL_error.h>
-#include <SDL_rwops.h>
+#include <SDL3/SDL_error.h>
+#include <SDL3/SDL_filesystem.h>
+#include <SDL3/SDL_iostream.h>
 
 #include "Kengine/log/log.hxx"
 
@@ -41,9 +41,9 @@ namespace Kengine::file_manager
     };
 
     std::unordered_map<std::ios_base::seekdir, int> seekdirs{
-        {std::ios_base::beg,  SDL_RW_SEEK_SET},
-        { std::ios_base::end, SDL_RW_SEEK_END},
-        { std::ios_base::cur, SDL_RW_SEEK_CUR}
+        {std::ios_base::beg,  SDL_IO_SEEK_SET},
+        { std::ios_base::end, SDL_IO_SEEK_END},
+        { std::ios_base::cur, SDL_IO_SEEK_CUR}
     };
 
     file_buffer::file_buffer()
@@ -82,7 +82,7 @@ namespace Kengine::file_manager
             }
 
             file =
-                SDL_RWFromFile(path.string().c_str(), sdl_openmode_map->second);
+                SDL_IOFromFile(path.string().c_str(), sdl_openmode_map->second);
             if (!file)
             {
                 KENGINE_ERROR("Failed to open file [{}], error: {}",
@@ -99,7 +99,7 @@ namespace Kengine::file_manager
             {
                 buf_size = 10;
             }
-            file_size      = file->size(file);
+            file_size      = SDL_GetIOSize(file);
             file_curr_pos  = mode & std::ios_base::app ? file_size : 0;
             file_write_pos = file_read_pos = file_curr_pos;
 
@@ -130,7 +130,7 @@ namespace Kengine::file_manager
 
         bool load(std::filesystem::path path)
         {
-            file = SDL_RWFromFile(path.string().c_str(), "rb");
+            file = SDL_IOFromFile(path.string().c_str(), "rb");
             if (!file)
             {
                 KENGINE_ERROR("Failed to open file [{}], error: {}",
@@ -140,7 +140,7 @@ namespace Kengine::file_manager
             }
 
             is_file_open   = true;
-            file_size      = file->size(file);
+            file_size      = SDL_GetIOSize(file);
             file_curr_pos  = 0;
             file_write_pos = 0;
             file_read_pos  = 0;
@@ -173,7 +173,7 @@ namespace Kengine::file_manager
         {
             if (file)
             {
-                if (0 != file->close(file))
+                if (0 != SDL_CloseIO(file))
                 {
                     KENGINE_ERROR("Failed to close file.");
                 }
@@ -203,7 +203,7 @@ namespace Kengine::file_manager
                 if (file_curr_pos != file_write_pos)
                 {
                     file_curr_pos =
-                        file->seek(file, file_write_pos, SDL_RW_SEEK_SET);
+                        SDL_SeekIO(file, file_write_pos, SDL_IO_SEEK_SET);
                     if (file_curr_pos == -1)
                     {
                         KENGINE_ERROR("Can't write to file.");
@@ -212,7 +212,7 @@ namespace Kengine::file_manager
                 }
                 size_t must_write_bytes = pptr() - pbase();
                 Sint64 write_bytes =
-                    file->write(file, write_buffer.get(), must_write_bytes);
+                    SDL_WriteIO(file, write_buffer.get(), must_write_bytes);
                 if (write_bytes != must_write_bytes)
                 {
                     KENGINE_ERROR("Can't write to file.");
@@ -231,7 +231,7 @@ namespace Kengine::file_manager
                 if (file_curr_pos != file_read_pos)
                 {
                     file_curr_pos =
-                        file->seek(file, file_read_pos, SDL_RW_SEEK_SET);
+                        SDL_SeekIO(file, file_read_pos, SDL_IO_SEEK_SET);
                     if (file_curr_pos == -1)
                     {
                         KENGINE_ERROR("Can't read from file.");
@@ -239,7 +239,7 @@ namespace Kengine::file_manager
                     }
                 }
                 Sint64 read_bytes =
-                    file->read(file, read_buffer.get(), buf_size);
+                    SDL_ReadIO(file, read_buffer.get(), buf_size);
                 if (read_bytes == -1)
                 {
                     KENGINE_ERROR("Can't read from file.");
@@ -355,10 +355,10 @@ namespace Kengine::file_manager
         }
 
     private:
-        SDL_RWops* file;
-        size_t     file_write_pos;
-        size_t     file_read_pos;
-        size_t     file_curr_pos;
+        SDL_IOStream* file;
+        size_t        file_write_pos;
+        size_t        file_read_pos;
+        size_t        file_curr_pos;
     };
 
     std::unique_ptr<file_buffer> file_buffer::get_empty()
@@ -388,10 +388,10 @@ namespace Kengine::file_manager
 
     bool file_exists(std::filesystem::path path)
     {
-        auto file = SDL_RWFromFile(path.string().c_str(), "rb");
+        auto file = SDL_IOFromFile(path.string().c_str(), "rb");
         if (file)
         {
-            file->close(file);
+            SDL_CloseIO(file);
             return true;
         }
         else

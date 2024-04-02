@@ -61,78 +61,81 @@ namespace Kengine::audio
             : buffer(nullptr)
             , length(0)
 
-        {
-            //        SDL_RWops* file = SDL_RWFromFile(path.data(), "rb");
-            //        if (file == nullptr)
-            //        {
-            //            std::cerr << "Failed to open [" << path
-            //                      << "] to read. Error: " << SDL_GetError() <<
-            //                      std::endl;
-            //        }
+                  {
+                      //        SDL_RWops* file = SDL_RWFromFile(path.data(),
+                      //        "rb"); if (file == nullptr)
+                      //        {
+                      //            std::cerr << "Failed to open [" << path
+                      //                      << "] to read. Error: " <<
+                      //                      SDL_GetError() << std::endl;
+                      //        }
 
-            SDL_AudioSpec file_audio_spec;
+                      // SDL_AudioSpec file_audio_spec;
 
-            if (!SDL_LoadWAV_RW(SDL_RWFromFile(path.data(), "rb"),
-                                SDL_TRUE,
-                                &file_audio_spec,
-                                &buffer,
-                                &length))
-            {
-                KENGINE_ERROR("Failed to load wav from [{}]. Error: {}",
-                              path,
-                              SDL_GetError())
-                return;
-            }
+                      // if (!SDL_LoadWAV_RW(SDL_RWFromFile(path.data(), "rb"),
+                      //                     SDL_TRUE,
+                      //                     &file_audio_spec,
+                      //                     &buffer,
+                      //                     &length))
+                      // {
+                      //     KENGINE_ERROR("Failed to load wav from [{}]. Error:
+                      //     {}",
+                      //                   path,
+                      //                   SDL_GetError())
+                      //     return;
+                      // }
 
-            const auto wav_time =
-                static_cast<double>(length) /
-                static_cast<double>(
-                    (file_audio_spec.channels *
-                     static_cast<uint32_t>(file_audio_spec.freq) *
-                     get_sound_format_size(file_audio_spec.format)));
+                      // const auto wav_time =
+                      //     static_cast<double>(length) /
+                      //     static_cast<double>(
+                      //         (file_audio_spec.channels *
+                      //          static_cast<uint32_t>(file_audio_spec.freq) *
+                      //          get_sound_format_size(file_audio_spec.format)));
 
-            KENGINE_INFO("Audio format for:  {}\n"
-                         " -format: {}\n"
-                         " -sample_size: {}\n"
-                         " -channels: {}\n"
-                         " -frequency: {}\n"
-                         " -length: {}\n"
-                         " -time: {} sec",
-                         path,
-                         get_sound_format_name(file_audio_spec.format),
-                         get_sound_format_size(file_audio_spec.format),
-                         static_cast<uint32_t>(file_audio_spec.channels),
-                         file_audio_spec.freq,
-                         length,
-                         wav_time);
+                      // KENGINE_INFO("Audio format for:  {}\n"
+                      //              " -format: {}\n"
+                      //              " -sample_size: {}\n"
+                      //              " -channels: {}\n"
+                      //              " -frequency: {}\n"
+                      //              " -length: {}\n"
+                      //              " -time: {} sec",
+                      //              path,
+                      //              get_sound_format_name(file_audio_spec.format),
+                      //              get_sound_format_size(file_audio_spec.format),
+                      //              static_cast<uint32_t>(file_audio_spec.channels),
+                      //              file_audio_spec.freq,
+                      //              length,
+                      //              wav_time);
 
-            if (file_audio_spec.channels != audio_device_spec.channels ||
-                file_audio_spec.format != audio_device_spec.format ||
-                file_audio_spec.freq != audio_device_spec.freq)
-            {
-                Uint8* output_bytes;
-                int    output_length;
+                      // if (file_audio_spec.channels !=
+                      // audio_device_spec.channels ||
+                      //     file_audio_spec.format != audio_device_spec.format
+                      //     || file_audio_spec.freq != audio_device_spec.freq)
+                      // {
+                      //     Uint8* output_bytes;
+                      //     int    output_length;
 
-                int convert_status =
-                    SDL_ConvertAudioSamples(&file_audio_spec,
-                                            buffer,
-                                            static_cast<int>(length),
-                                            &audio_device_spec,
-                                            &output_bytes,
-                                            &output_length);
-                if (convert_status != 0)
-                {
-                    KENGINE_ERROR("Failed to convert wav audio [{}]. Error: {}",
-                                  path,
-                                  SDL_GetError());
-                    return;
-                }
+                      //     int convert_status =
+                      //         SDL_ConvertAudioSamples(&file_audio_spec,
+                      //                                 buffer,
+                      //                                 static_cast<int>(length),
+                      //                                 &audio_device_spec,
+                      //                                 &output_bytes,
+                      //                                 &output_length);
+                      //     if (convert_status != 0)
+                      //     {
+                      //         KENGINE_ERROR("Failed to convert wav audio
+                      //         [{}]. Error: {}",
+                      //                       path,
+                      //                       SDL_GetError());
+                      //         return;
+                      //     }
 
-                SDL_free(buffer);
-                buffer = output_bytes;
-                length = static_cast<uint32_t>(output_length);
-            }
-        };
+                      //     SDL_free(buffer);
+                      //     buffer = output_bytes;
+                      //     length = static_cast<uint32_t>(output_length);
+                      // }
+                  };
 
         [[nodiscard]] uint8_t* get_data() const override { return buffer; };
 
