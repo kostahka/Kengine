@@ -55,6 +55,17 @@ namespace Kengine
         return size;
     }
 
+    std::size_t renderbuffer_resource::serialize_size() const
+    {
+        std::size_t size = 0;
+
+        size += serialization::size(this->size.x);
+        size += serialization::size(this->size.y);
+        size += serialization::size(format);
+
+        return size;
+    }
+
     void renderbuffer_resource::load_data()
     {
         KENGINE_GL_CHECK(glGenRenderbuffers(1, &id));

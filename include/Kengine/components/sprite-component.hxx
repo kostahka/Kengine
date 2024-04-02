@@ -18,16 +18,17 @@ namespace Kengine
                          rect uv     = { 0, 0, 1, 1 },
                          vec2 origin = { 0, 0 });
 
-        sprite_component(sprite_component& other) = delete;
+        sprite_component(sprite_component& other);
         sprite_component(sprite_component&& other);
 
-        sprite_component& operator=(sprite_component& other) = delete;
+        sprite_component& operator=(sprite_component& other);
         sprite_component& operator=(sprite_component&& other);
 
         ~sprite_component();
 
         std::size_t serialize(std::ostream& os) const override;
         std::size_t deserialize(std::istream& is) override;
+        std::size_t serialize_size() const override;
 
         bool imgui_editable_render() override;
 

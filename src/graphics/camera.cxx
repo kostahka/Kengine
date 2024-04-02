@@ -6,51 +6,47 @@
 namespace Kengine::graphics
 {
     camera::camera()
-        : projection(1)
-        , view(1)
+        : view(1)
+        , height(1)
+        , zNear(-1)
+        , zFar(1)
     {
     }
 
     camera::~camera() {}
 
-    void camera::set_projection(float width,
-                                float height,
-                                float zNear,
-                                float zFar)
+    void camera::set_projection(float height, float zNear, float zFar)
     {
+        this->height     = height;
+        this->zNear      = zNear;
+        this->zFar       = zFar;
+        projection_valid = false;
+    }
+
+    void camera::set_height(float height)
+    {
+        this->height     = height;
+        projection_valid = false;
+    }
+
+    void camera::calculate_projection()
+    {
+        auto current_viewport = graphics::get_current_viewport();
+        auto width =
+            height / float(current_viewport.y) * float(current_viewport.x);
         projection = glm::ortho(
             -width / 2, width / 2, -height / 2, height / 2, zNear, zFar);
-        this->width  = width;
-        this->height = height;
-        this->zNear  = zNear;
-        this->zFar   = zFar;
+        projection_valid = true;
     }
 
     std::size_t camera::serialize(std::ostream& os) const
     {
         std::size_t size = 0;
 
-        size += serialization::write(os, width);
         size += serialization::write(os, height);
         size += serialization::write(os, zNear);
         size += serialization::write(os, zFar);
 
-        size += serialization::write(os, projection[0].x);
-        size += serialization::write(os, projection[0].y);
-        size += serialization::write(os, projection[0].z);
-        size += serialization::write(os, projection[0].w);
-        size += serialization::write(os, projection[1].x);
-        size += serialization::write(os, projection[1].y);
-        size += serialization::write(os, projection[1].z);
-        size += serialization::write(os, projection[1].w);
-        size += serialization::write(os, projection[2].x);
-        size += serialization::write(os, projection[2].y);
-        size += serialization::write(os, projection[2].z);
-        size += serialization::write(os, projection[2].w);
-        size += serialization::write(os, projection[3].x);
-        size += serialization::write(os, projection[3].y);
-        size += serialization::write(os, projection[3].z);
-        size += serialization::write(os, projection[3].w);
         size += serialization::write(os, view[0].x);
         size += serialization::write(os, view[0].y);
         size += serialization::write(os, view[0].z);
@@ -75,27 +71,10 @@ namespace Kengine::graphics
     {
         std::size_t size = 0;
 
-        size += serialization::read(is, width);
         size += serialization::read(is, height);
         size += serialization::read(is, zNear);
         size += serialization::read(is, zFar);
 
-        size += serialization::read(is, projection[0].x);
-        size += serialization::read(is, projection[0].y);
-        size += serialization::read(is, projection[0].z);
-        size += serialization::read(is, projection[0].w);
-        size += serialization::read(is, projection[1].x);
-        size += serialization::read(is, projection[1].y);
-        size += serialization::read(is, projection[1].z);
-        size += serialization::read(is, projection[1].w);
-        size += serialization::read(is, projection[2].x);
-        size += serialization::read(is, projection[2].y);
-        size += serialization::read(is, projection[2].z);
-        size += serialization::read(is, projection[2].w);
-        size += serialization::read(is, projection[3].x);
-        size += serialization::read(is, projection[3].y);
-        size += serialization::read(is, projection[3].z);
-        size += serialization::read(is, projection[3].w);
         size += serialization::read(is, view[0].x);
         size += serialization::read(is, view[0].y);
         size += serialization::read(is, view[0].z);
@@ -112,6 +91,36 @@ namespace Kengine::graphics
         size += serialization::read(is, view[3].y);
         size += serialization::read(is, view[3].z);
         size += serialization::read(is, view[3].w);
+
+        projection_valid = false;
+
+        return size;
+    }
+
+    std::size_t camera::serialize_size() const
+    {
+        std::size_t size = 0;
+
+        size += serialization::size(height);
+        size += serialization::size(zNear);
+        size += serialization::size(zFar);
+
+        size += serialization::size(view[0].x);
+        size += serialization::size(view[0].y);
+        size += serialization::size(view[0].z);
+        size += serialization::size(view[0].w);
+        size += serialization::size(view[1].x);
+        size += serialization::size(view[1].y);
+        size += serialization::size(view[1].z);
+        size += serialization::size(view[1].w);
+        size += serialization::size(view[2].x);
+        size += serialization::size(view[2].y);
+        size += serialization::size(view[2].z);
+        size += serialization::size(view[2].w);
+        size += serialization::size(view[3].x);
+        size += serialization::size(view[3].y);
+        size += serialization::size(view[3].z);
+        size += serialization::size(view[3].w);
 
         return size;
     }

@@ -42,6 +42,12 @@ namespace Kengine
         return size;
     }
 
+    std::size_t string_id::serialize_size() const
+    {
+        std::string str = id ? get_string() : "";
+        return serialization::size(str);
+    }
+
     const char* string_id::get_string() const
     {
         auto s = string_table.find(id);

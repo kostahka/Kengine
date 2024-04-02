@@ -16,6 +16,7 @@ namespace Kengine
     public:
         virtual auto serialize(std::ostream& os) const -> std::size_t = 0;
         virtual auto deserialize(std::istream& is) -> std::size_t     = 0;
+        virtual auto serialize_size() const -> std::size_t            = 0;
     };
 
     namespace serialization
@@ -264,8 +265,8 @@ namespace Kengine
             static auto read(std::istream& is, T& value) -> std::size_t
             {
                 std::string string_path;
-                auto        size = stream_reader<std::string>::read(is, string_path);
-                value            = std::filesystem::path(string_path);
+                auto size = stream_reader<std::string>::read(is, string_path);
+                value     = std::filesystem::path(string_path);
                 return size;
             };
         };
@@ -376,5 +377,128 @@ namespace Kengine
         {
             return stream_reader<T>::read(is, value);
         };
+
+        template <typename T, typename U = void>
+        class stream_size
+        {
+        public:
+            static auto size(const T& value) -> std::size_t
+            {
+                return sizeof(value);
+            };
+        };
+
+        template <typename T>
+            requires Serializable<T>
+        class stream_size<T, void>
+        {
+        public:
+            static auto size(const T& value) -> std::size_t
+            {
+                return value.serialize_size();
+            };
+        };
+
+        template <typename T>
+            requires String<T>
+        class stream_size<T, void>
+        {
+        public:
+            static auto size(const T& value) -> std::size_t
+            {
+                const auto len = static_cast<std::uint32_t>(value.size());
+                return sizeof(len) + len;
+            };
+        };
+
+        template <typename T>
+            requires Path<T>
+        class stream_size<T, void>
+        {
+        public:
+            static auto size(const T& value) -> std::size_t
+            {
+                std::string string_path = value.string();
+                return stream_size<std::string>::size(string_path);
+            };
+        };
+
+        template <typename T>
+            requires Boolean<T>
+        class stream_size<T, void>
+        {
+        public:
+            static auto size(const T& value) -> std::size_t
+            {
+                return sizeof(true_char);
+            };
+        };
+
+        template <typename T>
+            requires Pair<T>
+        class stream_size<T, void>
+        {
+        public:
+            static auto size(const T& value) -> std::size_t
+            {
+                using first_type  = typename T::first_type;
+                using second_type = typename T::second_type;
+                return stream_size<first_type>::size(value.first) +
+                       stream_size<second_type>::size(value.second);
+            };
+        };
+
+        template <typename T>
+            requires SequenceContainer<T>
+        class stream_size<T, void>
+        {
+        public:
+            static auto size(const T& value) -> std::size_t
+            {
+                const auto len = static_cast<typename T::size_type>(
+                    std::distance(value.cbegin(), value.cend()));
+                auto size = sizeof(len);
+                if (len > 0)
+                {
+                    using value_t = typename T::value_type;
+                    std::for_each(value.cbegin(),
+                                  value.cend(),
+                                  [&](const auto& item) {
+                                      size += stream_size<value_t>::size(item);
+                                  });
+                }
+                return size;
+            };
+        };
+
+        template <typename T>
+            requires AssociativeContainer<T>
+        class stream_size<T, void>
+        {
+        public:
+            static auto size(const T& value) -> std::size_t
+            {
+                const auto len =
+                    static_cast<typename T::size_type>(value.size());
+                auto size = sizeof(len);
+                if (len > 0)
+                {
+                    using value_t = typename T::value_type;
+                    std::for_each(value.cbegin(),
+                                  value.cend(),
+                                  [&](const auto& item) {
+                                      size += stream_size<value_t>::size(item);
+                                  });
+                }
+                return size;
+            };
+        };
+
+        template <typename T>
+        auto size(const T& value) -> std::size_t
+        {
+            return stream_size<T>::size(value);
+        };
+
     } // namespace serialization
 } // namespace Kengine

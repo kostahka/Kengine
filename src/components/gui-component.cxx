@@ -1,4 +1,4 @@
-#include "Kengine/components/sprite-component.hxx"
+#include "Kengine/components/gui-component.hxx"
 
 #include "../graphics/graphics.hxx"
 #include "Kengine/imgui/imgui-edit.hxx"
@@ -7,23 +7,13 @@
 
 namespace Kengine
 {
-    sprite_component::sprite_component()
+    gui_component::gui_component()
         : component(name)
         , material(nullptr)
     {
     }
 
-    sprite_component::sprite_component(
-        const res_ptr<sprite_material_resource>& material, rect uv, vec2 origin)
-        : component(name)
-        , material(material)
-        , uv(uv)
-        , origin(origin)
-    {
-        this->material->take_data();
-    }
-
-    sprite_component::sprite_component(sprite_component& other)
+    gui_component::gui_component(gui_component& other)
         : component(name)
         , material(other.material)
         , uv(other.uv)
@@ -32,7 +22,7 @@ namespace Kengine
         material->take_data();
     }
 
-    sprite_component::sprite_component(sprite_component&& other)
+    gui_component::gui_component(gui_component&& other)
         : component(name)
         , uv(other.uv)
         , origin(other.origin)
@@ -41,7 +31,7 @@ namespace Kengine
         std::swap(material, other.material);
     }
 
-    sprite_component& sprite_component::operator=(sprite_component& other)
+    gui_component& gui_component::operator=(gui_component& other)
     {
         uv       = other.uv;
         origin   = other.origin;
@@ -50,7 +40,7 @@ namespace Kengine
         return *this;
     }
 
-    sprite_component& sprite_component::operator=(sprite_component&& other)
+    gui_component& gui_component::operator=(gui_component&& other)
     {
         uv     = other.uv;
         origin = other.origin;
@@ -58,8 +48,8 @@ namespace Kengine
         return *this;
     }
 
-    void sprite_component::set_material(
-        const res_ptr<sprite_material_resource>& material)
+    void gui_component::set_material(
+        const res_ptr<gui_material_resource>& material)
     {
         if (this->material)
         {
@@ -72,13 +62,13 @@ namespace Kengine
         }
     }
 
-    sprite_component::~sprite_component()
+    gui_component::~gui_component()
     {
         if (material)
             material->free_data();
     }
 
-    std::size_t sprite_component::serialize(std::ostream& os) const
+    std::size_t gui_component::serialize(std::ostream& os) const
     {
         std::size_t size = 0;
 
@@ -88,16 +78,19 @@ namespace Kengine
         size += serialization::write(os, uv.y);
         size += serialization::write(os, uv.w);
         size += serialization::write(os, uv.h);
+        size += serialization::write(os, angle);
+        size += serialization::write(os, scale.x);
+        size += serialization::write(os, scale.y);
         size += serialization::write(os, material);
 
         return size;
     }
 
-    std::size_t sprite_component::deserialize(std::istream& is)
+    std::size_t gui_component::deserialize(std::istream& is)
     {
         std::size_t size = 0;
 
-        res_ptr<sprite_material_resource> material;
+        res_ptr<gui_material_resource> material;
 
         size += serialization::read(is, origin.x);
         size += serialization::read(is, origin.y);
@@ -105,6 +98,9 @@ namespace Kengine
         size += serialization::read(is, uv.y);
         size += serialization::read(is, uv.w);
         size += serialization::read(is, uv.h);
+        size += serialization::read(is, angle);
+        size += serialization::read(is, scale.x);
+        size += serialization::read(is, scale.y);
         size += serialization::read(is, material);
 
         set_material(material);
@@ -112,7 +108,7 @@ namespace Kengine
         return size;
     }
 
-    std::size_t sprite_component::serialize_size() const
+    std::size_t gui_component::serialize_size() const
     {
         std::size_t size = 0;
 
@@ -122,12 +118,15 @@ namespace Kengine
         size += serialization::size(uv.y);
         size += serialization::size(uv.w);
         size += serialization::size(uv.h);
+        size += serialization::size(angle);
+        size += serialization::size(scale.x);
+        size += serialization::size(scale.y);
         size += serialization::size(material);
 
         return size;
     }
 
-    bool sprite_component::imgui_editable_render()
+    bool gui_component::imgui_editable_render()
     {
         bool edited = false;
 #ifdef KENGINE_IMGUI
@@ -142,10 +141,11 @@ namespace Kengine
 
         edited = edited || ImGui::DragFloat2("Origin", (float*)&origin, 0.1f);
         edited = edited || ImGui::DragFloat4("UV", (float*)&uv, 0.1f);
+        edited = edited || ImGui::DragFloat("Angle", (float*)&angle, 0.1f);
+        edited = edited || ImGui::DragFloat2("Scale", (float*)&scale, 0.1f);
 
         ImGui::PopID();
 #endif
-
         return edited;
     }
 

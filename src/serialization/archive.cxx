@@ -35,4 +35,20 @@ namespace Kengine
     {
         total_size += serialization::write(os, size);
     }
+
+    archive_size::archive_size(const scene& sc)
+        : sc(sc)
+        , total_size(0)
+    {
+    }
+
+    void archive_size::operator()(entt::entity ent)
+    {
+        total_size += serialization::size(ent);
+    }
+
+    void archive_size::operator()(std::underlying_type_t<entt::entity> size)
+    {
+        total_size += serialization::size(size);
+    }
 } // namespace Kengine

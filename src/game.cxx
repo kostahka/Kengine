@@ -23,6 +23,26 @@ namespace Kengine
         }
     }
 
+    void game::set_current_scene(std::shared_ptr<scene> sc)
+    {
+        current_scene = sc;
+        sc->set_game(this);
+    }
+
+    void game::set_current_scene(std::filesystem::path sc_path)
+    {
+        auto sc = scene_manager::load_scene(sc_path, this);
+        if (sc)
+        {
+            auto name            = sc_path.filename();
+            auto name_id         = hash_string(name.string().c_str());
+            scene_links[name_id] = std::filesystem::proximate(
+                sc_path, scene_manager::assets_base_folder);
+            current_scene    = sc;
+            current_scene_id = name_id;
+        }
+    }
+
     static std::filesystem::path scene_links_path = "scene-data.kpkg";
 
     void game::load_scene_links()

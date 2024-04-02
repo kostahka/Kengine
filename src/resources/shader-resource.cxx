@@ -78,6 +78,19 @@ namespace Kengine
         return size;
     }
 
+    std::size_t fragment_shader_res::serialize_size() const
+    {
+        std::size_t size      = 0;
+        const bool  from_file = !f_path.empty();
+        size += serialization::size(from_file);
+        if (!from_file)
+        {
+            size += serialization::size(code);
+        }
+
+        return size;
+    }
+
     void fragment_shader_res::load_data()
     {
         const GLchar* shader_code;
@@ -204,6 +217,19 @@ namespace Kengine
         return size;
     }
 
+    std::size_t vertex_shader_res::serialize_size() const
+    {
+        std::size_t size      = 0;
+        const bool  from_file = !f_path.empty();
+        size += serialization::size(from_file);
+        if (!from_file)
+        {
+            size += serialization::size(code);
+        }
+
+        return size;
+    }
+
     void vertex_shader_res::load_data()
     {
         const GLchar* shader_code;
@@ -324,6 +350,19 @@ namespace Kengine
         {
             size += serialization::read(is, code);
             f_path.clear();
+        }
+
+        return size;
+    }
+
+    std::size_t geometry_shader_res::serialize_size() const
+    {
+        std::size_t size      = 0;
+        const bool  from_file = !f_path.empty();
+        size += serialization::size(from_file);
+        if (!from_file)
+        {
+            size += serialization::size(code);
         }
 
         return size;
@@ -531,6 +570,18 @@ namespace Kengine
         size += serialization::read(is, geometry_res);
         size += serialization::read(is, fragment_res);
         size += serialization::read(is, uniform_block_bindings);
+
+        return size;
+    }
+
+    std::size_t shader_res::serialize_size() const
+    {
+        std::size_t size = 0;
+
+        size += serialization::size(vertex_res);
+        size += serialization::size(geometry_res);
+        size += serialization::size(fragment_res);
+        size += serialization::size(uniform_block_bindings);
 
         return size;
     }

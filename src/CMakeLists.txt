@@ -11,7 +11,9 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/components/camera-component.cxx
     ${CMAKE_CURRENT_LIST_DIR}/components/component-container.cxx
     ${CMAKE_CURRENT_LIST_DIR}/components/component.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/components/gui-component.cxx
     ${CMAKE_CURRENT_LIST_DIR}/components/physics-component.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/components/rect-transform-component.cxx
     ${CMAKE_CURRENT_LIST_DIR}/components/render-component.cxx
     ${CMAKE_CURRENT_LIST_DIR}/components/sprite-component.cxx
     ${CMAKE_CURRENT_LIST_DIR}/components/transform-component.cxx
@@ -66,6 +68,7 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/physics/physics.cxx
     ${CMAKE_CURRENT_LIST_DIR}/physics/physics.hxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/framebuffer-resource.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/resources/gui-material-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/material-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/picopng.hxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/renderbuffer-resource.cxx
@@ -74,13 +77,13 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/resources/shader-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/sprite-material-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/texture-resource.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/scene/prefab.cxx
     ${CMAKE_CURRENT_LIST_DIR}/scene/scene-manager.cxx
     ${CMAKE_CURRENT_LIST_DIR}/scene/scene-manager.hxx
     ${CMAKE_CURRENT_LIST_DIR}/scene/scene.cxx
     ${CMAKE_CURRENT_LIST_DIR}/serialization/archive.cxx
     ${CMAKE_CURRENT_LIST_DIR}/string/string-id.cxx
     ${CMAKE_CURRENT_LIST_DIR}/system/graphics-system.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/system/gui-system.cxx
     ${CMAKE_CURRENT_LIST_DIR}/system/physics-system.cxx
     ${CMAKE_CURRENT_LIST_DIR}/system/system.cxx
     ${CMAKE_CURRENT_LIST_DIR}/window/display.cxx
@@ -96,7 +99,9 @@ set(KENGINE_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/component-container.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/component-info.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/component.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/gui-component.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/physics-component.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/rect-transform-component.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/render-component.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/sprite-component.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/transform-component.hxx
@@ -134,6 +139,7 @@ set(KENGINE_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/main.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/physics/physics.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/framebuffer-resource.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/gui-material-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/material-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/renderbuffer-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/res-ptr.hxx
@@ -143,13 +149,13 @@ set(KENGINE_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/shader-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/sprite-material-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/texture-resource.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/scene/prefab.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/scene/scene-manager.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/scene/scene.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/serialization/archive.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/serialization/serialization.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/string/string-id.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/system/graphics-system.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/system/gui-system.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/system/physics-system.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/system/system.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/units/matrix.hxx

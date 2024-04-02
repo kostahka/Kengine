@@ -16,6 +16,9 @@ namespace Kengine
 
         std::size_t serialize(std::ostream& os) const;
         std::size_t deserialize(std::istream& is);
+        std::size_t serialize_size() const;
+
+        b2Shape* copy() const;
 
         bool imgui_editable_render() override;
 
@@ -43,8 +46,11 @@ namespace Kengine
         body_fixture();
         body_fixture(b2Fixture* fixture);
 
+        b2FixtureDef get_copy_definition() const;
+
         std::size_t serialize(std::ostream& os) const;
         std::size_t deserialize(std::istream& is, b2Body* body);
+        std::size_t serialize_size() const;
 
         bool imgui_editable_render() override;
 
@@ -80,17 +86,19 @@ namespace Kengine
         physics_component(b2World* world, const b2BodyDef& definition);
 
         physics_component(physics_component& other) = delete;
+        physics_component(physics_component& other, b2World* world);
         physics_component(physics_component&& other);
 
         void set_world(b2World* world);
 
-        physics_component& operator=(physics_component& other) = delete;
+        physics_component& operator=(physics_component& other);
         physics_component& operator=(physics_component&& other);
 
         ~physics_component();
 
         std::size_t serialize(std::ostream& os) const override;
         std::size_t deserialize(std::istream& is) override;
+        std::size_t serialize_size() const override;
 
         body_fixture create_fixture(const b2FixtureDef& definition);
         body_fixture create_fixture(const b2Shape* shape, float density);
@@ -112,6 +120,8 @@ namespace Kengine
         bool imgui_editable_render() override;
 
     private:
+        void copy_from(physics_component& other);
+
         b2Body*                   body;
         b2World*                  world;
         std::vector<body_fixture> fixtures;

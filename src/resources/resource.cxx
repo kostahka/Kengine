@@ -75,6 +75,8 @@ namespace Kengine
                 return "sprite_material";
             case resource_type::texture:
                 return "texture";
+            case resource_type::gui_material:
+                return "gui_material";
         }
 
         return "undefined";

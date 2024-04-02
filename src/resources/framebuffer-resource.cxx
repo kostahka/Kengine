@@ -132,6 +132,25 @@ namespace Kengine
         return size;
     }
 
+    std::size_t framebuffer_resource::serialize_size() const
+    {
+        std::size_t size = 0;
+
+        size += serialization::size(color_attachment);
+        size += serialization::size(depth_stencil_attachment);
+        size += serialization::size(clear_color.r);
+        size += serialization::size(clear_color.g);
+        size += serialization::size(clear_color.b);
+        size += serialization::size(clear_color.a);
+        size += serialization::size(this->size.x);
+        size += serialization::size(this->size.y);
+        size += serialization::size(color_attach);
+        size += serialization::size(depth_attach);
+        size += serialization::size(stencil_attach);
+
+        return size;
+    }
+
     void framebuffer_resource::load_data()
     {
         if (color_attachment)

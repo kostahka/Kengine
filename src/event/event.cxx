@@ -119,7 +119,10 @@ namespace Kengine::event
             ImGui_ImplSDL3_ProcessEvent(&sdl_event);
 #endif
             if (event.g_type != type::unknown)
+            {
                 Kengine::e_game->on_event(event);
+                Kengine::e_game->get_current_scene().on_event(event);
+            }
         }
 
         return no_quit;

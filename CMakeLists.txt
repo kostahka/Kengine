@@ -54,6 +54,7 @@ add_subdirectory(external/efsw)
 
 # GLM - OpenGL Mathematics. C++ mathematics library for graphics software based
 # on the OpenGL Shading Language (GLSL) specifications
+option(GLM_TEST_ENABLE OFF)
 add_subdirectory(external/glm)
 
 # IMGUI

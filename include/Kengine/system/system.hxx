@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Kengine/event/event.hxx"
 #include "Kengine/string/string-id.hxx"
 
 #include <memory>
@@ -14,18 +15,21 @@ namespace Kengine
     {
         system_render_type = 1,
         system_update_type = 2,
+        system_event_type  = 4,
     };
 
     class system : public serializable
     {
     public:
         system(std::string_view name,
-               uint8_t type_flags = system_render_type | system_update_type);
+               uint8_t type_flags = system_render_type | system_update_type |
+                                    system_event_type);
 
         virtual void on_create(scene&);
 
         virtual void on_render(scene&, int delta_ms);
         virtual void on_update(scene&, int delta_ms);
+        virtual void on_event(scene&, event::game_event);
 
         inline string_id get_name_id() const { return name_id; }
 

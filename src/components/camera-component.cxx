@@ -13,53 +13,37 @@ namespace Kengine
     {
     }
 
-    camera_component::camera_component(scene& sc)
+    camera_component::camera_component(camera_component& other)
         : component(name)
-        , camera()
-        , cam_scene(&sc)
+        , camera(other.camera)
     {
     }
 
     camera_component::camera_component(camera_component&& other)
         : component(name)
         , camera(other.camera)
-        , cam_scene(other.cam_scene)
     {
-        if (other.binded)
-        {
-            bind(*other.cam_scene);
-        }
+    }
+
+    camera_component& camera_component::operator=(camera_component& other)
+    {
+        camera = other.camera;
+        return *this;
     }
 
     camera_component& camera_component::operator=(camera_component&& other)
     {
-        camera    = other.camera;
-        cam_scene = other.cam_scene;
-        if (other.binded)
-        {
-            bind(*other.cam_scene);
-        }
+        camera = other.camera;
         return *this;
     }
 
-    camera_component::~camera_component()
-    {
-        if (binded)
-            cam_scene->set_camera(nullptr);
-    }
-
-    void camera_component::bind(scene& sc)
-    {
-        cam_scene = &sc;
-        cam_scene->set_camera(this);
-    }
+    camera_component::~camera_component() {}
 
     std::size_t camera_component::serialize(std::ostream& os) const
     {
         std::size_t size = 0;
 
         size += serialization::write(os, camera);
-        size += serialization::write(os, binded);
 
         return size;
     }
@@ -69,7 +53,15 @@ namespace Kengine
         std::size_t size = 0;
 
         size += serialization::read(is, camera);
-        size += serialization::read(is, binded);
+
+        return size;
+    }
+
+    std::size_t camera_component::serialize_size() const
+    {
+        std::size_t size = 0;
+
+        size += serialization::size(camera);
 
         return size;
     }
@@ -78,23 +70,14 @@ namespace Kengine
     {
         bool edited = false;
 #ifdef KENGINE_IMGUI
-        if (ImGui::Button("Bind"))
-        {
-            bind(*cam_scene);
-            edited = true;
-        }
-        ImGui::Text("Binded: %s", binded ? "true" : "false");
 
         {
-            float width  = camera.get_width();
             float height = camera.get_height();
             float zNear  = camera.get_zNear();
             float zFar   = camera.get_zFar();
 
             bool projection_edited = false;
 
-            projection_edited =
-                projection_edited || ImGui::DragFloat("Width", &width, 0.1f);
             projection_edited =
                 projection_edited || ImGui::DragFloat("Height", &height, 0.1f);
             projection_edited =
@@ -106,45 +89,11 @@ namespace Kengine
             {
                 edited = true;
 
-                camera.set_projection(width, height, zNear, zFar);
+                camera.set_projection(height, zNear, zFar);
             }
         }
 #endif
         return edited;
     }
 
-    template <>
-    void archive_input::operator()(camera_component& value)
-    {
-        total_size += serialization::read(is, value);
-        if (value.is_binded())
-        {
-            value.bind(sc);
-        }
-    }
-
-    component_info camera_component::info{
-        [](scene& sc, entt::entity ent)
-        { return sc.registry.any_of<camera_component>(ent); },
-
-        [](scene& sc, entt::entity ent) {
-            return static_cast<component*>(
-                &sc.registry.get<camera_component>(ent));
-        },
-
-        [](entt::snapshot& snapshot, archive_output& output)
-        { snapshot.get<camera_component>(output); },
-
-        [](entt::snapshot_loader& snapshot, archive_input& input)
-        { snapshot.get<camera_component>(input); },
-
-        [](scene& sc, entt::entity ent)
-        { sc.registry.erase<camera_component>(ent); },
-
-        [](scene& sc, entt::entity ent)
-        { sc.registry.emplace<camera_component>(ent, sc); },
-
-        [](scene& sc, entt::entity ent)
-        { sc.registry.patch<camera_component>(ent); },
-    };
 } // namespace Kengine

@@ -16,7 +16,7 @@ using namespace Kengine::graphics;
 
 void demo_game::on_start()
 {
-    set_current_scene("demo-main");
+    set_current_scene(std::string_view("demo-main"));
 }
 
 void demo_game::on_event(Kengine::event::game_event e)

@@ -121,6 +121,8 @@ namespace ImGui
 
         void UpdateFileRecords();
 
+        void SetDragDropTargetFunc(void (*dragDropTargetFunc)());
+
     private:
         template <class Functor>
         struct ScopeGuard
@@ -179,6 +181,8 @@ namespace ImGui
         bool posIsSet_;
         bool isHovered_;
         bool isFocused_;
+
+        void (*dragDropTargetFunc)() = nullptr;
 
         std::string statusStr_;
 
@@ -588,7 +592,21 @@ inline void ImGui::FileBrowser::Display()
                    (flags_ & ImGuiFileBrowserFlags_NoModal)
                        ? ImGuiWindowFlags_AlwaysHorizontalScrollbar
                        : 0);
-        ScopeGuard endChild([] { EndChild(); });
+        auto       dragDropTargetFunction = dragDropTargetFunc;
+        ScopeGuard endChild(
+            [dragDropTargetFunction]
+            {
+                EndChild();
+
+                if (dragDropTargetFunction)
+                {
+                    if (BeginDragDropTarget())
+                    {
+                        dragDropTargetFunction();
+                        EndDragDropTarget();
+                    }
+                }
+            });
 
         isHovered_ = ImGui::IsWindowHovered();
 
@@ -1157,6 +1175,11 @@ inline std::uint32_t ImGui::FileBrowser::GetDrivesBitMask()
         }
     }
     return ret;
+}
+
+void ImGui::FileBrowser::SetDragDropTargetFunc(void (*dragDropTargetFunc)())
+{
+    this->dragDropTargetFunc = dragDropTargetFunc;
 }
 
 #endif

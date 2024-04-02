@@ -5,6 +5,7 @@
 #include "Kengine/io/file-manager.hxx"
 #include "Kengine/log/log.hxx"
 #include "Kengine/resources/framebuffer-resource.hxx"
+#include "Kengine/resources/gui-material-resource.hxx"
 #include "Kengine/resources/renderbuffer-resource.hxx"
 #include "Kengine/resources/sprite-material-resource.hxx"
 
@@ -88,6 +89,12 @@ namespace Kengine::resource_manager
                 case resource_type::sprite_material:
                     loaded_res = static_resource_cast<resource>(
                         make_resource_from_file<sprite_material_resource>(
+                            res_path, res_name));
+                    size += loaded_res->deserialize(res_is);
+                    break;
+                case resource_type::gui_material:
+                    loaded_res = static_resource_cast<resource>(
+                        make_resource_from_file<gui_material_resource>(
                             res_path, res_name));
                     size += loaded_res->deserialize(res_is);
                     break;

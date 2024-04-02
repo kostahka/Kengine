@@ -25,6 +25,7 @@ namespace Kengine
 
         std::size_t serialize(std::ostream& os) const override;
         std::size_t deserialize(std::istream& is) override;
+        std::size_t serialize_size() const override;
 
         [[nodiscard]] inline uint32_t get_id() const { return id; }
 

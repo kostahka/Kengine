@@ -22,6 +22,8 @@ namespace Kengine
         game();
 
         void set_current_scene(string_id);
+        void set_current_scene(std::shared_ptr<scene> sc);
+        void set_current_scene(std::filesystem::path);
 
         inline void set_current_scene(std::string_view scene_name)
         {

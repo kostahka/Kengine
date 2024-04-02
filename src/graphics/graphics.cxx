@@ -24,6 +24,10 @@ namespace Kengine::graphics
     res_ptr<fragment_shader_res> sprite_fragment_shader = nullptr;
     res_ptr<shader_res>          sprite_shader          = nullptr;
 
+    res_ptr<vertex_shader_res>   gui_vertex_shader   = nullptr;
+    res_ptr<fragment_shader_res> gui_fragment_shader = nullptr;
+    res_ptr<shader_res>          gui_shader          = nullptr;
+
     res_ptr<vertex_shader_res>   primitive_lines_vertex_shader   = nullptr;
     res_ptr<fragment_shader_res> primitive_lines_fragment_shader = nullptr;
     res_ptr<shader_res>          primitive_lines_shader          = nullptr;
@@ -32,7 +36,7 @@ namespace Kengine::graphics
     res_ptr<fragment_shader_res> primitive_points_fragment_shader = nullptr;
     res_ptr<shader_res>          primitive_points_shader          = nullptr;
 
-    camera_component* default_camera_component = nullptr;
+    camera* default_camera = nullptr;
 
     vec4 clear_color{ 0.0f, 0.0f, 0.0f, 1.0f };
 
@@ -40,6 +44,8 @@ namespace Kengine::graphics
 
     static std::unique_ptr<uniformbuffer_std140<mat4x4, mat4x4>>
         global_matrices = nullptr;
+    static std::unique_ptr<uniformbuffer_std140<mat4x4>> global_gui_matrices =
+        nullptr;
 
     bool initialize()
     {
@@ -56,6 +62,11 @@ namespace Kengine::graphics
                 true, mat4x4(1), mat4x4(1));
 
         global_matrices->bind_end_point(0);
+
+        global_gui_matrices =
+            std::make_unique<uniformbuffer_std140<mat4x4>>(true, mat4x4(1));
+
+        global_gui_matrices->bind_end_point(1);
 
         sprite_vertex_shader =
             make_resource<vertex_shader_res>(std::string_view(R"(
@@ -105,6 +116,54 @@ namespace Kengine::graphics
 
         KENGINE_GL_CHECK(glUseProgram(sprite_shader->get_id()));
         sprite_shader->set_uniform_block_binding("Matrices", 0);
+
+        gui_vertex_shader =
+            make_resource<vertex_shader_res>(std::string_view(R"(
+                #version 300 es
+                precision mediump float;
+
+                layout (location = 0) in vec3 in_position;
+                layout (location = 1) in vec2 uv_pos;
+                layout (location = 2) in vec2 uv_size;
+                layout (location = 3) in mat4 model;
+               
+                out vec2 out_tex_coord;
+
+                layout (std140) uniform Matrices{
+                    mat4 projection;
+                };
+
+                void main()
+                {
+                    out_tex_coord = in_position.xy * uv_size + uv_pos;
+                    gl_Position = projection * model * vec4(in_position, 1.0);
+                }
+                )"),
+                                             "gui_vertex");
+
+        gui_fragment_shader =
+            make_resource<fragment_shader_res>(std::string_view(R"(
+                #version 300 es
+                precision mediump float;
+
+                in vec2 out_tex_coord;
+
+                uniform sampler2D texture0;
+
+                out vec4 out_color;
+
+                void main()
+                {
+                    out_color = texture(texture0, out_tex_coord);
+                }
+            )"),
+                                               "gui_fragment");
+
+        gui_shader = make_resource<shader_res>(
+            gui_vertex_shader, gui_fragment_shader, "gui_shader");
+
+        KENGINE_GL_CHECK(glUseProgram(gui_shader->get_id()));
+        gui_shader->set_uniform_block_binding("Matrices", 1);
 
         primitive_points_vertex_shader =
             make_resource<vertex_shader_res>(std::string_view(R"(
@@ -200,7 +259,7 @@ namespace Kengine::graphics
         KENGINE_GL_CHECK(glUseProgram(primitive_lines_shader->get_id()));
         primitive_lines_shader->set_uniform_block_binding("Matrices", 0);
 
-        default_camera_component = new camera_component();
+        default_camera = new camera();
 
         return true;
     }
@@ -208,6 +267,7 @@ namespace Kengine::graphics
     void shutdown()
     {
         global_matrices.release();
+        global_gui_matrices.release();
     }
 
     void begin_render()
@@ -240,40 +300,6 @@ namespace Kengine::graphics
             }
         }
     };
-
-    void on_update(scene& sc, int delta_ms)
-    {
-        auto camera_view =
-            sc.registry.view<transform_component, camera_component>();
-        for (auto [entity, ent_transform, ent_camera] : camera_view.each())
-        {
-            const vec3 eye    = { ent_transform.position.x,
-                                  ent_transform.position.y,
-                                  -1 };
-            const vec3 center = { eye.x, eye.y, eye.z - 1 };
-            const vec3 up     = { std::sin(ent_transform.angle),
-                                  std::cos(ent_transform.angle),
-                                  0 };
-
-            const auto view_matrix = glm::lookAt(eye, center, up);
-
-            ent_camera.camera.view = view_matrix;
-        };
-    }
-
-    void on_render(scene& sc, int delta_ms)
-    {
-        auto render_view = sc.registry.view<render_component>();
-        for (auto [entity, ent_render] : render_view.each())
-        {
-            bind_material(ent_render.material);
-
-            ent_render.vao->bind();
-            ent_render.vao->draw(ent_render.draw_mode,
-                                 ent_render.vertices_count,
-                                 ent_render.vertices_start);
-        };
-    }
 
     void end_render()
     {
@@ -320,12 +346,20 @@ namespace Kengine::graphics
 
     void update_matrices(const mat4x4& projection, const mat4x4& view)
     {
+        global_matrices->bind();
         global_matrices->set_values(projection, view);
     }
 
     void update_projection(const mat4x4& projection)
     {
+        global_matrices->bind();
         global_matrices->set_value<0>(projection);
+    }
+
+    void update_gui_projection(const mat4x4& projection)
+    {
+        global_gui_matrices->bind();
+        global_gui_matrices->set_value<0>(projection);
     }
 
     void update_view(const mat4x4& view)
@@ -344,6 +378,18 @@ namespace Kengine::graphics
         {
             auto wnd_size = window::get_size();
             KENGINE_GL_CHECK(glViewport(0, 0, wnd_size.x, wnd_size.y));
+        }
+    }
+
+    ivec2 get_current_viewport()
+    {
+        if (framebuffers.size() > 0)
+        {
+            return framebuffers.top().get_size();
+        }
+        else
+        {
+            return window::get_size();
         }
     }
 } // namespace Kengine::graphics

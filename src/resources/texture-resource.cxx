@@ -120,6 +120,24 @@ namespace Kengine
         return size;
     }
 
+    std::size_t texture_resource::serialize_size() const
+    {
+        std::size_t size      = 0;
+        const bool  from_file = !f_path.empty();
+
+        size += serialization::size(from_file);
+        if (!from_file)
+        {
+            size += serialization::size(this->size.x);
+            size += serialization::size(this->size.y);
+            size += serialization::size(format);
+        }
+        size += serialization::size(mag_filter);
+        size += serialization::size(min_filter);
+
+        return size;
+    }
+
     void texture_resource::load_data()
     {
         if (!f_path.empty())

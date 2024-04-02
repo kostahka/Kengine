@@ -43,6 +43,18 @@ namespace Kengine
         return size;
     }
 
+    std::size_t render_component::serialize_size() const
+    {
+        std::size_t size = 0;
+
+        size += serialization::size(vertices_count);
+        size += serialization::size(vertices_start);
+        size += serialization::size(draw_mode);
+        size += serialization::size(material);
+
+        return size;
+    }
+
     render_component::~render_component()
     {
         if (material)

@@ -17,6 +17,7 @@ namespace Kengine
 
         std::size_t serialize(std::ostream& os) const override;
         std::size_t deserialize(std::istream& is) override;
+        std::size_t serialize_size() const override;
 
         uint32_t                   vertices_count = 0;
         uint32_t                   vertices_start = 0;

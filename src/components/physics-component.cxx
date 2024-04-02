@@ -44,16 +44,17 @@ namespace Kengine
 
     std::size_t body_shape::serialize(std::ostream& os) const
     {
+        KENGINE_ASSERT(shape, "NULL shape");
         std::size_t size = 0;
 
         b2Shape::Type shape_type = shape->GetType();
         size += serialization::write(os, shape_type);
+        size += serialization::write(os, shape->m_radius);
 
         if (shape_type == b2Shape::Type::e_circle)
         {
             const b2CircleShape* circle = static_cast<b2CircleShape*>(shape);
 
-            size += serialization::write(os, circle->m_radius);
             size += serialization::write(os, circle->m_p.x);
             size += serialization::write(os, circle->m_p.y);
         }
@@ -96,6 +97,7 @@ namespace Kengine
             const b2PolygonShape* polygon = static_cast<b2PolygonShape*>(shape);
 
             size += serialization::write(os, polygon->m_count);
+
             for (auto i = 0; i < polygon->m_count; ++i)
             {
                 size += serialization::write(os, polygon->m_vertices[i].x);
@@ -111,13 +113,14 @@ namespace Kengine
         std::size_t size = 0;
 
         b2Shape::Type shape_type = b2Shape::Type::e_circle;
+        float         m_radius   = 0;
         size += serialization::read(is, shape_type);
+        size += serialization::read(is, m_radius);
 
         if (shape_type == b2Shape::Type::e_circle)
         {
             b2CircleShape* circle = new b2CircleShape();
 
-            size += serialization::read(is, circle->m_radius);
             float x, y;
             size += serialization::read(is, x);
             size += serialization::read(is, y);
@@ -221,7 +224,134 @@ namespace Kengine
             shape = polygon;
         }
 
+        shape->m_radius = m_radius;
+
         return size;
+    }
+
+    std::size_t body_shape::serialize_size() const
+    {
+        std::size_t size = 0;
+
+        b2Shape::Type shape_type = shape->GetType();
+        size += serialization::size(shape_type);
+        size += serialization::size(shape->m_radius);
+
+        if (shape_type == b2Shape::Type::e_circle)
+        {
+            const b2CircleShape* circle = static_cast<b2CircleShape*>(shape);
+
+            size += serialization::size(circle->m_p.x);
+            size += serialization::size(circle->m_p.y);
+        }
+        else if (shape_type == b2Shape::Type::e_chain)
+        {
+            const b2ChainShape* chain = static_cast<b2ChainShape*>(shape);
+
+            size += serialization::size(chain->m_prevVertex.x);
+            size += serialization::size(chain->m_prevVertex.y);
+            size += serialization::size(chain->m_nextVertex.x);
+            size += serialization::size(chain->m_nextVertex.y);
+
+            size += serialization::size(chain->m_count);
+            for (auto i = 0; i < chain->m_count; ++i)
+            {
+                size += serialization::size(chain->m_vertices[i].x);
+                size += serialization::size(chain->m_vertices[i].y);
+            }
+        }
+        else if (shape_type == b2Shape::Type::e_edge)
+        {
+            const b2EdgeShape* edge = static_cast<b2EdgeShape*>(shape);
+
+            size += serialization::size(edge->m_oneSided);
+            size += serialization::size(edge->m_vertex1.x);
+            size += serialization::size(edge->m_vertex1.y);
+            size += serialization::size(edge->m_vertex2.x);
+            size += serialization::size(edge->m_vertex2.y);
+
+            if (edge->m_oneSided)
+            {
+                size += serialization::size(edge->m_vertex0.x);
+                size += serialization::size(edge->m_vertex0.y);
+                size += serialization::size(edge->m_vertex3.x);
+                size += serialization::size(edge->m_vertex3.y);
+            }
+        }
+        else if (shape_type == b2Shape::Type::e_polygon)
+        {
+            const b2PolygonShape* polygon = static_cast<b2PolygonShape*>(shape);
+
+            size += serialization::size(polygon->m_count);
+            for (auto i = 0; i < polygon->m_count; ++i)
+            {
+                size += serialization::size(polygon->m_vertices[i].x);
+                size += serialization::size(polygon->m_vertices[i].y);
+            }
+        }
+
+        return size;
+    }
+
+    b2Shape* body_shape::copy() const
+    {
+        if (shape)
+        {
+            b2Shape::Type shape_type = shape->GetType();
+
+            if (shape_type == b2Shape::Type::e_circle)
+            {
+                const b2CircleShape* circle =
+                    static_cast<b2CircleShape*>(shape);
+
+                auto copy_circle = new b2CircleShape(*circle);
+                return copy_circle;
+            }
+            else if (shape_type == b2Shape::Type::e_chain)
+            {
+                const b2ChainShape* chain = static_cast<b2ChainShape*>(shape);
+
+                auto copy_chain = new b2ChainShape();
+                copy_chain->CreateChain(chain->m_vertices,
+                                        chain->m_count,
+                                        chain->m_prevVertex,
+                                        chain->m_nextVertex);
+
+                return copy_chain;
+            }
+            else if (shape_type == b2Shape::Type::e_edge)
+            {
+                const b2EdgeShape* edge      = static_cast<b2EdgeShape*>(shape);
+                auto               copy_edge = new b2EdgeShape();
+
+                if (edge->m_oneSided)
+                {
+                    copy_edge->SetOneSided(edge->m_vertex0,
+                                           edge->m_vertex1,
+                                           edge->m_vertex2,
+                                           edge->m_vertex3);
+                }
+                else
+                {
+                    copy_edge->SetTwoSided(edge->m_vertex1, edge->m_vertex2);
+                }
+
+                return copy_edge;
+            }
+            else if (shape_type == b2Shape::Type::e_polygon)
+            {
+                const b2PolygonShape* polygon =
+                    static_cast<b2PolygonShape*>(shape);
+                auto copy_polygon = new b2PolygonShape();
+
+                copy_polygon->Set(copy_polygon->m_vertices,
+                                  copy_polygon->m_count);
+
+                return copy_polygon;
+            }
+        }
+
+        return nullptr;
     }
 
     bool body_shape::imgui_editable_render()
@@ -284,6 +414,23 @@ namespace Kengine
     {
     }
 
+    b2FixtureDef body_fixture::get_copy_definition() const
+    {
+        b2FixtureDef copy_definition;
+        if (fixture)
+        {
+            copy_definition.density     = fixture->GetDensity();
+            copy_definition.filter      = fixture->GetFilterData();
+            copy_definition.friction    = fixture->GetFriction();
+            copy_definition.isSensor    = fixture->IsSensor();
+            copy_definition.restitution = fixture->GetRestitution();
+            copy_definition.restitutionThreshold =
+                fixture->GetRestitutionThreshold();
+            copy_definition.shape = shape.copy();
+        }
+        return copy_definition;
+    }
+
     std::size_t body_fixture::serialize(std::ostream& os) const
     {
         std::size_t size = 0;
@@ -328,6 +475,25 @@ namespace Kengine
         fixture = body->CreateFixture(&fixture_def);
 
         shape.reset(fixture->GetShape());
+
+        return size;
+    }
+
+    std::size_t body_fixture::serialize_size() const
+    {
+        std::size_t size = 0;
+
+        size += shape.serialize_size();
+        size += serialization::size(fixture->GetFriction());
+        size += serialization::size(fixture->GetRestitution());
+        size += serialization::size(fixture->GetRestitutionThreshold());
+        size += serialization::size(fixture->GetDensity());
+        size += serialization::size(fixture->IsSensor());
+
+        auto filter = fixture->GetFilterData();
+        size += serialization::size(filter.categoryBits);
+        size += serialization::size(filter.groupIndex);
+        size += serialization::size(filter.maskBits);
 
         return size;
     }
@@ -409,6 +575,15 @@ namespace Kengine
         body = world->CreateBody(&definition);
     }
 
+    physics_component::physics_component(physics_component& other,
+                                         b2World*           world)
+        : component(name)
+        , body(nullptr)
+        , world(world)
+    {
+        copy_from(other);
+    }
+
     physics_component::physics_component(physics_component&& other)
         : component(name)
         , body(nullptr)
@@ -416,6 +591,21 @@ namespace Kengine
         std::swap(body, other.body);
         std::swap(world, other.world);
         std::swap(fixtures, other.fixtures);
+    }
+
+    physics_component& physics_component::operator=(physics_component& other)
+    {
+        if (body)
+        {
+            if (world)
+            {
+                world->DestroyBody(body);
+            }
+            body = nullptr;
+        }
+        fixtures.clear();
+        copy_from(other);
+        return *this;
     }
 
     physics_component& physics_component::operator=(physics_component&& other)
@@ -494,6 +684,39 @@ namespace Kengine
         for (auto i = 0; i < fixture_count; ++i)
         {
             size += fixtures[i].serialize(os);
+        }
+
+        return size;
+    }
+
+    std::size_t physics_component::serialize_size() const
+    {
+        std::size_t size = 0;
+
+        KENGINE_ASSERT(body, "Physics body is null");
+        size += serialization::size(body->GetType());
+        auto pos = body->GetPosition();
+        size += serialization::size(pos.x);
+        size += serialization::size(pos.y);
+        size += serialization::size(body->GetAngle());
+        auto linearVelocity = body->GetLinearVelocity();
+        size += serialization::size(linearVelocity.x);
+        size += serialization::size(linearVelocity.y);
+        size += serialization::size(body->GetAngularVelocity());
+        size += serialization::size(body->GetLinearDamping());
+        size += serialization::size(body->GetAngularDamping());
+        size += serialization::size(body->IsSleepingAllowed());
+        size += serialization::size(body->IsAwake());
+        size += serialization::size(body->IsFixedRotation());
+        size += serialization::size(body->IsBullet());
+        size += serialization::size(body->IsEnabled());
+        size += serialization::size(body->GetGravityScale());
+
+        int fixture_count = static_cast<int>(fixtures.size());
+        size += serialization::size(fixture_count);
+        for (auto i = 0; i < fixture_count; ++i)
+        {
+            size += fixtures[i].serialize_size();
         }
 
         return size;
@@ -753,6 +976,34 @@ namespace Kengine
         return edited;
     }
 
+    void physics_component::copy_from(physics_component& other)
+    {
+        b2BodyDef copyDefinition;
+        copyDefinition.type            = other.body->GetType();
+        copyDefinition.position        = other.body->GetPosition();
+        copyDefinition.angle           = other.body->GetAngle();
+        copyDefinition.linearVelocity  = other.body->GetLinearVelocity();
+        copyDefinition.angularVelocity = other.body->GetAngularVelocity();
+        copyDefinition.linearDamping   = other.body->GetLinearDamping();
+        copyDefinition.angularDamping  = other.body->GetAngularDamping();
+        copyDefinition.allowSleep      = other.body->IsSleepingAllowed();
+        copyDefinition.awake           = other.body->IsAwake();
+        copyDefinition.fixedRotation   = other.body->IsFixedRotation();
+        copyDefinition.bullet          = other.body->IsBullet();
+        copyDefinition.enabled         = other.body->IsEnabled();
+        copyDefinition.gravityScale    = other.body->GetGravityScale();
+
+        body = world->CreateBody(&copyDefinition);
+
+        for (auto& fixture : other.fixtures)
+        {
+            auto fixture_copy_def = fixture.get_copy_definition();
+            auto copy_fixture     = body->CreateFixture(&fixture_copy_def);
+            fixtures.push_back(body_fixture(copy_fixture));
+            delete fixture_copy_def.shape;
+        }
+    }
+
     template <>
     void archive_input::operator()(physics_component& value)
     {
@@ -772,7 +1023,13 @@ namespace Kengine
         [](entt::snapshot& snapshot, archive_output& output)
         { snapshot.get<physics_component>(output); },
 
+        [](entt::snapshot& snapshot, archive_size& output)
+        { snapshot.get<physics_component>(output); },
+
         [](entt::snapshot_loader& snapshot, archive_input& input)
+        { snapshot.get<physics_component>(input); },
+
+        [](entt::continuous_loader& snapshot, archive_input& input)
         { snapshot.get<physics_component>(input); },
 
         [](scene& sc, entt::entity ent)
@@ -783,5 +1040,14 @@ namespace Kengine
 
         [](scene& sc, entt::entity ent)
         { sc.registry.patch<physics_component>(ent); },
+
+        [](scene&                                         sc,
+           entt::entity                                   ent,
+           component*                                     other,
+           std::unordered_map<entt::entity, entt::entity> map)
+        {
+            sc.registry.emplace<physics_component>(
+                ent, *static_cast<physics_component*>(other), &sc.get_world());
+        },
     };
 } // namespace Kengine

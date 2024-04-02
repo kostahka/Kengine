@@ -51,4 +51,25 @@ namespace Kengine
         const scene&  sc;
         std::size_t   total_size;
     };
+
+    class archive_size
+    {
+    public:
+        archive_size(const scene& sc);
+
+        void operator()(entt::entity);
+        void operator()(std::underlying_type_t<entt::entity>);
+
+        template <typename T>
+        void operator()(const T& value)
+        {
+            total_size += serialization::size(value);
+        }
+
+        inline std::size_t get_size() const { return total_size; }
+
+    private:
+        const scene& sc;
+        std::size_t  total_size;
+    };
 } // namespace Kengine

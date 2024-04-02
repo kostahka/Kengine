@@ -35,7 +35,6 @@ void scene_properties_wnd::display()
                     ImGui::BeginChild("Systems",
                                       { 0, 0 },
                                       ImGuiChildFlags_FrameStyle |
-                                          ImGuiChildFlags_AlwaysAutoResize |
                                           ImGuiChildFlags_AutoResizeX |
                                           ImGuiChildFlags_AutoResizeY);
 
@@ -79,6 +78,39 @@ void scene_properties_wnd::display()
 
                         ImGui::EndPopup();
                     }
+                    ImGui::EndChild();
+                }
+
+                ImGui::Separator();
+
+                ImGui::Text("Scene cameras");
+                {
+                    ImGui::BeginChild("Cameras",
+                                      { 0, 0 },
+                                      ImGuiChildFlags_FrameStyle |
+                                          ImGuiChildFlags_AutoResizeX |
+                                          ImGuiChildFlags_AutoResizeY);
+
+                    auto camera_view = current_scene.registry
+                                           .view<Kengine::camera_component>();
+
+                    for (auto [ent, ent_camera] : camera_view.each())
+                    {
+                        ImGui::PushID(static_cast<uint32_t>(ent));
+
+                        ImGui::Text("Entity %d", static_cast<uint32_t>(ent));
+                        if (current_scene.get_camera_entity() == ent)
+                        {
+                            ImGui::SameLine();
+                            if (ImGui::Button("Bind"))
+                            {
+                                editor::instance->set_scene_camera(ent);
+                            }
+                        }
+
+                        ImGui::PopID();
+                    }
+
                     ImGui::EndChild();
                 }
 

@@ -2,6 +2,7 @@
 
 #include "assets-browser.hxx"
 #include "game-properties-wnd.hxx"
+#include "game-wnd.hxx"
 #include "object-properties-wnd.hxx"
 #include "resource-wnd.hxx"
 #include "scene-objects-wnd.hxx"
@@ -41,6 +42,7 @@ scene_properties_wnd  scene_properties_window{};
 scene_objects_wnd     scene_objects_window{};
 object_properties_wnd object_properties_window{};
 resource_wnd          resource_window{};
+game_wnd              game_window{};
 
 Kengine::configuration_file editor_config{ "kengine-editor" };
 
@@ -48,6 +50,8 @@ editor* editor::instance = nullptr;
 
 b2GLDraw b2_debug_draw{};
 bool     physics_debug_draw = false;
+
+Kengine::ivec2 editor::game_viewport_size{ 800, 600 };
 
 void editor::render_imgui()
 {
@@ -88,13 +92,7 @@ void editor::render_imgui()
     ImGui::ShowDemoWindow();
     {
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
-        ImGui::SetNextWindowPos(viewport->WorkPos);
-        ImGui::SetNextWindowSize(viewport->WorkSize);
-        ImGui::Begin("GUI",
-                     nullptr,
-                     ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
-                         ImGuiWindowFlags_NoBringToFrontOnFocus);
-        ImGui::End();
+        ImGui::DockSpaceOverViewport(viewport);
 
         game_lib_file_browser.Display();
         base_assets_file_browser.Display();
@@ -105,32 +103,57 @@ void editor::render_imgui()
         scene_objects_window.display();
         object_properties_window.display();
         resource_window.display();
+        game_window.display();
 
         {
             ImGui::Begin("Properties");
+            bool properties_changed = false;
 
-            ImGui::Checkbox("Physics debug draw", &physics_debug_draw);
+            properties_changed |=
+                ImGui::Checkbox("Physics debug draw", &physics_debug_draw);
 
-            ImGui::End();
-        }
+            auto b2_debug_draw_flags = b2_debug_draw.GetFlags();
+            bool b2_debug_shape      = b2_debug_draw_flags & b2Draw::e_shapeBit;
+            bool b2_debug_aabb       = b2_debug_draw_flags & b2Draw::e_aabbBit;
+            bool b2_debug_center_of_mass =
+                b2_debug_draw_flags & b2Draw::e_centerOfMassBit;
+            bool b2_debug_joint = b2_debug_draw_flags & b2Draw::e_jointBit;
+            bool b2_debug_pair  = b2_debug_draw_flags & b2Draw::e_pairBit;
 
-        {
-            ImGui::Begin("Game");
+            if (ImGui::Checkbox("Draw physics shapes", &b2_debug_shape))
+            {
+                b2_debug_draw.SetFlags(b2_debug_draw_flags ^
+                                       b2Draw::e_shapeBit);
+                properties_changed = true;
+            }
+            if (ImGui::Checkbox("Draw physics aabb", &b2_debug_aabb))
+            {
+                b2_debug_draw.SetFlags(b2_debug_draw_flags ^ b2Draw::e_aabbBit);
+                properties_changed = true;
+            }
+            if (ImGui::Checkbox("Draw physics center of mass",
+                                &b2_debug_center_of_mass))
+            {
+                b2_debug_draw.SetFlags(b2_debug_draw_flags ^
+                                       b2Draw::e_centerOfMassBit);
+                properties_changed = true;
+            }
+            if (ImGui::Checkbox("Draw physics joints", &b2_debug_joint))
+            {
+                b2_debug_draw.SetFlags(b2_debug_draw_flags ^
+                                       b2Draw::e_jointBit);
+                properties_changed = true;
+            }
+            if (ImGui::Checkbox("Draw physics pairs", &b2_debug_pair))
+            {
+                b2_debug_draw.SetFlags(b2_debug_draw_flags ^ b2Draw::e_pairBit);
+                properties_changed = true;
+            }
 
-            auto windowHeight = ImGui::GetWindowHeight();
-            auto windowWidth  = ImGui::GetWindowWidth();
-
-            auto gameImageHeight = windowHeight - 50;
-            auto gameImageWidth  = 800 * gameImageHeight / 600;
-
-            ImGui::SetCursorPosX((windowWidth - gameImageWidth) / 2);
-            ImGui::SetCursorPosY((windowHeight - gameImageHeight) / 2);
-
-            ImGui::Image(reinterpret_cast<ImTextureID>(
-                             instance->game_framebuffer.get_color_texture_id()),
-                         { gameImageWidth, gameImageHeight },
-                         { 0, 1 },
-                         { 1, 0 });
+            if (properties_changed)
+            {
+                editor::instance->invalid_scene_render();
+            }
 
             ImGui::End();
         }
@@ -261,21 +284,46 @@ editor::~editor()
 
 void editor::set_game_scene(Kengine::string_id sc_link)
 {
+    edit_camera       = Kengine::graphics::camera();
+    edit_camera_pos   = { 0, 0 };
+    edit_camera_angle = 0;
+
     get_current_scene().clear_resources();
     current_game->set_current_scene(sc_link);
     invalid_scene_render();
     current_game->get_current_scene().get_world().SetDebugDraw(&b2_debug_draw);
+    current_game->get_current_scene().set_camera(&edit_camera);
+}
+
+void editor::set_game_scene(std::filesystem::path sc_path)
+{
+    edit_camera       = Kengine::graphics::camera();
+    edit_camera_pos   = { 0, 0 };
+    edit_camera_angle = 0;
+
+    get_current_scene().clear_resources();
+    current_game->set_current_scene(sc_path);
+    current_game->save_scene_links();
+    invalid_scene_render();
+    current_game->get_current_scene().get_world().SetDebugDraw(&b2_debug_draw);
+    current_game->get_current_scene().set_camera(&edit_camera);
+}
+
+void editor::set_scene_camera(entt::entity ent)
+{
+    current_game->get_current_scene().set_camera(ent);
+    current_game->get_current_scene().set_camera(&edit_camera);
 }
 
 void editor::on_start()
 {
     game_texture_res = Kengine::make_resource<Kengine::texture_resource>(
-        Kengine::ivec2(1366, 768),
+        game_viewport_size,
         Kengine::texture_format::rgba,
         std::string_view("game_texture"));
     game_renderbuffer_res =
         Kengine::make_resource<Kengine::renderbuffer_resource>(
-            Kengine::ivec2(1366, 768),
+            game_viewport_size,
             Kengine::texture_internal_format::depth24_stencil8,
             std::string_view("game_renderbuffer"));
     game_framebuffer_res =
@@ -294,12 +342,27 @@ void editor::on_start()
 
 void editor::on_event(Kengine::event::game_event event)
 {
-    if (play_mode && current_game)
+    if (current_game)
+    {
         current_game->on_event(event);
+        current_game->get_current_scene().on_event(event);
+        invalid_scene_render();
+    }
 }
 
 void editor::on_update(int delta_ms)
 {
+
+    const Kengine::vec3 eye    = { edit_camera_pos.x, edit_camera_pos.y, 0 };
+    const Kengine::vec3 center = { eye.x, eye.y, eye.z - 1 };
+    const Kengine::vec3 up     = { std::sin(edit_camera_angle),
+                                   std::cos(edit_camera_angle),
+                                   0 };
+
+    Kengine::mat4 edit_camera_view = glm::lookAtRH(eye, center, up);
+
+    edit_camera.view = edit_camera_view;
+
     if ((play_mode || !scene_update_valid) && current_game)
     {
         current_game->on_update(delta_ms);
@@ -325,6 +388,12 @@ void editor::on_render(int delta_ms)
             current_game->get_current_scene().clear_color);
 
         Kengine::graphics::push_framebuffer(game_framebuffer);
+
+        if (!edit_camera.is_projection_valid())
+        {
+            edit_camera.calculate_projection();
+        }
+
         current_game->on_render(delta_ms);
         current_game->get_current_scene().on_render(delta_ms);
         if (physics_debug_draw)

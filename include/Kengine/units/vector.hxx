@@ -7,11 +7,15 @@
 
 namespace Kengine
 {
+    // typedef glm::vec3 vec3;
+
     struct vec3 : public glm::vec3
     {
         vec3()
             : glm::vec3(){};
 
+        constexpr vec3(const glm::vec3& v)
+            : glm::vec3(v){};
         constexpr vec3(float x, float y, float z)
             : glm::vec3(x, y, z){};
         constexpr vec3(const b2Vec3& v)
@@ -22,21 +26,28 @@ namespace Kengine
         operator b2Vec3() const { return { x, y, z }; };
 
         operator b2Vec2() const { return { x, y }; };
+
+        operator glm::vec3() const { return *this; };
     };
 
     typedef vec3 vec;
 
+    // typedef glm::vec2 vec2;
     struct vec2 : public glm::vec2
     {
         vec2()
             : glm::vec2(){};
 
+        constexpr vec2(const glm::vec2& v)
+            : glm::vec2(v){};
         constexpr vec2(float x, float y)
             : glm::vec2(x, y){};
         constexpr vec2(const b2Vec2& v)
             : glm::vec2(v.x, v.y){};
 
         operator b2Vec2() const { return { x, y }; };
+
+        operator glm::vec2() const { return *this; };
     };
 
     typedef glm::vec4 vec4;

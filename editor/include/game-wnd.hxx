@@ -2,10 +2,12 @@
 
 #include "editor.hxx"
 
-class game_properties_wnd
+class game_wnd
 {
 public:
-    game_properties_wnd();
+    game_wnd();
 
     void display();
+
+private:
 };

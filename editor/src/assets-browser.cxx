@@ -2,9 +2,11 @@
 
 #include "editor.hxx"
 
+#include "Kengine/game.hxx"
 #include "Kengine/io/file-manager.hxx"
 #include "Kengine/log/log.hxx"
 #include "Kengine/resources/framebuffer-resource.hxx"
+#include "Kengine/resources/gui-material-resource.hxx"
 #include "Kengine/resources/material-resource.hxx"
 #include "Kengine/resources/renderbuffer-resource.hxx"
 #include "Kengine/resources/shader-resource.hxx"
@@ -21,16 +23,28 @@ void assets_browser::display()
     ImGui::PushID(this);
     assets_file_browser.Display();
 
+    auto current_game = editor::instance->current_game;
+
     {
         static ImVec2 create_asset_popup_pos;
         if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) &&
             assets_file_browser.IsHovered())
         {
             std::filesystem::path file_path = assets_file_browser.GetSelected();
-            if (file_path.has_extension() && file_path.extension() == ".kpkg")
+            if (file_path.has_extension())
             {
-                editor::instance->current_res =
-                    Kengine::resource_manager::load_resource(file_path);
+                if (file_path.extension() == ".kpkg")
+                {
+                    editor::instance->current_res =
+                        Kengine::resource_manager::load_resource(file_path);
+                }
+                else if (file_path.extension() == ".ksc")
+                {
+                    if (current_game)
+                    {
+                        editor::instance->set_game_scene(file_path);
+                    }
+                }
             }
         }
         if (ImGui::IsMouseDown(ImGuiMouseButton_Right) &&
@@ -65,6 +79,12 @@ void assets_browser::display()
                         create_file_type      = file_type::resource;
                         create_res_type =
                             Kengine::resource_type::sprite_material;
+                    }
+                    if (ImGui::Selectable("Gui material"))
+                    {
+                        create_resource_modal = true;
+                        create_file_type      = file_type::resource;
+                        create_res_type = Kengine::resource_type::gui_material;
                     }
                     if (ImGui::Selectable("Framebuffer"))
                     {
@@ -178,6 +198,13 @@ void assets_browser::display()
                         new_res = Kengine::make_resource_from_file<
                             Kengine::sprite_material_resource>(new_file_path,
                                                                filename);
+                    }
+                    else if (create_res_type ==
+                             Kengine::resource_type::gui_material)
+                    {
+                        new_res = Kengine::make_resource_from_file<
+                            Kengine::gui_material_resource>(new_file_path,
+                                                            filename);
                     }
                     else if (create_res_type ==
                              Kengine::resource_type::framebuffer)

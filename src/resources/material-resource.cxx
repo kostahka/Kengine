@@ -78,6 +78,17 @@ namespace Kengine
         return size;
     }
 
+    std::size_t material_resource::serialize_size() const
+    {
+        std::size_t size = 0;
+
+        size += serialization::size(shader);
+        size += serialization::size(properties);
+        size += serialization::size(textures);
+
+        return size;
+    }
+
     void material_resource::load_data()
     {
         shader->take_data();

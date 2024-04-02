@@ -31,6 +31,21 @@ namespace Kengine::scene_manager
         return loaded_scene;
     }
 
+    void save_scene(std::shared_ptr<scene> sc, const path& scene_path)
+    {
+        if (sc)
+        {
+            auto scene_file = file_manager::open_file(
+                assets_base_folder / scene_path, std::ios_base::out);
+            if (scene_file)
+            {
+                std::ostream sc_stream(scene_file.get());
+
+                auto loaded_size = serialization::write(sc_stream, *sc);
+            }
+        }
+    }
+
     void initialize() {}
 
     void shutdown() {}

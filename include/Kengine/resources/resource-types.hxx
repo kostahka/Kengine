@@ -14,5 +14,6 @@ namespace Kengine
         sound,
         material,
         sprite_material,
+        gui_material,
     };
 }

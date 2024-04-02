@@ -1,6 +1,7 @@
 #include "Kengine/system/system.hxx"
 
 #include "Kengine/system/graphics-system.hxx"
+#include "Kengine/system/gui-system.hxx"
 #include "Kengine/system/physics-system.hxx"
 
 #include <unordered_map>
@@ -18,6 +19,8 @@ namespace Kengine
     void system::on_render(scene&, int delta_ms) {}
 
     void system::on_update(scene&, int delta_ms) {}
+
+    void system::on_event(scene&, event::game_event) {}
 
     void system_container::register_system(string_id        name_id,
                                            create_system_fp system_factory)
@@ -40,5 +43,6 @@ namespace Kengine
     {
         register_system<graphics_system>(graphics_system::name);
         register_system<physics_system>(physics_system::name);
+        register_system<gui_system>(gui_system::name);
     }
 } // namespace Kengine

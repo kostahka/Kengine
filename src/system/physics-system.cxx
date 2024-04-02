@@ -21,8 +21,9 @@ namespace Kengine
 
         for (auto [ent, ent_transform, ent_physics] : physics_view.each())
         {
-            ent_physics->SetTransform(ent_transform.position,
-                                      ent_transform.angle);
+            auto local_transform = ent_transform.transform;
+            ent_physics->SetTransform(local_transform.position,
+                                      local_transform.angle);
         }
 
         sc.get_world().Step(
@@ -33,9 +34,9 @@ namespace Kengine
             auto new_position = ent_physics->GetPosition();
             auto new_angle    = ent_physics->GetAngle();
 
-            ent_transform.position.x = new_position.x;
-            ent_transform.position.y = new_position.y;
-            ent_transform.angle      = new_angle;
+            ent_transform.transform.position.x = new_position.x;
+            ent_transform.transform.position.y = new_position.y;
+            ent_transform.transform.angle      = new_angle;
         }
     }
 
@@ -45,6 +46,11 @@ namespace Kengine
     }
 
     std::size_t physics_system::deserialize(std::istream& is)
+    {
+        return 0;
+    }
+
+    std::size_t physics_system::serialize_size() const
     {
         return 0;
     }

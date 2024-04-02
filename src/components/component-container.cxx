@@ -1,7 +1,9 @@
 #include "Kengine/components/component-container.hxx"
 
 #include "Kengine/components/camera-component.hxx"
+#include "Kengine/components/gui-component.hxx"
 #include "Kengine/components/physics-component.hxx"
+#include "Kengine/components/rect-transform-component.hxx"
 #include "Kengine/components/render-component.hxx"
 #include "Kengine/components/sprite-component.hxx"
 #include "Kengine/components/transform-component.hxx"
@@ -10,13 +12,16 @@ namespace Kengine
 {
     component_container::component_container()
     {
-        register_component(hash_string(camera_component::name),
-                           camera_component::info);
         register_component(hash_string(physics_component::name),
                            physics_component::info);
+        register_component(hash_string(rect_transform_component::name),
+                           rect_transform_component::info);
         register_component<render_component>(render_component::name);
-        register_component<transform_component>(transform_component::name);
+        register_component<camera_component>(camera_component::name);
+        register_component(hash_string(transform_component::name),
+                           transform_component::info);
         register_component<sprite_component>(sprite_component::name);
+        register_component<gui_component>(gui_component::name);
     }
 
     void component_container::register_component(string_id             name_id,

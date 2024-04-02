@@ -294,6 +294,24 @@ namespace Kengine
             return size;
         }
 
+        std::size_t serialize_size() const override
+        {
+            path r_path;
+            if (counter)
+            {
+                r_path = counter->r_path;
+            }
+            std::size_t size = 0;
+            size += serialization::size(r_path.string());
+
+            if (ptr)
+                size += serialization::size(ptr->get_resource_id());
+            else
+                size += serialization::size(string_id());
+
+            return size;
+        }
+
         [[nodiscard]] inline ResourceType* get() const { return ptr; }
 
         inline ResourceType& operator*() { return *ptr; }

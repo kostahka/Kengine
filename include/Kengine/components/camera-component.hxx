@@ -12,32 +12,23 @@ namespace Kengine
     {
         friend class scene;
         static constexpr auto name = "camera_component";
-        static component_info info;
 
         camera_component();
-        camera_component(scene& sc);
         ~camera_component();
 
-        camera_component(camera_component& other) = delete;
+        camera_component(camera_component& other);
         camera_component(camera_component&& other);
 
-        camera_component& operator=(camera_component& other) = delete;
+        camera_component& operator=(camera_component& other);
         camera_component& operator=(camera_component&& other);
-
-        void bind(scene&);
-
-        inline bool is_binded() const { return binded; }
 
         std::size_t serialize(std::ostream& os) const override;
         std::size_t deserialize(std::istream& is) override;
+        std::size_t serialize_size() const override;
 
         bool imgui_editable_render() override;
 
         graphics::camera camera;
-
-    private:
-        bool   binded = false;
-        scene* cam_scene;
     };
 
 } // namespace Kengine

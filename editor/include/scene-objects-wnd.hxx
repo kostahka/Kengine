@@ -10,4 +10,5 @@ public:
     void display();
 
 private:
+    void draw_entity_entry(Kengine::scene& current_scene, entt::entity);
 };
