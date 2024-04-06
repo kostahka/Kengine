@@ -69,8 +69,8 @@ namespace Kengine
                 return "framebuffer";
             case resource_type::material:
                 return "material";
-            case resource_type::sound:
-                return "sound";
+            case resource_type::audio:
+                return "audio";
             case resource_type::sprite_material:
                 return "sprite_material";
             case resource_type::texture:

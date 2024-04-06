@@ -11,7 +11,7 @@ namespace Kengine
         texture,
         renderbuffer,
         framebuffer,
-        sound,
+        audio,
         material,
         sprite_material,
         gui_material,

@@ -4,6 +4,7 @@
 #include "../scene/scene-manager.hxx"
 #include "Kengine/io/file-manager.hxx"
 #include "Kengine/log/log.hxx"
+#include "Kengine/resources/audio-resource.hxx"
 #include "Kengine/resources/framebuffer-resource.hxx"
 #include "Kengine/resources/gui-material-resource.hxx"
 #include "Kengine/resources/renderbuffer-resource.hxx"
@@ -57,66 +58,59 @@ namespace Kengine::resource_manager
                     loaded_res = static_resource_cast<resource>(
                         make_resource_from_file<fragment_shader_res>(
                             res_path, f_path, res_name));
-                    size += loaded_res->deserialize(res_is);
                     break;
                 case resource_type::vertex_shader:
                     loaded_res = static_resource_cast<resource>(
                         make_resource_from_file<vertex_shader_res>(
                             res_path, f_path, res_name));
-                    size += loaded_res->deserialize(res_is);
                     break;
                 case resource_type::geometry_shader:
                     loaded_res = static_resource_cast<resource>(
                         make_resource_from_file<geometry_shader_res>(
                             res_path, f_path, res_name));
-                    size += loaded_res->deserialize(res_is);
                     break;
                 case resource_type::shader_program:
                     loaded_res = static_resource_cast<resource>(
                         make_resource_from_file<shader_res>(res_path,
                                                             res_name));
-                    size += loaded_res->deserialize(res_is);
                     break;
                 case resource_type::material:
                     loaded_res = static_resource_cast<resource>(
                         make_resource_from_file<material_resource>(res_path,
                                                                    res_name));
-                    size += loaded_res->deserialize(res_is);
                     break;
-                case resource_type::sound:
-                    size = -1;
+                case resource_type::audio:
+                    loaded_res = loaded_res = static_resource_cast<resource>(
+                        make_resource_from_file<audio_resource>(res_path,
+                                                                res_name));
                     break;
                 case resource_type::sprite_material:
                     loaded_res = static_resource_cast<resource>(
                         make_resource_from_file<sprite_material_resource>(
                             res_path, res_name));
-                    size += loaded_res->deserialize(res_is);
                     break;
                 case resource_type::gui_material:
                     loaded_res = static_resource_cast<resource>(
                         make_resource_from_file<gui_material_resource>(
                             res_path, res_name));
-                    size += loaded_res->deserialize(res_is);
                     break;
                 case resource_type::texture:
                     loaded_res = static_resource_cast<resource>(
                         make_resource_from_file<texture_resource>(
                             res_path, f_path, res_name));
-                    size += loaded_res->deserialize(res_is);
                     break;
                 case resource_type::renderbuffer:
                     loaded_res = static_resource_cast<resource>(
                         make_resource_from_file<renderbuffer_resource>(
                             res_path, res_name));
-                    size += loaded_res->deserialize(res_is);
                     break;
                 case resource_type::framebuffer:
                     loaded_res = static_resource_cast<resource>(
                         make_resource_from_file<framebuffer_resource>(
                             res_path, res_name));
-                    size += loaded_res->deserialize(res_is);
                     break;
             }
+            size += loaded_res->deserialize(res_is);
 
             if (size > 0)
                 return loaded_res;

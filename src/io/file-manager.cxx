@@ -1,8 +1,7 @@
-#include "Kengine/io/file-manager.hxx"
+#include "file-manager.hxx"
 
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_filesystem.h>
-#include <SDL3/SDL_iostream.h>
 
 #include "Kengine/log/log.hxx"
 
@@ -44,6 +43,12 @@ namespace Kengine::file_manager
         {std::ios_base::beg,  SDL_IO_SEEK_SET},
         { std::ios_base::end, SDL_IO_SEEK_END},
         { std::ios_base::cur, SDL_IO_SEEK_CUR}
+    };
+
+    std::unordered_map<int, std::ios_base::seekdir> sdl_seekdirs{
+        {SDL_IO_SEEK_SET,  std::ios_base::beg},
+        { SDL_IO_SEEK_END, std::ios_base::end},
+        { SDL_IO_SEEK_CUR, std::ios_base::cur}
     };
 
     file_buffer::file_buffer()
@@ -191,6 +196,15 @@ namespace Kengine::file_manager
         }
 
         ~file_buffer_impl() override { close(); }
+
+        int total_size()
+        {
+            if (file)
+            {
+                return SDL_GetIOSize(file);
+            }
+            return -1;
+        }
 
     protected:
         int sync() override
@@ -397,4 +411,113 @@ namespace Kengine::file_manager
         else
             return false;
     }
+
+    sdl_io_stream::sdl_io_stream(std::unique_ptr<file_buffer>& file)
+        : io(file.get())
+        , file(static_cast<file_buffer_impl*>(file.release()))
+    {
+        interface.size  = &size;
+        interface.seek  = &seek;
+        interface.read  = &read;
+        interface.write = &write;
+        interface.close = &close;
+
+        stream = SDL_OpenIO(&interface, this);
+    }
+
+    sdl_io_stream::~sdl_io_stream()
+    {
+        SDL_CloseIO(stream);
+    }
+
+    Sint64 sdl_io_stream::size(void* userdata)
+    {
+        sdl_io_stream* instance = reinterpret_cast<sdl_io_stream*>(userdata);
+        return instance->file->total_size();
+    }
+
+    Sint64 sdl_io_stream::seek(void* userdata, Sint64 offset, int whence)
+    {
+        sdl_io_stream* instance = reinterpret_cast<sdl_io_stream*>(userdata);
+        auto           std_seekdir_it = sdl_seekdirs.find(whence);
+        if (std_seekdir_it != sdl_seekdirs.end())
+        {
+            instance->io.seekg(offset, std_seekdir_it->second);
+            instance->io.seekp(offset, std_seekdir_it->second);
+        }
+        return -1;
+    }
+
+    size_t sdl_io_stream::read(void*         userdata,
+                               void*         ptr,
+                               size_t        size,
+                               SDL_IOStatus* status)
+    {
+        sdl_io_stream* instance = reinterpret_cast<sdl_io_stream*>(userdata);
+        auto           start    = instance->io.tellg();
+        instance->io.read(static_cast<char*>(ptr), size);
+
+        if (status)
+        {
+            if (instance->io.good())
+            {
+                *status = SDL_IO_STATUS_READY;
+            }
+            else if (instance->io.eof())
+            {
+                *status = SDL_IO_STATUS_EOF;
+            }
+            else
+            {
+                *status = SDL_IO_STATUS_ERROR;
+            }
+        }
+
+        size_t result = instance->io.tellg() - start;
+
+        return result;
+    }
+
+    size_t sdl_io_stream::write(void*         userdata,
+                                const void*   ptr,
+                                size_t        size,
+                                SDL_IOStatus* status)
+    {
+        sdl_io_stream* instance = reinterpret_cast<sdl_io_stream*>(userdata);
+        auto           start    = instance->io.tellp();
+        instance->io.write(static_cast<const char*>(ptr), size);
+
+        if (status)
+        {
+            if (instance->io.good())
+            {
+                *status = SDL_IO_STATUS_READY;
+            }
+            else if (instance->io.eof())
+            {
+                *status = SDL_IO_STATUS_EOF;
+            }
+            else
+            {
+                *status = SDL_IO_STATUS_ERROR;
+            }
+        }
+
+        size_t result = instance->io.tellg() - start;
+
+        return result;
+    }
+
+    int sdl_io_stream::close(void* userdata)
+    {
+        sdl_io_stream* instance = reinterpret_cast<sdl_io_stream*>(userdata);
+        instance->io.flush();
+        instance->file->close();
+        if (!instance->io.good())
+        {
+            return -1;
+        }
+        return 0;
+    }
+
 } // namespace Kengine::file_manager

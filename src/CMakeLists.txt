@@ -56,6 +56,7 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/imgui/imgui-editable.cxx
     ${CMAKE_CURRENT_LIST_DIR}/imgui/imgui.cxx
     ${CMAKE_CURRENT_LIST_DIR}/imgui/imgui.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/io/file-manager.hxx
     ${CMAKE_CURRENT_LIST_DIR}/io/file-manager.cxx
     ${CMAKE_CURRENT_LIST_DIR}/io/input.cxx
     ${CMAKE_CURRENT_LIST_DIR}/lib/lib.cxx
@@ -68,6 +69,7 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/physics/physics.cxx
     ${CMAKE_CURRENT_LIST_DIR}/physics/physics.hxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/framebuffer-resource.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/resources/audio-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/gui-material-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/material-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/picopng.hxx
@@ -139,6 +141,7 @@ set(KENGINE_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/main.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/physics/physics.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/framebuffer-resource.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/audio-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/gui-material-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/material-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/renderbuffer-resource.hxx
