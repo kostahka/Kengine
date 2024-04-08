@@ -9,8 +9,9 @@ namespace Kengine
     static int velocity_iterations = 10;
     static int position_iterations = 8;
 
-    physics_system::physics_system()
+    physics_system::physics_system(scene& sc)
         : system(name, system_update_type)
+        , sc(sc)
     {
     }
 

@@ -47,7 +47,7 @@ namespace Kengine
         if (fragment_id)
         {
             KENGINE_GL_CHECK(glDeleteShader(fragment_id));
-            KENGINE_INFO("Unloaded fragment shader, {}", fragment_id);
+            KENGINE_INFO("Unloaded fragment shader: {}", r_id.get_string());
         }
     }
 
@@ -129,12 +129,13 @@ namespace Kengine
         {
             KENGINE_GL_CHECK(glDeleteShader(fragment_id));
             fragment_id = 0;
-            KENGINE_ERROR("Failed to compile fragment shader.");
+            KENGINE_ERROR("Failed to compile fragment shader: {}",
+                          r_id.get_string());
             return;
         }
 
         KENGINE_INFO("Loaded and compiled fragment shader: {}",
-                     get_string(r_id));
+                     r_id.get_string());
     }
 
     void fragment_shader_res::unload_data()
@@ -142,7 +143,7 @@ namespace Kengine
         if (fragment_id)
         {
             KENGINE_GL_CHECK(glDeleteShader(fragment_id));
-            KENGINE_INFO("Unloaded fragment shader, {}", fragment_id);
+            KENGINE_INFO("Unloaded fragment shader: {}", r_id.get_string());
             fragment_id = 0;
         }
     }
@@ -150,9 +151,11 @@ namespace Kengine
     bool fragment_shader_res::imgui_editable_render()
     {
         bool edited = false;
+#ifdef KENGINE_IMGUI
         ImGui::PushID(this);
 
         ImGui::PopID();
+#endif
         return false;
     }
 
@@ -186,7 +189,7 @@ namespace Kengine
         if (vertex_id)
         {
             KENGINE_GL_CHECK(glDeleteShader(vertex_id));
-            KENGINE_INFO("Unloaded vertex shader, {}", vertex_id);
+            KENGINE_INFO("Unloaded vertex shader: {}", r_id.get_string());
         }
     }
 
@@ -269,10 +272,12 @@ namespace Kengine
         {
             KENGINE_GL_CHECK(glDeleteShader(vertex_id));
             vertex_id = 0;
-            KENGINE_ERROR("Failed to compile vertex shader.");
+            KENGINE_ERROR("Failed to compile vertex shader: {}",
+                          r_id.get_string());
         }
 
-        KENGINE_INFO("Loaded and compiled vertex shader: {}", vertex_id);
+        KENGINE_INFO("Loaded and compiled vertex shader: {}",
+                     r_id.get_string());
     }
 
     void vertex_shader_res::unload_data()
@@ -280,7 +285,7 @@ namespace Kengine
         if (vertex_id)
         {
             KENGINE_GL_CHECK(glDeleteShader(vertex_id));
-            KENGINE_INFO("Unloaded vertex shader, {}", vertex_id);
+            KENGINE_INFO("Unloaded vertex shader: {}", r_id.get_string());
             vertex_id = 0;
         }
     }
@@ -288,9 +293,11 @@ namespace Kengine
     bool vertex_shader_res::imgui_editable_render()
     {
         bool edited = false;
+#ifdef KENGINE_IMGUI
         ImGui::PushID(this);
 
         ImGui::PopID();
+#endif
         return false;
     }
 
@@ -324,7 +331,7 @@ namespace Kengine
         if (geometry_id)
         {
             KENGINE_GL_CHECK(glDeleteShader(geometry_id));
-            KENGINE_INFO("Unloaded geometry shader, {}", geometry_id);
+            KENGINE_INFO("Unloaded geometry shader: {}", r_id.get_string());
         }
     }
 
@@ -407,10 +414,12 @@ namespace Kengine
         {
             KENGINE_GL_CHECK(glDeleteShader(geometry_id));
             geometry_id = 0;
-            KENGINE_ERROR("Failed to compile geometry shader.");
+            KENGINE_ERROR("Failed to compile geometry shader: {}",
+                          r_id.get_string());
         }
 
-        KENGINE_INFO("Loaded and compiled geometry shader: {}", geometry_id);
+        KENGINE_INFO("Loaded and compiled geometry shader: {}",
+                     r_id.get_string());
     }
 
     void geometry_shader_res::unload_data()
@@ -418,7 +427,7 @@ namespace Kengine
         if (geometry_id)
         {
             KENGINE_GL_CHECK(glDeleteShader(geometry_id));
-            KENGINE_INFO("Unloaded geometry shader, {}", geometry_id);
+            KENGINE_INFO("Unloaded geometry shader: {}", r_id.get_string());
             geometry_id = 0;
         }
     }
@@ -426,9 +435,11 @@ namespace Kengine
     bool geometry_shader_res::imgui_editable_render()
     {
         bool edited = false;
+#ifdef KENGINE_IMGUI
         ImGui::PushID(this);
 
         ImGui::PopID();
+#endif
         return edited;
     }
 
@@ -546,7 +557,7 @@ namespace Kengine
         if (id)
         {
             KENGINE_GL_CHECK(glDeleteProgram(id));
-            KENGINE_INFO("Unloaded shader program, {}", id);
+            KENGINE_INFO("Unloaded shader program: {}", r_id.get_string());
         }
     }
 
@@ -617,7 +628,8 @@ namespace Kengine
                 glGetProgramInfoLog(id, info_len, nullptr, info_log.data()));
             KENGINE_GL_CHECK(glDeleteProgram(id));
             id = 0;
-            KENGINE_ERROR("Failed to link shader program. Log: {}",
+            KENGINE_ERROR("Failed to link shader program: {}. Log: {}",
+                          r_id.get_string(),
                           info_log.data());
         }
         else
@@ -662,7 +674,8 @@ namespace Kengine
             }
         }
 
-        KENGINE_INFO("Loaded and compiled shader program: {}", id);
+        KENGINE_INFO("Loaded and compiled shader program: {}",
+                     r_id.get_string());
 
         if (vertex_res)
             vertex_res->free_data();
@@ -677,7 +690,7 @@ namespace Kengine
         if (id)
         {
             KENGINE_GL_CHECK(glDeleteProgram(id));
-            KENGINE_INFO("Unloaded shader program, {}", id);
+            KENGINE_INFO("Unloaded shader program: {}", r_id.get_string());
             id = 0;
             uniform_locations.clear();
         }
@@ -698,6 +711,7 @@ namespace Kengine
     bool shader_res::imgui_editable_render()
     {
         bool edited = false;
+#ifdef KENGINE_IMGUI
         ImGui::PushID(this);
 
         edited = edited || imgui::edit_resource("Vertex resource", &vertex_res);
@@ -707,6 +721,7 @@ namespace Kengine
             edited || imgui::edit_resource("Fragment resource", &fragment_res);
 
         ImGui::PopID();
+#endif
         return edited;
     }
 

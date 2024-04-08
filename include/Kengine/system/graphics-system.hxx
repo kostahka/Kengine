@@ -25,13 +25,12 @@ namespace Kengine
     public:
         static constexpr auto name = "graphics_system";
 
-        graphics_system();
+        graphics_system(scene& sc);
+        ~graphics_system();
 
         std::size_t serialize(std::ostream& os) const override;
         std::size_t deserialize(std::istream& is) override;
         std::size_t serialize_size() const override;
-
-        void on_create(scene&) override;
 
         void on_event(scene&, event::game_event) override;
         void on_render(scene&, int delta_ms) override;
@@ -51,5 +50,7 @@ namespace Kengine
         uint32_t vao_sprites_count = 128;
 
         bool update_projections = true;
+
+        scene& sc;
     };
 } // namespace Kengine

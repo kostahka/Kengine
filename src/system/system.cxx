@@ -1,5 +1,6 @@
 #include "Kengine/system/system.hxx"
 
+#include "Kengine/system/audio-system.hxx"
 #include "Kengine/system/graphics-system.hxx"
 #include "Kengine/system/gui-system.hxx"
 #include "Kengine/system/physics-system.hxx"
@@ -14,7 +15,7 @@ namespace Kengine
         name_id = hash_string(name.data());
     }
 
-    void system::on_create(scene&) {}
+    void system::on_start(scene&) {}
 
     void system::on_render(scene&, int delta_ms) {}
 
@@ -44,5 +45,6 @@ namespace Kengine
         register_system<graphics_system>(graphics_system::name);
         register_system<physics_system>(physics_system::name);
         register_system<gui_system>(gui_system::name);
+        register_system<audio_system>(audio_system::name);
     }
 } // namespace Kengine

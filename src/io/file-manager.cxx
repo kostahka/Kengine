@@ -444,6 +444,7 @@ namespace Kengine::file_manager
         {
             instance->io.seekg(offset, std_seekdir_it->second);
             instance->io.seekp(offset, std_seekdir_it->second);
+            return instance->io.tellp();
         }
         return -1;
     }

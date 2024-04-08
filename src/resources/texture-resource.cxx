@@ -313,9 +313,10 @@ namespace Kengine
     bool texture_resource::imgui_editable_render()
     {
         bool edited = false;
+#ifdef KENGINE_IMGUI
         ImGui::PushID(this);
 
-        imgui::edit_file("Texture file", f_path);
+        edited = edited || imgui::edit_file("Texture file", f_path);
 
         if (f_path.empty())
         {
@@ -355,6 +356,7 @@ namespace Kengine
         }
 
         ImGui::PopID();
+#endif
         return edited;
     }
 

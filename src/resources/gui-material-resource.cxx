@@ -30,6 +30,7 @@ namespace Kengine
     bool gui_material_resource::imgui_editable_render()
     {
         bool edited = false;
+#ifdef KENGINE_IMGUI
         ImGui::PushID(this);
         {
             ImGui::BeginChild("Textures",
@@ -60,6 +61,7 @@ namespace Kengine
         }
 
         ImGui::PopID();
+#endif
         return edited;
     }
 } // namespace Kengine

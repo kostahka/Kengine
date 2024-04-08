@@ -6,8 +6,11 @@ endif()
 # Kengine sources
 set(KENGINE_SOURCES
     # cmake-format: sortable
+    ${CMAKE_CURRENT_LIST_DIR}/audio/audio-mix.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/audio/audio-mix.hxx
     ${CMAKE_CURRENT_LIST_DIR}/audio/audio.cxx
     ${CMAKE_CURRENT_LIST_DIR}/audio/audio.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/components/audio-component.cxx
     ${CMAKE_CURRENT_LIST_DIR}/components/camera-component.cxx
     ${CMAKE_CURRENT_LIST_DIR}/components/component-container.cxx
     ${CMAKE_CURRENT_LIST_DIR}/components/component.cxx
@@ -45,6 +48,7 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/graphics/vertex-array.cxx
     ${CMAKE_CURRENT_LIST_DIR}/handle-file-modify.hxx
     ${CMAKE_CURRENT_LIST_DIR}/helpers/hash.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/helpers/spin-lock.cxx
     ${CMAKE_CURRENT_LIST_DIR}/imgui-impl/imgui_impl_opengl3.cpp
     ${CMAKE_CURRENT_LIST_DIR}/imgui-impl/imgui_impl_opengl3.h
     ${CMAKE_CURRENT_LIST_DIR}/imgui-impl/imgui_impl_opengl3_loader.h
@@ -56,8 +60,8 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/imgui/imgui-editable.cxx
     ${CMAKE_CURRENT_LIST_DIR}/imgui/imgui.cxx
     ${CMAKE_CURRENT_LIST_DIR}/imgui/imgui.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/io/file-manager.hxx
     ${CMAKE_CURRENT_LIST_DIR}/io/file-manager.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/io/file-manager.hxx
     ${CMAKE_CURRENT_LIST_DIR}/io/input.cxx
     ${CMAKE_CURRENT_LIST_DIR}/lib/lib.cxx
     ${CMAKE_CURRENT_LIST_DIR}/log/log.cxx
@@ -68,8 +72,8 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/opengl/opengl.hxx
     ${CMAKE_CURRENT_LIST_DIR}/physics/physics.cxx
     ${CMAKE_CURRENT_LIST_DIR}/physics/physics.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/resources/framebuffer-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/audio-resource.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/resources/framebuffer-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/gui-material-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/material-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/picopng.hxx
@@ -84,6 +88,7 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/scene/scene.cxx
     ${CMAKE_CURRENT_LIST_DIR}/serialization/archive.cxx
     ${CMAKE_CURRENT_LIST_DIR}/string/string-id.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/system/audio-system.cxx
     ${CMAKE_CURRENT_LIST_DIR}/system/graphics-system.cxx
     ${CMAKE_CURRENT_LIST_DIR}/system/gui-system.cxx
     ${CMAKE_CURRENT_LIST_DIR}/system/physics-system.cxx
@@ -97,6 +102,8 @@ set(KENGINE_SOURCES
 set(KENGINE_HEADERS
     # cmake-format: sortable
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/audio/audio.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/audio/specs.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/audio-component.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/camera-component.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/component-container.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/component-info.hxx
@@ -131,6 +138,7 @@ set(KENGINE_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/vertex-array.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/vertex-buffer.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/helpers/hash.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/helpers/spin-lock.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/imgui/imgui-edit.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/imgui/imgui-editable.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/imgui/imgui.hxx
@@ -140,8 +148,8 @@ set(KENGINE_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/log/log.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/main.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/physics/physics.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/framebuffer-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/audio-resource.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/framebuffer-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/gui-material-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/material-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/renderbuffer-resource.hxx
@@ -157,6 +165,7 @@ set(KENGINE_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/serialization/archive.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/serialization/serialization.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/string/string-id.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/system/audio-system.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/system/graphics-system.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/system/gui-system.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/system/physics-system.hxx

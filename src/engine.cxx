@@ -70,7 +70,7 @@ namespace Kengine
         }
 
         KENGINE_TRACE("Init engine systems...");
-        // audio::init();
+        audio::initialize();
         resource_manager::initialize();
         physics::initialize();
         scene_manager::initialize();
@@ -89,6 +89,7 @@ namespace Kengine
         scene_manager::shutdown();
         physics::shutdown();
         resource_manager::shutdown();
+        audio::shutdown();
         window::shutdown();
 
         engine_settings.save();

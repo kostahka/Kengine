@@ -6,6 +6,8 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_sdl3.h>
 
+#include <SDL3/SDL_events.h>
+
 #ifdef KENGINE_IMGUI
 namespace Kengine::imgui
 {
@@ -20,6 +22,7 @@ namespace Kengine::imgui
         ImGui::CreateContext();
         ImGui_ImplSDL3_InitForOpenGL(window::window, window::context);
         ImGui_ImplOpenGL3_Init("#version 300 es");
+        SDL_StartTextInput();
     }
 
     void shutdown()
@@ -27,6 +30,7 @@ namespace Kengine::imgui
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplSDL3_Shutdown();
         ImGui::DestroyContext();
+        SDL_StopTextInput();
     }
 
     void draw()

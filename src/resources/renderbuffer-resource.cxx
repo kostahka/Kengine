@@ -92,11 +92,13 @@ namespace Kengine
     bool renderbuffer_resource::imgui_editable_render()
     {
         bool edited = false;
+#ifdef KENGINE_IMGUI
         ImGui::PushID(this);
 
         edited = edited || ImGui::SliderInt2("Size", (int*)&size, -4096, 4096);
 
         ImGui::PopID();
+#endif
         return edited;
     }
 } // namespace Kengine

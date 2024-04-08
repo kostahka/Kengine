@@ -25,7 +25,7 @@ namespace Kengine
                uint8_t type_flags = system_render_type | system_update_type |
                                     system_event_type);
 
-        virtual void on_create(scene&);
+        virtual void on_start(scene&);
 
         virtual void on_render(scene&, int delta_ms);
         virtual void on_update(scene&, int delta_ms);
@@ -40,7 +40,7 @@ namespace Kengine
         string_id name_id;
     };
 
-    typedef std::shared_ptr<system> (*create_system_fp)();
+    typedef std::shared_ptr<system> (*create_system_fp)(scene&);
 
     class system_container
     {
@@ -56,10 +56,10 @@ namespace Kengine
             static_assert(std::is_base_of_v<system, SystemType>,
                           "SystemType only inhertis system");
 
-            create_system_fp system_factory = []()
+            create_system_fp system_factory = [](scene& sc)
             {
                 return static_cast<std::shared_ptr<system>>(
-                    std::make_shared<SystemType>());
+                    std::make_shared<SystemType>(sc));
             };
             auto name_id = hash_string(name.data());
 

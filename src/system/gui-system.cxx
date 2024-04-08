@@ -8,8 +8,9 @@
 namespace Kengine
 {
 
-    gui_system::gui_system()
+    gui_system::gui_system(scene& sc)
         : system(name, system_event_type | system_render_type)
+        , sc(sc)
     {
         vao = std::make_unique<graphics::vertex_element_array>();
         vao->bind();
@@ -88,14 +89,18 @@ namespace Kengine
         vao->set_elements(sprite_element_buffer);
 
         vbo->allocate_vertices(nullptr, vao_sprites_count, true);
-    }
-
-    void gui_system::on_create(scene& sc)
-    {
         sc.registry.on_construct<gui_component>()
             .connect<&gui_system::sort_sprites>(*this);
         sc.registry.on_update<gui_component>()
             .connect<&gui_system::sort_sprites>(*this);
+    }
+
+    gui_system::~gui_system()
+    {
+        sc.registry.on_construct<gui_component>()
+            .disconnect<&gui_system::sort_sprites>(*this);
+        sc.registry.on_update<gui_component>()
+            .disconnect<&gui_system::sort_sprites>(*this);
     }
 
     void gui_system::draw_sprites(uint32_t                        count,

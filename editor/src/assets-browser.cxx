@@ -5,6 +5,7 @@
 #include "Kengine/game.hxx"
 #include "Kengine/io/file-manager.hxx"
 #include "Kengine/log/log.hxx"
+#include "Kengine/resources/audio-resource.hxx"
 #include "Kengine/resources/framebuffer-resource.hxx"
 #include "Kengine/resources/gui-material-resource.hxx"
 #include "Kengine/resources/material-resource.hxx"
@@ -131,6 +132,12 @@ void assets_browser::display()
                         create_res_type =
                             Kengine::resource_type::shader_program;
                     }
+                    if (ImGui::Selectable("Audio"))
+                    {
+                        create_resource_modal = true;
+                        create_file_type      = file_type::resource;
+                        create_res_type       = Kengine::resource_type::audio;
+                    }
                     ImGui::EndMenu();
                 }
             }
@@ -152,7 +159,7 @@ void assets_browser::display()
                                    &create_resource_modal,
                                    ImGuiWindowFlags_NoResize))
         {
-            ImGui::InputText("Filename:", new_filename, new_filename_size);
+            ImGui::InputText("Filename", new_filename, new_filename_size);
             if (ImGui::Button("Apply"))
             {
                 create_resource_modal = false;
@@ -251,6 +258,11 @@ void assets_browser::display()
                     {
                         new_res = Kengine::make_resource_from_file<
                             Kengine::shader_res>(new_file_path, filename);
+                    }
+                    else if (create_res_type == Kengine::resource_type::audio)
+                    {
+                        new_res = Kengine::make_resource_from_file<
+                            Kengine::audio_resource>(new_file_path, filename);
                     }
 
                     Kengine::resource_manager::save_resource(new_res);

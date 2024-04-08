@@ -27,6 +27,8 @@ namespace Kengine
     public:
         scene(game*);
 
+        void on_start();
+
         void on_update(int delta_ms);
         void on_render(int delta_ms);
         void on_event(event::game_event);

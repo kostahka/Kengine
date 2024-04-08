@@ -68,7 +68,7 @@ namespace Kengine
 
         id = hash::crc32(c_str);
 
-        KENGINE_ASSERT_WARN(id, "Zero string id")
+        KENGINE_ASSERT_WARN(id, "Zero string id");
         if (id != 0)
         {
             char* copy_str = new char[str_len + 1];

@@ -9,8 +9,9 @@
 namespace Kengine
 {
 
-    graphics_system::graphics_system()
+    graphics_system::graphics_system(scene& sc)
         : system(name)
+        , sc(sc)
     {
         vao = std::make_unique<graphics::vertex_element_array>();
         vao->bind();
@@ -89,14 +90,19 @@ namespace Kengine
         vao->set_elements(sprite_element_buffer);
 
         vbo->allocate_vertices(nullptr, vao_sprites_count, true);
-    }
 
-    void graphics_system::on_create(scene& sc)
-    {
         sc.registry.on_construct<sprite_component>()
             .connect<&graphics_system::sort_sprites>(*this);
         sc.registry.on_update<sprite_component>()
             .connect<&graphics_system::sort_sprites>(*this);
+    }
+
+    graphics_system::~graphics_system()
+    {
+        sc.registry.on_construct<sprite_component>()
+            .disconnect<&graphics_system::sort_sprites>(*this);
+        sc.registry.on_update<sprite_component>()
+            .disconnect<&graphics_system::sort_sprites>(*this);
     }
 
     void graphics_system::draw_sprites(

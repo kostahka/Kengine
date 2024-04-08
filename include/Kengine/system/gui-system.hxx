@@ -26,13 +26,12 @@ namespace Kengine
     public:
         static constexpr auto name = "gui_system";
 
-        gui_system();
+        gui_system(scene& sc);
+        ~gui_system();
 
         std::size_t serialize(std::ostream& os) const override;
         std::size_t deserialize(std::istream& is) override;
         std::size_t serialize_size() const override;
-
-        void on_create(scene&) override;
 
         void on_event(scene&, event::game_event) override;
         void on_render(scene&, int delta_ms) override;
@@ -50,5 +49,7 @@ namespace Kengine
         std::vector<gui_sprite_data>                              data;
         uint32_t max_sprites_count = 128;
         uint32_t vao_sprites_count = 128;
+
+        scene& sc;
     };
 } // namespace Kengine

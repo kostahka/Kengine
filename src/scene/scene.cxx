@@ -28,6 +28,14 @@ namespace Kengine
             .connect<&scene::on_destroy_camera>(*this);
     };
 
+    void scene::on_start()
+    {
+        for (auto& system : systems)
+        {
+            system.second->on_start(*this);
+        }
+    }
+
     void scene::on_construct_entity(entt::entity ent) {}
 
     void scene::on_destroy_camera(entt::entity ent)
@@ -120,7 +128,7 @@ namespace Kengine
             auto system_factory = scene_game->get_system_factory(name_id);
             if (system_factory)
             {
-                auto system = system_factory();
+                auto system = system_factory(*this);
                 size += serialization::read(is, *system);
                 systems[name_id] = system;
 
@@ -137,7 +145,6 @@ namespace Kengine
                 {
                     event_systems.push_back(system.get());
                 }
-                system->on_create(*this);
             }
             else
             {
@@ -272,7 +279,7 @@ namespace Kengine
             auto system_factory = scene_game->get_system_factory(name_id);
             if (system_factory && !systems.contains(name_id))
             {
-                auto system = system_factory();
+                auto system = system_factory(*this);
                 size += serialization::read(is, *system);
                 systems[name_id] = system;
 
@@ -289,7 +296,6 @@ namespace Kengine
                 {
                     event_systems.push_back(system.get());
                 }
-                system->on_create(*this);
             }
             else
             {
@@ -403,7 +409,7 @@ namespace Kengine
         auto system_factory = scene_game->get_system_factory(name_id);
         if (system_factory)
         {
-            auto system      = system_factory();
+            auto system      = system_factory(*this);
             systems[name_id] = system;
 
             auto system_type_flags = system->get_type_flags();
@@ -419,7 +425,6 @@ namespace Kengine
             {
                 event_systems.push_back(system.get());
             }
-            system->on_create(*this);
         }
     }
 

@@ -283,6 +283,7 @@ namespace Kengine
     bool framebuffer_resource::imgui_editable_render()
     {
         bool edited = false;
+#ifdef KENGINE_IMGUI
         ImGui::PushID(this);
         edited = edited ||
                  imgui::edit_resource("Color attachment", &color_attachment);
@@ -292,6 +293,7 @@ namespace Kengine
             edited || ImGui::ColorEdit4("Clear color", (float*)&clear_color);
         edited = edited || ImGui::SliderInt2("Size", (int*)&size, -4096, 4096);
         ImGui::PopID();
+#endif
         return edited;
     }
 

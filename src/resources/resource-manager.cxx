@@ -80,9 +80,9 @@ namespace Kengine::resource_manager
                                                                    res_name));
                     break;
                 case resource_type::audio:
-                    loaded_res = loaded_res = static_resource_cast<resource>(
-                        make_resource_from_file<audio_resource>(res_path,
-                                                                res_name));
+                    loaded_res = static_resource_cast<resource>(
+                        make_resource_from_file<audio_resource>(
+                            res_path, f_path, res_name));
                     break;
                 case resource_type::sprite_material:
                     loaded_res = static_resource_cast<resource>(

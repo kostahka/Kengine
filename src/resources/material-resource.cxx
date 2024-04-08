@@ -110,11 +110,13 @@ namespace Kengine
     bool material_resource::imgui_editable_render()
     {
         bool edited = false;
+#ifdef KENGINE_IMGUI
         ImGui::PushID(this);
 
         edited = edited || imgui::edit_resource("Shader", &shader);
 
         ImGui::PopID();
+#endif
         return edited;
     }
 } // namespace Kengine
