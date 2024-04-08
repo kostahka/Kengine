@@ -243,6 +243,7 @@ if(MSVC)
     )
 else()
     target_compile_definitions(kengine-public INTERFACE "-DE_DECLSPEC=")
+    target_compile_definitions(kengine-public INTERFACE "-DGAME_DECLSPEC=")
 endif()
 
 # Compile options
