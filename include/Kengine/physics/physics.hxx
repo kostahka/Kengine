@@ -4,5 +4,5 @@
 
 namespace Kengine::physics
 {
-    extern b2World* main_world;
+    E_DECLSPEC extern b2World* main_world;
 }

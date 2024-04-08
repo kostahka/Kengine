@@ -5,7 +5,7 @@
 
 namespace Kengine
 {
-    class physics_system : public system
+    class E_DECLSPEC physics_system : public system
     {
     public:
         static constexpr auto name = "physics_system";

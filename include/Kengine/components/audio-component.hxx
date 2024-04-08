@@ -6,7 +6,7 @@
 
 namespace Kengine
 {
-    struct audio_component : public component
+    struct E_DECLSPEC audio_component : public component
     {
         static constexpr auto name = "audio_component";
 

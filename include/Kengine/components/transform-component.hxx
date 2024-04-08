@@ -10,7 +10,7 @@ namespace Kengine
 {
     class scene;
 
-    struct transform_component : public component
+    struct E_DECLSPEC transform_component : public component
     {
         static constexpr auto name = "transform_component";
         static component_info info;

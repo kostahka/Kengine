@@ -9,7 +9,7 @@
 
 namespace Kengine
 {
-    struct gui_component : public component
+    struct E_DECLSPEC gui_component : public component
     {
         static constexpr auto name = "gui_component";
 

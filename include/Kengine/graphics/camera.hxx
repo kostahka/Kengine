@@ -5,7 +5,7 @@
 
 namespace Kengine::graphics
 {
-    class camera : public serializable
+    class E_DECLSPEC camera : public serializable
     {
     public:
         camera();

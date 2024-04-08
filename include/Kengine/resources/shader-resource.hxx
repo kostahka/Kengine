@@ -12,7 +12,7 @@ namespace Kengine
     using std::string;
     using std::string_view;
 
-    class fragment_shader_res : public resource
+    class E_DECLSPEC fragment_shader_res : public resource
     {
     public:
         fragment_shader_res(std::string_view name);
@@ -38,7 +38,7 @@ namespace Kengine
         uint32_t fragment_id;
     };
 
-    class vertex_shader_res : public resource
+    class E_DECLSPEC vertex_shader_res : public resource
     {
     public:
         vertex_shader_res(std::string_view name);
@@ -64,7 +64,7 @@ namespace Kengine
         uint32_t vertex_id;
     };
 
-    class geometry_shader_res : public resource
+    class E_DECLSPEC geometry_shader_res : public resource
     {
     public:
         geometry_shader_res(std::string_view name);
@@ -90,7 +90,7 @@ namespace Kengine
         uint32_t geometry_id;
     };
 
-    class shader_res : public resource
+    class E_DECLSPEC shader_res : public resource
     {
     public:
         shader_res(std::string_view name);

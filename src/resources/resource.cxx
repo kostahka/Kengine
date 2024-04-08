@@ -2,6 +2,7 @@
 
 #include "Kengine/file-last-modify-listener.hxx"
 #include "Kengine/resources/resource-manager.hxx"
+#include "Kengine/string/string-id.hxx"
 
 namespace Kengine
 {

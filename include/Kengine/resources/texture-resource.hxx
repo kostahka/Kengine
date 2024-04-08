@@ -6,7 +6,7 @@
 
 namespace Kengine
 {
-    class texture_resource : public resource
+    class E_DECLSPEC texture_resource : public resource
     {
     public:
         texture_resource(std::string_view name);

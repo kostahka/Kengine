@@ -20,7 +20,7 @@ namespace Kengine
         mat4x4 model;
     };
 
-    class graphics_system : public system
+    class E_DECLSPEC graphics_system : public system
     {
     public:
         static constexpr auto name = "graphics_system";

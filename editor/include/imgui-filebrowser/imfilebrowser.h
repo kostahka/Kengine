@@ -721,7 +721,7 @@ inline void ImGui::FileBrowser::Display()
                 draggedPath_ = pwd_ / rsc.name;
                 ImGui::SetDragDropPayload(
                     "FILE_DRAG", &draggedPath_, sizeof(std::filesystem::path));
-                ImGui::Text(rsc.showName.c_str());
+                ImGui::Text("%s", rsc.showName.c_str());
                 ImGui::EndDragDropSource();
             }
 

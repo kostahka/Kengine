@@ -6,8 +6,8 @@
 
 namespace Kengine::resource_manager
 {
-    res_ptr<resource> get_resource(string_id r_id);
-    res_ptr<resource> load_resource(path res_path);
+    E_DECLSPEC res_ptr<resource> get_resource(string_id r_id);
+    E_DECLSPEC res_ptr<resource> load_resource(path res_path);
 
     void initialize();
     void shutdown();

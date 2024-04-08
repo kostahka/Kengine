@@ -7,7 +7,7 @@
 
 namespace Kengine
 {
-    class framebuffer_resource : public resource
+    class E_DECLSPEC framebuffer_resource : public resource
     {
     public:
         framebuffer_resource(std::string_view name);

@@ -11,8 +11,7 @@
 
 namespace Kengine::audio
 {
-
-    class continuous_object
+    class E_DECLSPEC continuous_object
     {
     public:
         continuous_object(continuous_object&)  = delete;
@@ -60,14 +59,14 @@ namespace Kengine::audio
         vec2                    volume = { 1, 1 };
     };
 
-    void play_one_shot(res_ptr<audio_resource>& res, float volume);
+    E_DECLSPEC void play_one_shot(res_ptr<audio_resource>& res, float volume);
 
-    void play_one_shot(res_ptr<audio_resource>& res, vec2 volume);
+    E_DECLSPEC void play_one_shot(res_ptr<audio_resource>& res, vec2 volume);
 
-    continuous_object* create_continuous_object(
+    E_DECLSPEC continuous_object* create_continuous_object(
         const res_ptr<audio_resource>& res);
-    void destroy_continuous_object(continuous_object* obj);
+    E_DECLSPEC void destroy_continuous_object(continuous_object* obj);
 
-    spec get_current_out_spec();
-    spec get_current_in_spec();
+    E_DECLSPEC spec get_current_out_spec();
+    E_DECLSPEC spec get_current_in_spec();
 } // namespace Kengine::audio

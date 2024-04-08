@@ -4,15 +4,15 @@
 
 namespace Kengine::resource_manager
 {
-    res_ptr<resource> get_resource(string_id r_id);
+    E_DECLSPEC res_ptr<resource> get_resource(string_id r_id);
 
-    void registrate_resource(const res_ptr<resource>& resource);
-    void remove_resource(string_id r_id);
+    E_DECLSPEC void registrate_resource(const res_ptr<resource>& resource);
+    E_DECLSPEC void remove_resource(string_id r_id);
 
-    res_ptr<resource> load_resource(path res_path);
-    void              save_resource(res_ptr<resource> res);
+    E_DECLSPEC res_ptr<resource> load_resource(path res_path);
+    E_DECLSPEC void              save_resource(res_ptr<resource> res);
 
-    path relative_assets_path(path full_path);
+    E_DECLSPEC path relative_assets_path(path full_path);
 } // namespace Kengine::resource_manager
 
 namespace Kengine

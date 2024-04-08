@@ -9,7 +9,7 @@
 
 namespace Kengine::graphics
 {
-    class shader
+    class E_DECLSPEC shader
     {
     public:
         shader(const res_ptr<shader_res>& shader_resource);

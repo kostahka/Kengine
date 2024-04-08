@@ -1,5 +1,6 @@
 #include "Kengine/system/system.hxx"
 
+#include "Kengine/string/string-id.hxx"
 #include "Kengine/system/audio-system.hxx"
 #include "Kengine/system/graphics-system.hxx"
 #include "Kengine/system/gui-system.hxx"

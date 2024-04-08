@@ -3,6 +3,7 @@
 #include "../scene/scene-manager.hxx"
 #include "Kengine/io/file-manager.hxx"
 #include "Kengine/scene/scene-manager.hxx"
+#include "Kengine/string/string-id.hxx"
 
 namespace Kengine
 {

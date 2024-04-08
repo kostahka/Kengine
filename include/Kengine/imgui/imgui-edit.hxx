@@ -6,9 +6,9 @@
 
 namespace Kengine::imgui
 {
-    bool edit_file(const char* name, std::filesystem::path& path);
+    E_DECLSPEC bool edit_file(const char* name, std::filesystem::path& path);
 
-    bool edit_resource(const char* name, res_ptr<resource>* res);
+    E_DECLSPEC bool edit_resource(const char* name, res_ptr<resource>* res);
 
     template <typename ResourceType>
     bool edit_resource(const char* name, res_ptr<ResourceType>* res)

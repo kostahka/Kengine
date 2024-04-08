@@ -4,7 +4,7 @@
 
 namespace Kengine
 {
-    struct spin_lock
+    struct E_DECLSPEC spin_lock
     {
         void lock();
         void unlock();

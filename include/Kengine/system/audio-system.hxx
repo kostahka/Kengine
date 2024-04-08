@@ -8,7 +8,7 @@
 namespace Kengine
 {
 
-    class audio_system : public system
+    class E_DECLSPEC audio_system : public system
     {
     public:
         static constexpr auto name = "audio_system";

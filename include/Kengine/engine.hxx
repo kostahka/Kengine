@@ -6,8 +6,6 @@
 
 #include <chrono>
 
-
-
 namespace Kengine
 {
     // Engine configuration
@@ -19,10 +17,11 @@ namespace Kengine
         std::chrono::duration<int, std::milli> render_delta_time;
     };
 
-    [[nodiscard]] bool run(create_game_func* pf_create_game, const char* name);
+    [[nodiscard]] E_DECLSPEC bool run(create_game_func* pf_create_game,
+                                      const char*       name);
 
-    void set_cursor_visible(bool visible);
-    int  get_time_ms();
+    E_DECLSPEC void set_cursor_visible(bool visible);
+    E_DECLSPEC int  get_time_ms();
 
-    void quit();
+    E_DECLSPEC void quit();
 }; // namespace Kengine

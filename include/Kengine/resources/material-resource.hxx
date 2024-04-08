@@ -10,7 +10,7 @@
 
 namespace Kengine
 {
-    class material_resource : public resource
+    class E_DECLSPEC material_resource : public resource
     {
     public:
         material_resource(std::string_view name);

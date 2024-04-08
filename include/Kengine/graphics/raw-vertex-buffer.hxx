@@ -49,7 +49,7 @@ namespace Kengine::graphics
         uint32_t divisor;
     };
 
-    class raw_vertex_buffer
+    class E_DECLSPEC raw_vertex_buffer
     {
     public:
         raw_vertex_buffer();

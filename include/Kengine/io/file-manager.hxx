@@ -6,7 +6,7 @@
 
 namespace Kengine::file_manager
 {
-    struct file_buffer : public std::streambuf
+    struct E_DECLSPEC file_buffer : public std::streambuf
     {
         static std::unique_ptr<file_buffer> get_empty();
 
@@ -35,10 +35,12 @@ namespace Kengine::file_manager
         size_t                  file_size;
     };
 
-    std::unique_ptr<file_buffer> load_file(std::filesystem::path path);
-    std::unique_ptr<file_buffer> open_file(std::filesystem::path   path,
-                                           std::ios_base::openmode mode,
-                                           size_t buf_size = 0);
+    E_DECLSPEC std::unique_ptr<file_buffer> load_file(
+        std::filesystem::path path);
+    E_DECLSPEC std::unique_ptr<file_buffer> open_file(
+        std::filesystem::path   path,
+        std::ios_base::openmode mode,
+        size_t                  buf_size = 0);
 
-    bool file_exists(std::filesystem::path path);
+    E_DECLSPEC bool file_exists(std::filesystem::path path);
 } // namespace Kengine::file_manager

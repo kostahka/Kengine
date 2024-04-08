@@ -5,7 +5,7 @@
 
 namespace Kengine::graphics
 {
-    class renderbuffer
+    class E_DECLSPEC renderbuffer
     {
     public:
         renderbuffer(res_ptr<renderbuffer_resource> resource);

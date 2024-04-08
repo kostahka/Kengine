@@ -5,7 +5,7 @@
 
 namespace Kengine::graphics
 {
-    class texture
+    class E_DECLSPEC texture
     {
     public:
         texture(res_ptr<texture_resource> resource);

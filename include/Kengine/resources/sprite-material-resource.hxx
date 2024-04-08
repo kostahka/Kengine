@@ -4,7 +4,7 @@
 
 namespace Kengine
 {
-    class sprite_material_resource : public material_resource
+    class E_DECLSPEC sprite_material_resource : public material_resource
     {
     public:
         sprite_material_resource(std::string_view name);

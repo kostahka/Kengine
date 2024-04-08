@@ -11,7 +11,7 @@ namespace Kengine::graphics
         triangles
     };
 
-    struct gl_render_primitive
+    struct E_DECLSPEC gl_render_primitive
     {
         virtual void create()                     = 0;
         virtual void destroy()                    = 0;
@@ -23,5 +23,5 @@ namespace Kengine::graphics
         virtual ~gl_render_primitive();
     };
 
-    gl_render_primitive* create_primitive_render(primitive_type);
+    E_DECLSPEC gl_render_primitive* create_primitive_render(primitive_type);
 } // namespace Kengine::graphics

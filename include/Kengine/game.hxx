@@ -16,7 +16,7 @@
 
 namespace Kengine
 {
-    class game : public system_container, public component_container
+    class E_DECLSPEC game : public system_container, public component_container
     {
     public:
         game();

@@ -1,12 +1,13 @@
 #pragma once
 
 #include "Kengine/components/component-info.hxx"
+#include "Kengine/string/string-id.hxx"
 
 #include <unordered_map>
 
 namespace Kengine
 {
-    class component_container
+    class E_DECLSPEC component_container
     {
     public:
         component_container();

@@ -22,7 +22,7 @@ namespace Kengine
     class game;
     struct camera_component;
 
-    class scene : public serializable
+    class E_DECLSPEC scene : public serializable
     {
     public:
         scene(game*);

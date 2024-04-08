@@ -20,10 +20,10 @@ namespace Kengine::input
             x2     = 5
         };
 
-        void update();
+        E_DECLSPEC void update();
 
-        bool button_pressed(button);
-        void set_button_pressed(button, bool pressed);
+        E_DECLSPEC bool button_pressed(button);
+        E_DECLSPEC void set_button_pressed(button, bool pressed);
 
     } // namespace mouse
 
@@ -282,10 +282,10 @@ namespace Kengine::input
             key_last               = 290,
         };
 
-        void update();
+        E_DECLSPEC void update();
 
-        bool key_pressed(key);
-        void set_key_pressed(key, bool pressed);
+        E_DECLSPEC bool key_pressed(key);
+        E_DECLSPEC void set_key_pressed(key, bool pressed);
     } // namespace keyboard
 
     namespace touch

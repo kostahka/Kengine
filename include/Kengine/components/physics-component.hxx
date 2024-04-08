@@ -8,7 +8,7 @@ namespace Kengine
 {
     struct component_info;
 
-    class body_shape : public imgui::editable
+    class E_DECLSPEC body_shape : public imgui::editable
     {
     public:
         body_shape();
@@ -40,7 +40,7 @@ namespace Kengine
         b2Shape* shape;
     };
 
-    class body_fixture : public imgui::editable
+    class E_DECLSPEC body_fixture : public imgui::editable
     {
     public:
         body_fixture();
@@ -76,7 +76,7 @@ namespace Kengine
         body_shape shape;
     };
 
-    struct physics_component : public component
+    struct E_DECLSPEC physics_component : public component
     {
         static constexpr auto name = "physics_component";
         static component_info info;

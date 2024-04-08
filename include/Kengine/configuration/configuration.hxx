@@ -8,7 +8,7 @@
 
 namespace Kengine
 {
-    class configuration
+    class E_DECLSPEC configuration
     {
         typedef std::unordered_map<std::string, std::string> settings_map;
         typedef std::unordered_map<std::string, settings_map>

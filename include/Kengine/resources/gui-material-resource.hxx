@@ -4,7 +4,7 @@
 
 namespace Kengine
 {
-    class gui_material_resource : public material_resource
+    class E_DECLSPEC gui_material_resource : public material_resource
     {
     public:
         gui_material_resource(std::string_view name);

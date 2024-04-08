@@ -2,7 +2,7 @@
 
 namespace Kengine::imgui
 {
-    class editable
+    class E_DECLSPEC editable
     {
     public:
         virtual bool imgui_editable_render();

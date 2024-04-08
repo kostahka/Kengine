@@ -9,7 +9,7 @@
 
 namespace Kengine
 {
-    struct sprite_component : public component
+    struct E_DECLSPEC sprite_component : public component
     {
         static constexpr auto name = "sprite_component";
 

@@ -16,7 +16,7 @@ namespace Kengine
 
     using std::filesystem::path;
 
-    class resource : public serializable, public imgui::editable
+    class E_DECLSPEC resource : public serializable, public imgui::editable
     {
     public:
         void take_data(); // Own resource. Load resource data if needed
@@ -52,6 +52,6 @@ namespace Kengine
         string_id     r_id;
     };
 
-    const char* get_resource_type_str(resource_type);
+    E_DECLSPEC const char* get_resource_type_str(resource_type);
 
 } // namespace Kengine

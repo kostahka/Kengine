@@ -10,7 +10,7 @@ namespace Kengine
 {
     class scene;
 
-    struct rect_transform_component : public component
+    struct E_DECLSPEC rect_transform_component : public component
     {
         static constexpr auto name = "rect_transform_component";
         static component_info info;

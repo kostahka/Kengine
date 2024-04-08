@@ -18,7 +18,7 @@ namespace Kengine
         system_event_type  = 4,
     };
 
-    class system : public serializable
+    class E_DECLSPEC system : public serializable
     {
     public:
         system(std::string_view name,
@@ -42,7 +42,7 @@ namespace Kengine
 
     typedef std::shared_ptr<system> (*create_system_fp)(scene&);
 
-    class system_container
+    class E_DECLSPEC system_container
     {
     public:
         system_container();

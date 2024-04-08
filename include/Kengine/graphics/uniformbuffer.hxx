@@ -7,7 +7,7 @@
 
 namespace Kengine::graphics
 {
-    class uniformbuffer
+    class E_DECLSPEC uniformbuffer
     {
     public:
         uniformbuffer();

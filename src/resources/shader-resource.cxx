@@ -4,6 +4,7 @@
 #include "Kengine/imgui/imgui-edit.hxx"
 #include "Kengine/io/file-manager.hxx"
 #include "Kengine/resources/resource-manager.hxx"
+#include "Kengine/string/string-id.hxx"
 
 #include "imgui.h"
 

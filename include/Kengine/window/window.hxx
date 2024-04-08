@@ -5,17 +5,19 @@
 
 namespace Kengine::window
 {
-    void override_startup_options(
+    E_DECLSPEC void override_startup_options(
         const Kengine::configuration& override_configuration);
 
-    [[nodiscard]] ivec2 get_size_in_pixels(); // size of window in pixels
-    [[nodiscard]] ivec2 get_size();           // size of window
-    [[nodiscard]] bool  is_maximized();
-    [[nodiscard]] bool  is_hidden();
+    [[nodiscard]] E_DECLSPEC ivec2
+    get_size_in_pixels();                      // size of window in pixels
+    [[nodiscard]] E_DECLSPEC ivec2 get_size(); // size of window
+    [[nodiscard]] E_DECLSPEC bool  is_maximized();
+    [[nodiscard]] E_DECLSPEC bool  is_hidden();
 
-    void set_size(ivec2&);     // set window size
-    void set_fullscreen(bool); // set fullscreen
-    void set_input_focus();    // set input focus on window
-    void raise();              // raise window and set input focus on window
-    void warp_mouse(float x, float y); // set mouse cursor at position of window
+    E_DECLSPEC void set_size(ivec2&);     // set window size
+    E_DECLSPEC void set_fullscreen(bool); // set fullscreen
+    E_DECLSPEC void set_input_focus();    // set input focus on window
+    E_DECLSPEC void raise(); // raise window and set input focus on window
+    E_DECLSPEC void warp_mouse(
+        float x, float y);   // set mouse cursor at position of window
 } // namespace Kengine::window

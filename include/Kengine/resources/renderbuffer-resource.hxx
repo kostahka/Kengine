@@ -6,7 +6,7 @@
 
 namespace Kengine
 {
-    class renderbuffer_resource : public resource
+    class E_DECLSPEC renderbuffer_resource : public resource
     {
     public:
         renderbuffer_resource(std::string_view name);

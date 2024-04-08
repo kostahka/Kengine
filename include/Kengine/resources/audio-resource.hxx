@@ -7,8 +7,7 @@
 
 namespace Kengine
 {
-
-    class audio_resource : public resource
+    class E_DECLSPEC audio_resource : public resource
     {
     public:
         audio_resource(std::string_view name);

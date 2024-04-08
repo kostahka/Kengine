@@ -11,27 +11,27 @@
 
 namespace Kengine::graphics
 {
-    void set_uniform1i(uint32_t location, int value);
-    void set_uniform2i(uint32_t location, ivec2 value);
-    void set_uniform3i(uint32_t location, ivec3 value);
-    void set_uniform4i(uint32_t location, ivec4 value);
-    void set_uniform1ui(uint32_t location, unsigned int value);
-    void set_uniform2ui(uint32_t location, uvec2 value);
-    void set_uniform3ui(uint32_t location, uvec3 value);
-    void set_uniform4ui(uint32_t location, uvec4 value);
-    void set_uniform1f(uint32_t location, float value);
-    void set_uniform2f(uint32_t location, vec2 value);
-    void set_uniform3f(uint32_t location, vec3 value);
-    void set_uniform4f(uint32_t location, vec4 value);
-    void set_uniform_matrix2x2(uint32_t location, mat2x2 value);
-    void set_uniform_matrix2x3(uint32_t location, mat2x3 value);
-    void set_uniform_matrix2x4(uint32_t location, mat2x4 value);
-    void set_uniform_matrix3x3(uint32_t location, mat3x3 value);
-    void set_uniform_matrix3x2(uint32_t location, mat3x2 value);
-    void set_uniform_matrix3x4(uint32_t location, mat3x4 value);
-    void set_uniform_matrix4x4(uint32_t location, mat4x4 value);
-    void set_uniform_matrix4x2(uint32_t location, mat4x2 value);
-    void set_uniform_matrix4x3(uint32_t location, mat4x3 value);
+    E_DECLSPEC void set_uniform1i(uint32_t location, int value);
+    E_DECLSPEC void set_uniform2i(uint32_t location, ivec2 value);
+    E_DECLSPEC void set_uniform3i(uint32_t location, ivec3 value);
+    E_DECLSPEC void set_uniform4i(uint32_t location, ivec4 value);
+    E_DECLSPEC void set_uniform1ui(uint32_t location, unsigned int value);
+    E_DECLSPEC void set_uniform2ui(uint32_t location, uvec2 value);
+    E_DECLSPEC void set_uniform3ui(uint32_t location, uvec3 value);
+    E_DECLSPEC void set_uniform4ui(uint32_t location, uvec4 value);
+    E_DECLSPEC void set_uniform1f(uint32_t location, float value);
+    E_DECLSPEC void set_uniform2f(uint32_t location, vec2 value);
+    E_DECLSPEC void set_uniform3f(uint32_t location, vec3 value);
+    E_DECLSPEC void set_uniform4f(uint32_t location, vec4 value);
+    E_DECLSPEC void set_uniform_matrix2x2(uint32_t location, mat2x2 value);
+    E_DECLSPEC void set_uniform_matrix2x3(uint32_t location, mat2x3 value);
+    E_DECLSPEC void set_uniform_matrix2x4(uint32_t location, mat2x4 value);
+    E_DECLSPEC void set_uniform_matrix3x3(uint32_t location, mat3x3 value);
+    E_DECLSPEC void set_uniform_matrix3x2(uint32_t location, mat3x2 value);
+    E_DECLSPEC void set_uniform_matrix3x4(uint32_t location, mat3x4 value);
+    E_DECLSPEC void set_uniform_matrix4x4(uint32_t location, mat4x4 value);
+    E_DECLSPEC void set_uniform_matrix4x2(uint32_t location, mat4x2 value);
+    E_DECLSPEC void set_uniform_matrix4x3(uint32_t location, mat4x3 value);
 
     template <typename T>
     void set_uniform(uint32_t location, T value);

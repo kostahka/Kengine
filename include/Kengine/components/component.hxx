@@ -9,7 +9,7 @@
 
 namespace Kengine
 {
-    class component : public serializable, public imgui::editable
+    class E_DECLSPEC component : public serializable, public imgui::editable
     {
     public:
         component(std::string_view name);

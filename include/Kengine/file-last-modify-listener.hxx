@@ -8,7 +8,7 @@ namespace Kengine
 {
     using file_modify_callback = void (*)(void* data);
 
-    class file_last_modify_listener
+    class E_DECLSPEC file_last_modify_listener
     {
     public:
         virtual long add_file(std::string          file_path,

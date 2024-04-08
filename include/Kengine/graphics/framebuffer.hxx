@@ -5,7 +5,7 @@
 namespace Kengine::graphics
 {
     // use Kengine::graphics::rendermanager::push_framebuffer
-    class framebuffer
+    class E_DECLSPEC framebuffer
     {
     public:
         framebuffer();

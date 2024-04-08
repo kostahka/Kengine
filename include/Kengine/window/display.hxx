@@ -2,7 +2,7 @@
 
 namespace Kengine::display
 {
-    struct mode
+    struct E_DECLSPEC mode
     {
         int   w;
         int   h;
@@ -12,6 +12,6 @@ namespace Kengine::display
         bool operator!=(const mode& other) const;
     };
 
-    mode get_max_mode();
+    E_DECLSPEC mode get_max_mode();
 
 } // namespace Kengine::display

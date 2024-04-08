@@ -4,7 +4,7 @@
 
 namespace Kengine::graphics
 {
-    class element_buffer
+    class E_DECLSPEC element_buffer
     {
     public:
         element_buffer();

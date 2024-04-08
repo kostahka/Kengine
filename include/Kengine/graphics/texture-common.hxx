@@ -68,7 +68,8 @@ namespace Kengine
         depth_stencil,
     };
 
-    const char* get_texture_filter_str(texture_filter);
-    const char* get_texture_internal_format_str(texture_internal_format);
-    const char* get_texture_format_str(texture_format);
+    E_DECLSPEC const char* get_texture_filter_str(texture_filter);
+    E_DECLSPEC const char* get_texture_internal_format_str(
+        texture_internal_format);
+    E_DECLSPEC const char* get_texture_format_str(texture_format);
 } // namespace Kengine

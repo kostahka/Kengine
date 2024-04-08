@@ -4,7 +4,7 @@
 
 #include "box2d/box2d.h"
 
-class b2GLDraw : public b2Draw
+class E_DECLSPEC b2GLDraw : public b2Draw
 {
 public:
     b2GLDraw();

@@ -21,7 +21,7 @@ namespace Kengine
         mat4x4 model;
     };
 
-    class gui_system : public system
+    class E_DECLSPEC gui_system : public system
     {
     public:
         static constexpr auto name = "gui_system";

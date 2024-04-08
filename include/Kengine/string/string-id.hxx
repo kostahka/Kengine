@@ -7,7 +7,7 @@
 
 namespace Kengine
 {
-    struct string_id : public serializable
+    struct E_DECLSPEC string_id : public serializable
     {
         string_id();
         explicit string_id(const char* str);
@@ -42,8 +42,8 @@ struct std::hash<Kengine::string_id>
 
 namespace Kengine
 {
-    string_id   hash_string(const char*);
-    const char* get_string(string_id);
+    E_DECLSPEC string_id   hash_string(const char*);
+    E_DECLSPEC const char* get_string(string_id);
 
-    string_id operator""_sid(const char* str);
+    E_DECLSPEC string_id operator""_sid(const char* str);
 } // namespace Kengine

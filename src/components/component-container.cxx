@@ -8,6 +8,7 @@
 #include "Kengine/components/render-component.hxx"
 #include "Kengine/components/sprite-component.hxx"
 #include "Kengine/components/transform-component.hxx"
+#include "Kengine/string/string-id.hxx"
 
 namespace Kengine
 {

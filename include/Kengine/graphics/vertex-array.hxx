@@ -20,7 +20,7 @@ namespace Kengine::graphics
         triangle_fan   = 6
     };
 
-    class vertex_array
+    class E_DECLSPEC vertex_array
     {
     public:
         vertex_array();
@@ -47,7 +47,7 @@ namespace Kengine::graphics
         bool                                            valid;
     };
 
-    class vertex_element_array : public vertex_array
+    class E_DECLSPEC vertex_element_array : public vertex_array
     {
     public:
         vertex_element_array();

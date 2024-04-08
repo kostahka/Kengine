@@ -8,7 +8,7 @@ namespace Kengine
     class scene;
     struct component_info;
 
-    struct camera_component : public component
+    struct E_DECLSPEC camera_component : public component
     {
         friend class scene;
         static constexpr auto name = "camera_component";

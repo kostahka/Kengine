@@ -4,7 +4,7 @@
 
 namespace Kengine
 {
-    class configuration_file : public configuration
+    class E_DECLSPEC configuration_file : public configuration
     {
     public:
         configuration_file(std::string_view name);

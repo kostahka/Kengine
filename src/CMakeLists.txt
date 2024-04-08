@@ -229,21 +229,54 @@ if(MSVC)
     target_compile_definitions(
         kengine-private INTERFACE "-D_CRT_SECURE_NO_WARNINGS=1"
     )
-    target_compile_definitions(
-        kengine-private INTERFACE "-DE_DECLSPEC=__declspec(dllexport)"
-    )
-    target_compile_definitions(
-        kengine-interface INTERFACE "-DE_DECLSPEC=__declspec(dllimport)"
-    )
-    target_compile_definitions(
-        kengine-private INTERFACE "-DGAME_DECLSPEC=__declspec(dllimport)"
-    )
-    target_compile_definitions(
-        kengine-interface INTERFACE "-DGAME_DECLSPEC=__declspec(dllexport)"
-    )
+
 else()
-    target_compile_definitions(kengine-public INTERFACE "-DE_DECLSPEC=")
-    target_compile_definitions(kengine-public INTERFACE "-DGAME_DECLSPEC=")
+
+endif()
+
+if(WIN32 OR CYGWIN)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL
+                                                 "GNU"
+    )
+        target_compile_definitions(
+            kengine-private
+            INTERFACE "-DE_DECLSPEC=__attribute__ ((dllexport))"
+        )
+        target_compile_definitions(kengine-interface INTERFACE "-DE_DECLSPEC=")
+        target_compile_definitions(kengine-private INTERFACE "-DGAME_DECLSPEC=")
+        target_compile_definitions(
+            kengine-interface
+            INTERFACE "-DGAME_DECLSPEC=__attribute__ ((dllexport))"
+        )
+    else()
+        target_compile_definitions(
+            kengine-private INTERFACE "-DE_DECLSPEC=__declspec(dllexport)"
+        )
+        target_compile_definitions(
+            kengine-interface INTERFACE "-DE_DECLSPEC=__declspec(dllimport)"
+        )
+        target_compile_definitions(
+            kengine-private INTERFACE "-DGAME_DECLSPEC=__declspec(dllimport)"
+        )
+        target_compile_definitions(
+            kengine-interface INTERFACE "-DGAME_DECLSPEC=__declspec(dllexport)"
+        )
+    endif()
+else()
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.0)
+        target_compile_definitions(
+            kengine-public
+            INTERFACE "-DE_DECLSPEC=__attribute__ ((visibility (\"default\")))"
+        )
+        target_compile_definitions(
+            kengine-public
+            INTERFACE
+                "-DGAME_DECLSPEC=__attribute__ ((visibility (\"default\")))"
+        )
+    else()
+        target_compile_definitions(kengine-public INTERFACE "-DE_DECLSPEC=")
+        target_compile_definitions(kengine-public INTERFACE "-DGAME_DECLSPEC=")
+    endif()
 endif()
 
 # Compile options

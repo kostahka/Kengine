@@ -6,7 +6,7 @@
 
 namespace Kengine
 {
-    struct render_component : public component
+    struct E_DECLSPEC render_component : public component
     {
         static constexpr auto name = "render_component";
 
