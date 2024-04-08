@@ -10,6 +10,7 @@
 #include "picopng.hxx"
 #include "stb_image.h"
 
+#include <iterator>
 #include <unordered_map>
 
 namespace Kengine
@@ -328,7 +329,7 @@ namespace Kengine
             get_texture_filter_str(current_min_filter);
         if (ImGui::BeginCombo("Min filter", current_min_filter_str))
         {
-            for (auto i = 0U; i != _countof(t_filters); ++i)
+            for (auto i = 0U; i != std::size(t_filters); ++i)
             {
                 if (ImGui::Selectable(get_texture_filter_str(t_filters[i])))
                 {
@@ -344,7 +345,7 @@ namespace Kengine
             get_texture_filter_str(current_mag_filter);
         if (ImGui::BeginCombo("Mag filter", current_mag_filter_str))
         {
-            for (auto i = 0U; i != _countof(t_filters); ++i)
+            for (auto i = 0U; i != std::size(t_filters); ++i)
             {
                 if (ImGui::Selectable(get_texture_filter_str(t_filters[i])))
                 {

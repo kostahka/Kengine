@@ -6,26 +6,22 @@ namespace Kengine
 {
     struct transform
     {
-        vec  pos;
-        vec2 angle;
+        vec2  position = { 0, 0 };
+        float angle    = 0;
+        vec3  scale    = { 1, 1, 1 };
     };
 
-    struct transform2
+    struct rect_transform
     {
-        vec2  pos;
-        float angle;
+        vec2 start{ 0, 0 };
+        vec2 rect{ 1, 1 };
     };
 
-    struct itransform
+    struct rect_data
     {
-        ivec pos;
-        vec2 angle;
+        vec2 anchor_min = { 0.5, 0.5 };
+        vec2 anchor_max = { 0.5, 0.5 };
+        vec2 delta_min  = { 0, 0 };
+        vec2 delta_max  = { 0, 0 };
     };
-
-    struct itransform2
-    {
-        ivec2 pos;
-        float angle;
-    };
-
 } // namespace Kengine

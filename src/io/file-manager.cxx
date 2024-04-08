@@ -62,318 +62,305 @@ namespace Kengine::file_manager
 
     file_buffer::~file_buffer() {}
 
-    struct file_buffer_impl : public file_buffer
+    file_buffer_impl::file_buffer_impl()
+        : file_buffer()
+        , file(nullptr)
+        , file_write_pos(0)
+        , file_read_pos(0)
+        , file_curr_pos(0)
     {
-        file_buffer_impl()
-            : file_buffer()
-            , file(nullptr)
-            , file_write_pos(0)
-            , file_read_pos(0)
-            , file_curr_pos(0)
+        setg(nullptr, nullptr, nullptr);
+        setp(nullptr, nullptr);
+    }
+
+    bool file_buffer_impl::open(std::filesystem::path   path,
+                                std::ios_base::openmode mode,
+                                size_t                  abuf_size)
+    {
+        auto sdl_openmode_map = openmodes.find(mode);
+        if (sdl_openmode_map == openmodes.end())
         {
-            setg(nullptr, nullptr, nullptr);
-            setp(nullptr, nullptr);
+            KENGINE_ERROR("Undefined openmode");
+            return false;
         }
 
-        bool open(std::filesystem::path   path,
-                  std::ios_base::openmode mode,
-                  size_t                  abuf_size) override
+        file = SDL_IOFromFile(path.string().c_str(), sdl_openmode_map->second);
+        if (!file)
         {
-            auto sdl_openmode_map = openmodes.find(mode);
-            if (sdl_openmode_map == openmodes.end())
-            {
-                KENGINE_ERROR("Undefined openmode");
-                return false;
-            }
-
-            file =
-                SDL_IOFromFile(path.string().c_str(), sdl_openmode_map->second);
-            if (!file)
-            {
-                KENGINE_ERROR("Failed to open file [{}], error: {}",
-                              path.string().c_str(),
-                              SDL_GetError());
-                return false;
-            }
-            is_file_open = true;
-            if (abuf_size)
-            {
-                buf_size = abuf_size;
-            }
-            else
-            {
-                buf_size = 10;
-            }
-            file_size      = SDL_GetIOSize(file);
-            file_curr_pos  = mode & std::ios_base::app ? file_size : 0;
-            file_write_pos = file_read_pos = file_curr_pos;
-
-            if (mode & std::ios_base::in)
-            {
-                read_buffer = std::make_unique<char[]>(buf_size);
-                setg(read_buffer.get(),
-                     read_buffer.get() + buf_size,
-                     read_buffer.get() + buf_size);
-            }
-
-            if (mode & std::ios_base::out || mode & std::ios_base::app)
-            {
-                write_buffer = std::make_unique<char[]>(buf_size);
-                setp(write_buffer.get(), write_buffer.get() + buf_size);
-            }
-
-            if (sync() != 0)
-            {
-                close();
-                return false;
-            }
-
-            KENGINE_INFO("Loaded file: {}", path.string().c_str());
-
-            return true;
+            KENGINE_ERROR("Failed to open file [{}], error: {}",
+                          path.string().c_str(),
+                          SDL_GetError());
+            return false;
         }
-
-        bool load(std::filesystem::path path)
+        is_file_open = true;
+        if (abuf_size)
         {
-            file = SDL_IOFromFile(path.string().c_str(), "rb");
-            if (!file)
-            {
-                KENGINE_ERROR("Failed to open file [{}], error: {}",
-                              path.string().c_str(),
-                              SDL_GetError());
-                return false;
-            }
+            buf_size = abuf_size;
+        }
+        else
+        {
+            buf_size = 10;
+        }
+        file_size      = SDL_GetIOSize(file);
+        file_curr_pos  = mode & std::ios_base::app ? file_size : 0;
+        file_write_pos = file_read_pos = file_curr_pos;
 
-            is_file_open   = true;
-            file_size      = SDL_GetIOSize(file);
-            file_curr_pos  = 0;
-            file_write_pos = 0;
-            file_read_pos  = 0;
-
-            if (file_size)
-                buf_size = file_size;
-            else
-            {
-                close();
-                return false;
-            }
-
+        if (mode & std::ios_base::in)
+        {
             read_buffer = std::make_unique<char[]>(buf_size);
             setg(read_buffer.get(),
                  read_buffer.get() + buf_size,
                  read_buffer.get() + buf_size);
-
-            if (sync() != 0)
-            {
-                close();
-                return false;
-            }
-
-            KENGINE_INFO("Loaded file: {}", path.string().c_str());
-
-            return true;
         }
 
-        void close() override
+        if (mode & std::ios_base::out || mode & std::ios_base::app)
         {
-            if (file)
-            {
-                if (0 != SDL_CloseIO(file))
-                {
-                    KENGINE_ERROR("Failed to close file.");
-                }
-                file = nullptr;
-            }
-            setg(nullptr, nullptr, nullptr);
-            setp(nullptr, nullptr);
-            read_buffer   = nullptr;
-            write_buffer  = nullptr;
-            buf_size      = 0;
-            file_size     = 0;
-            file_read_pos = file_write_pos = file_curr_pos = 0;
-
-            is_file_open = false;
+            write_buffer = std::make_unique<char[]>(buf_size);
+            setp(write_buffer.get(), write_buffer.get() + buf_size);
         }
 
-        ~file_buffer_impl() override { close(); }
-
-        int total_size()
+        if (sync() != 0)
         {
-            if (file)
+            close();
+            return false;
+        }
+
+        KENGINE_INFO("Loaded file: {}", path.string().c_str());
+
+        return true;
+    }
+
+    bool file_buffer_impl::load(std::filesystem::path path)
+    {
+        file = SDL_IOFromFile(path.string().c_str(), "rb");
+        if (!file)
+        {
+            KENGINE_ERROR("Failed to open file [{}], error: {}",
+                          path.string().c_str(),
+                          SDL_GetError());
+            return false;
+        }
+
+        is_file_open   = true;
+        file_size      = SDL_GetIOSize(file);
+        file_curr_pos  = 0;
+        file_write_pos = 0;
+        file_read_pos  = 0;
+
+        if (file_size)
+            buf_size = file_size;
+        else
+        {
+            close();
+            return false;
+        }
+
+        read_buffer = std::make_unique<char[]>(buf_size);
+        setg(read_buffer.get(),
+             read_buffer.get() + buf_size,
+             read_buffer.get() + buf_size);
+
+        if (sync() != 0)
+        {
+            close();
+            return false;
+        }
+
+        KENGINE_INFO("Loaded file: {}", path.string().c_str());
+
+        return true;
+    }
+
+    void file_buffer_impl::close()
+    {
+        if (file)
+        {
+            if (0 != SDL_CloseIO(file))
             {
-                return SDL_GetIOSize(file);
+                KENGINE_ERROR("Failed to close file.");
             }
+            file = nullptr;
+        }
+        setg(nullptr, nullptr, nullptr);
+        setp(nullptr, nullptr);
+        read_buffer   = nullptr;
+        write_buffer  = nullptr;
+        buf_size      = 0;
+        file_size     = 0;
+        file_read_pos = file_write_pos = file_curr_pos = 0;
+
+        is_file_open = false;
+    }
+
+    file_buffer_impl::~file_buffer_impl()
+    {
+        close();
+    }
+
+    int file_buffer_impl::total_size()
+    {
+        if (file)
+        {
+            return SDL_GetIOSize(file);
+        }
+        return -1;
+    }
+
+    int file_buffer_impl::sync()
+    {
+        if (!file)
             return -1;
-        }
 
-    protected:
-        int sync() override
+        if (pptr() != pbase())
         {
-            if (!file)
-                return -1;
-
-            if (pptr() != pbase())
+            if (file_curr_pos != file_write_pos)
             {
-                if (file_curr_pos != file_write_pos)
-                {
-                    file_curr_pos =
-                        SDL_SeekIO(file, file_write_pos, SDL_IO_SEEK_SET);
-                    if (file_curr_pos == -1)
-                    {
-                        KENGINE_ERROR("Can't write to file.");
-                        return -1;
-                    }
-                }
-                size_t must_write_bytes = pptr() - pbase();
-                Sint64 write_bytes =
-                    SDL_WriteIO(file, write_buffer.get(), must_write_bytes);
-                if (write_bytes != must_write_bytes)
+                file_curr_pos =
+                    SDL_SeekIO(file, file_write_pos, SDL_IO_SEEK_SET);
+                if (file_curr_pos == -1)
                 {
                     KENGINE_ERROR("Can't write to file.");
                     return -1;
                 }
-                pbump(-static_cast<int>(write_bytes));
-                file_write_pos += write_bytes;
-                file_curr_pos = file_write_pos;
-
-                if (file_curr_pos > file_size)
-                    file_size = file_curr_pos;
             }
-            if (gptr() != eback())
+            size_t must_write_bytes = pptr() - pbase();
+            Sint64 write_bytes =
+                SDL_WriteIO(file, write_buffer.get(), must_write_bytes);
+            if (write_bytes != must_write_bytes)
             {
-                file_read_pos -= egptr() - gptr();
-                if (file_curr_pos != file_read_pos)
-                {
-                    file_curr_pos =
-                        SDL_SeekIO(file, file_read_pos, SDL_IO_SEEK_SET);
-                    if (file_curr_pos == -1)
-                    {
-                        KENGINE_ERROR("Can't read from file.");
-                        return -1;
-                    }
-                }
-                Sint64 read_bytes =
-                    SDL_ReadIO(file, read_buffer.get(), buf_size);
-                if (read_bytes == -1)
+                KENGINE_ERROR("Can't write to file.");
+                return -1;
+            }
+            pbump(-static_cast<int>(write_bytes));
+            file_write_pos += write_bytes;
+            file_curr_pos = file_write_pos;
+
+            if (file_curr_pos > file_size)
+                file_size = file_curr_pos;
+        }
+        if (gptr() != eback())
+        {
+            file_read_pos -= egptr() - gptr();
+            if (file_curr_pos != file_read_pos)
+            {
+                file_curr_pos =
+                    SDL_SeekIO(file, file_read_pos, SDL_IO_SEEK_SET);
+                if (file_curr_pos == -1)
                 {
                     KENGINE_ERROR("Can't read from file.");
                     return -1;
                 }
-
-                setg(read_buffer.get(),
-                     read_buffer.get(),
-                     read_buffer.get() + read_bytes);
-
-                if (read_bytes < static_cast<Sint64>(buf_size))
-                {
-                    read_buffer.get()[read_bytes] = traits_type::eof();
-                }
-                file_read_pos += read_bytes;
-                file_curr_pos = file_read_pos;
             }
-
-            return 0;
-        }
-
-        int_type overflow(int_type c) override
-        {
-            if (!pptr())
-                return traits_type::eof();
-
-            if (c == traits_type::eof())
-                return traits_type::eof();
-
-            if (sync() != 0)
-                return traits_type::eof();
-
-            *pptr() = c;
-            pbump(1);
-            return c;
-        }
-
-        int_type underflow() override
-        {
-            if (!gptr())
-                return traits_type::eof();
-
-            if (sync() != 0)
-                return traits_type::eof();
-
-            return *gptr();
-        }
-
-        pos_type seekoff(off_type                off,
-                         std::ios_base::seekdir  dir,
-                         std::ios_base::openmode which =
-                             std::ios_base::in | std::ios_base::out) override
-        {
-            if (sync() != 0)
+            Sint64 read_bytes = SDL_ReadIO(file, read_buffer.get(), buf_size);
+            if (read_bytes == -1)
+            {
+                KENGINE_ERROR("Can't read from file.");
                 return -1;
-
-            size_t new_read_pos  = 0;
-            size_t new_write_pos = 0;
-
-            switch (dir)
-            {
-                case std::ios_base::beg:
-                    new_read_pos  = off;
-                    new_write_pos = off;
-                    break;
-                case std::ios_base::end:
-                    new_read_pos  = file_size + off;
-                    new_write_pos = file_size + off;
-                    break;
-                case std::ios_base::cur:
-                    new_read_pos  = file_read_pos - (egptr() - gptr()) + off;
-                    new_write_pos = file_write_pos + off;
-                    break;
-                default:
-                    return -1;
-                    break;
             }
 
-            pos_type pos = 0;
+            setg(read_buffer.get(),
+                 read_buffer.get(),
+                 read_buffer.get() + read_bytes);
 
-            if (which & std::ios_base::in)
+            if (read_bytes < static_cast<Sint64>(buf_size))
             {
-                if (file_read_pos - new_read_pos <=
-                        static_cast<size_t>(egptr() - eback()) &&
-                    new_read_pos < file_read_pos)
-                {
-                    setg(eback(),
-                         egptr() - (file_read_pos - new_read_pos),
-                         egptr());
-
-                    pos = new_read_pos;
-                }
-                else
-                {
-                    pos = file_read_pos = new_read_pos;
-                    setg(eback(), egptr(), egptr());
-                }
+                read_buffer.get()[read_bytes] = traits_type::eof();
             }
-
-            if (which & std::ios_base::out)
-            {
-                pos = file_write_pos = new_write_pos;
-            }
-
-            return pos;
+            file_read_pos += read_bytes;
+            file_curr_pos = file_read_pos;
         }
 
-        pos_type seekpos(pos_type                pos,
-                         std::ios_base::openmode which =
-                             std::ios_base::in | std::ios_base::out) override
+        return 0;
+    }
+
+    file_buffer_impl::int_type file_buffer_impl::overflow(int_type c)
+    {
+        if (!pptr())
+            return traits_type::eof();
+
+        if (c == traits_type::eof())
+            return traits_type::eof();
+
+        if (sync() != 0)
+            return traits_type::eof();
+
+        *pptr() = c;
+        pbump(1);
+        return c;
+    }
+
+    file_buffer_impl::int_type file_buffer_impl::underflow()
+    {
+        if (!gptr())
+            return traits_type::eof();
+
+        if (sync() != 0)
+            return traits_type::eof();
+
+        return *gptr();
+    }
+
+    file_buffer_impl::pos_type file_buffer_impl::seekoff(
+        off_type off, std::ios_base::seekdir dir, std::ios_base::openmode which)
+    {
+        if (sync() != 0)
+            return -1;
+
+        size_t new_read_pos  = 0;
+        size_t new_write_pos = 0;
+
+        switch (dir)
         {
-            return seekoff(pos, std::ios_base::beg, which);
+            case std::ios_base::beg:
+                new_read_pos  = off;
+                new_write_pos = off;
+                break;
+            case std::ios_base::end:
+                new_read_pos  = file_size + off;
+                new_write_pos = file_size + off;
+                break;
+            case std::ios_base::cur:
+                new_read_pos  = file_read_pos - (egptr() - gptr()) + off;
+                new_write_pos = file_write_pos + off;
+                break;
+            default:
+                return -1;
+                break;
         }
 
-    private:
-        SDL_IOStream* file;
-        size_t        file_write_pos;
-        size_t        file_read_pos;
-        size_t        file_curr_pos;
-    };
+        pos_type pos = 0;
+
+        if (which & std::ios_base::in)
+        {
+            if (file_read_pos - new_read_pos <=
+                    static_cast<size_t>(egptr() - eback()) &&
+                new_read_pos < file_read_pos)
+            {
+                setg(
+                    eback(), egptr() - (file_read_pos - new_read_pos), egptr());
+
+                pos = new_read_pos;
+            }
+            else
+            {
+                pos = file_read_pos = new_read_pos;
+                setg(eback(), egptr(), egptr());
+            }
+        }
+
+        if (which & std::ios_base::out)
+        {
+            pos = file_write_pos = new_write_pos;
+        }
+
+        return pos;
+    }
+
+    file_buffer_impl::pos_type file_buffer_impl::seekpos(
+        pos_type pos, std::ios_base::openmode which)
+    {
+        return seekoff(pos, std::ios_base::beg, which);
+    }
 
     std::unique_ptr<file_buffer> file_buffer::get_empty()
     {

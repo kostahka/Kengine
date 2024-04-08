@@ -79,9 +79,9 @@ void game_properties_wnd::display()
                     ImGui::BeginChild(
                         "Scene link info",
                         { 0, -ImGui::GetFrameHeightWithSpacing() });
-                    ImGui::Text(selected_sc_link_name);
+                    ImGui::Text("%s", selected_sc_link_name);
                     ImGui::Separator();
-                    ImGui::Text(selected_sc_link_path.c_str());
+                    ImGui::Text("%s", selected_sc_link_path.c_str());
                     if (ImGui::Button("Remove"))
                     {
                         current_game->remove_scene_link(selected_sc_link);

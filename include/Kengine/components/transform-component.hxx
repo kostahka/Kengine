@@ -2,20 +2,13 @@
 
 #include "Kengine/components/component-info.hxx"
 #include "Kengine/components/component.hxx"
-#include "Kengine/units/vector.hxx"
+#include "Kengine/units/transform.hxx"
 
 #include "entt/entt.hpp"
 
 namespace Kengine
 {
     class scene;
-
-    struct transform
-    {
-        vec2  position = { 0, 0 };
-        float angle    = 0;
-        vec3  scale    = { 1, 1, 1 };
-    };
 
     struct transform_component : public component
     {
@@ -43,7 +36,7 @@ namespace Kengine
 
         transform get_world_transform();
 
-        transform transform;
+        transform transf;
 
         inline void initialize(scene* sc, entt::entity cur_entity)
         {

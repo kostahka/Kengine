@@ -22,7 +22,7 @@ namespace Kengine
 
         for (auto [ent, ent_transform, ent_physics] : physics_view.each())
         {
-            auto local_transform = ent_transform.transform;
+            auto local_transform = ent_transform.transf;
             ent_physics->SetTransform(local_transform.position,
                                       local_transform.angle);
         }
@@ -35,9 +35,9 @@ namespace Kengine
             auto new_position = ent_physics->GetPosition();
             auto new_angle    = ent_physics->GetAngle();
 
-            ent_transform.transform.position.x = new_position.x;
-            ent_transform.transform.position.y = new_position.y;
-            ent_transform.transform.angle      = new_angle;
+            ent_transform.transf.position.x = new_position.x;
+            ent_transform.transf.position.y = new_position.y;
+            ent_transform.transf.angle      = new_angle;
         }
     }
 

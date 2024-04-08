@@ -6,7 +6,44 @@
 
 namespace Kengine::file_manager
 {
-    struct file_buffer_impl;
+    struct file_buffer_impl : public file_buffer
+    {
+        file_buffer_impl();
+
+        bool open(std::filesystem::path   path,
+                  std::ios_base::openmode mode,
+                  size_t                  abuf_size) override;
+
+        bool load(std::filesystem::path path);
+
+        void close() override;
+
+        ~file_buffer_impl() override;
+
+        int total_size();
+
+    protected:
+        int sync() override;
+
+        int_type overflow(int_type c) override;
+
+        int_type underflow() override;
+
+        pos_type seekoff(off_type                off,
+                         std::ios_base::seekdir  dir,
+                         std::ios_base::openmode which =
+                             std::ios_base::in | std::ios_base::out) override;
+
+        pos_type seekpos(pos_type                pos,
+                         std::ios_base::openmode which =
+                             std::ios_base::in | std::ios_base::out) override;
+
+    private:
+        SDL_IOStream* file;
+        size_t        file_write_pos;
+        size_t        file_read_pos;
+        size_t        file_curr_pos;
+    };
 
     class sdl_io_stream
     {

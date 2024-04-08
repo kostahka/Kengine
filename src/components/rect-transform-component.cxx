@@ -29,8 +29,8 @@ namespace Kengine
         , sc(sc)
         , current_entity(cur_entity)
     {
-        parent    = new_parent;
-        transform = other.transform;
+        parent = new_parent;
+        transf = other.transf;
     }
 
     rect_transform_component::rect_transform_component(
@@ -40,13 +40,13 @@ namespace Kengine
         std::swap(sc, other.sc);
         std::swap(current_entity, other.current_entity);
         std::swap(parent, other.parent);
-        std::swap(transform, other.transform);
+        std::swap(transf, other.transf);
     }
 
     rect_transform_component& rect_transform_component::operator=(
         rect_transform_component& other)
     {
-        transform = other.transform;
+        transf = other.transf;
         return *this;
     }
 
@@ -56,7 +56,7 @@ namespace Kengine
         std::swap(sc, other.sc);
         std::swap(current_entity, other.current_entity);
         std::swap(parent, other.parent);
-        std::swap(transform, other.transform);
+        std::swap(transf, other.transf);
         return *this;
     }
 
@@ -64,14 +64,14 @@ namespace Kengine
     {
         std::size_t size = 0;
 
-        size += serialization::write(os, transform.anchor_max.x);
-        size += serialization::write(os, transform.anchor_max.y);
-        size += serialization::write(os, transform.anchor_min.x);
-        size += serialization::write(os, transform.anchor_min.y);
-        size += serialization::write(os, transform.delta_min.x);
-        size += serialization::write(os, transform.delta_min.y);
-        size += serialization::write(os, transform.delta_max.x);
-        size += serialization::write(os, transform.delta_max.y);
+        size += serialization::write(os, transf.anchor_max.x);
+        size += serialization::write(os, transf.anchor_max.y);
+        size += serialization::write(os, transf.anchor_min.x);
+        size += serialization::write(os, transf.anchor_min.y);
+        size += serialization::write(os, transf.delta_min.x);
+        size += serialization::write(os, transf.delta_min.y);
+        size += serialization::write(os, transf.delta_max.x);
+        size += serialization::write(os, transf.delta_max.y);
         size += serialization::write(os, parent);
         size += serialization::write(os, current_entity);
 
@@ -82,14 +82,14 @@ namespace Kengine
     {
         std::size_t size = 0;
 
-        size += serialization::read(is, transform.anchor_max.x);
-        size += serialization::read(is, transform.anchor_max.y);
-        size += serialization::read(is, transform.anchor_min.x);
-        size += serialization::read(is, transform.anchor_min.y);
-        size += serialization::read(is, transform.delta_min.x);
-        size += serialization::read(is, transform.delta_min.y);
-        size += serialization::read(is, transform.delta_max.x);
-        size += serialization::read(is, transform.delta_max.y);
+        size += serialization::read(is, transf.anchor_max.x);
+        size += serialization::read(is, transf.anchor_max.y);
+        size += serialization::read(is, transf.anchor_min.x);
+        size += serialization::read(is, transf.anchor_min.y);
+        size += serialization::read(is, transf.delta_min.x);
+        size += serialization::read(is, transf.delta_min.y);
+        size += serialization::read(is, transf.delta_max.x);
+        size += serialization::read(is, transf.delta_max.y);
         size += serialization::read(is, parent);
         size += serialization::read(is, current_entity);
 
@@ -100,14 +100,14 @@ namespace Kengine
     {
         std::size_t size = 0;
 
-        size += serialization::size(transform.anchor_max.x);
-        size += serialization::size(transform.anchor_max.y);
-        size += serialization::size(transform.anchor_min.x);
-        size += serialization::size(transform.anchor_min.y);
-        size += serialization::size(transform.delta_min.x);
-        size += serialization::size(transform.delta_min.y);
-        size += serialization::size(transform.delta_max.x);
-        size += serialization::size(transform.delta_max.y);
+        size += serialization::size(transf.anchor_max.x);
+        size += serialization::size(transf.anchor_max.y);
+        size += serialization::size(transf.anchor_min.x);
+        size += serialization::size(transf.anchor_min.y);
+        size += serialization::size(transf.delta_min.x);
+        size += serialization::size(transf.delta_min.y);
+        size += serialization::size(transf.delta_max.x);
+        size += serialization::size(transf.delta_max.y);
         size += serialization::size(parent);
         size += serialization::size(current_entity);
 
@@ -119,24 +119,22 @@ namespace Kengine
         bool edited = false;
 #ifdef KENGINE_IMGUI
         ImGui::PushID(this);
-        edited = edited || ImGui::DragFloat2("Anchor min",
-                                             (float*)&transform.anchor_min,
-                                             0.1f);
-        edited = edited || ImGui::DragFloat2("Anchor max",
-                                             (float*)&transform.anchor_max,
-                                             0.1f);
+        edited = edited || ImGui::DragFloat2(
+                               "Anchor min", (float*)&transf.anchor_min, 0.1f);
+        edited = edited || ImGui::DragFloat2(
+                               "Anchor max", (float*)&transf.anchor_max, 0.1f);
 
         auto world_transform = get_world_transform();
         vec2 world_start     = world_transform.start;
         if (ImGui::DragFloat2("Start", (float*)&world_start, 1.f))
         {
-            transform.delta_min += world_start - world_transform.start;
+            transf.delta_min += world_start - world_transform.start;
             edited = true;
         }
         vec2 world_rect = world_transform.rect;
         if (ImGui::DragFloat2("Rect", (float*)&world_rect, 1.f))
         {
-            transform.delta_max += world_rect - world_transform.rect;
+            transf.delta_max += world_rect - world_transform.rect;
             edited = true;
         }
 
@@ -170,10 +168,10 @@ namespace Kengine
         }
 
         rect_transform result;
-        result.start = transform.anchor_min * parent_transform.rect +
-                       parent_transform.start + transform.delta_min;
-        result.rect = (transform.anchor_max * parent_transform.rect +
-                       parent_transform.start + transform.delta_max) -
+        result.start = transf.anchor_min * parent_transform.rect +
+                       parent_transform.start + transf.delta_min;
+        result.rect = (transf.anchor_max * parent_transform.rect +
+                       parent_transform.start + transf.delta_max) -
                       result.start;
 
         if (result.rect.x < 0)

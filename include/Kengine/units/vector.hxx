@@ -26,8 +26,6 @@ namespace Kengine
         operator b2Vec3() const { return { x, y, z }; };
 
         operator b2Vec2() const { return { x, y }; };
-
-        operator glm::vec3() const { return *this; };
     };
 
     typedef vec3 vec;
@@ -46,8 +44,6 @@ namespace Kengine
             : glm::vec2(v.x, v.y){};
 
         operator b2Vec2() const { return { x, y }; };
-
-        operator glm::vec2() const { return *this; };
     };
 
     typedef glm::vec4 vec4;

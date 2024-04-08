@@ -25,7 +25,8 @@ void object_properties_wnd::display()
                 auto selected_entity = editor::instance->selected_entity;
                 if (current_scene.registry.valid(selected_entity))
                 {
-                    ImGui::Text("Selected object: %d", selected_entity);
+                    ImGui::Text("Selected object: %d",
+                                static_cast<int>(selected_entity));
 
                     auto game_component_infos =
                         current_game->get_component_infos();

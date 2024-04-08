@@ -60,7 +60,7 @@ namespace Kengine
     {
         size_t str_len = strlen(c_str);
 
-        if (strlen == 0)
+        if (str_len == 0)
         {
             id = 0;
             return;

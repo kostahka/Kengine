@@ -56,7 +56,7 @@ namespace Kengine
         }
 
     private:
-        std::unordered_map<string_id, std::filesystem::path> scene_links;
+        std::unordered_map<string_id, std::filesystem::path> scene_links{};
         std::shared_ptr<scene>                               current_scene;
         string_id                                            current_scene_id;
     };

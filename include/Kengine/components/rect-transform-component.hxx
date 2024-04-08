@@ -2,27 +2,13 @@
 
 #include "Kengine/components/component-info.hxx"
 #include "Kengine/components/component.hxx"
-#include "Kengine/units/vector.hxx"
+#include "Kengine/units/transform.hxx"
 
 #include "entt/entt.hpp"
 
 namespace Kengine
 {
     class scene;
-
-    struct rect_transform
-    {
-        vec2 start{ 0, 0 };
-        vec2 rect{ 1, 1 };
-    };
-
-    struct rect_data
-    {
-        vec2 anchor_min = { 0.5, 0.5 };
-        vec2 anchor_max = { 0.5, 0.5 };
-        vec2 delta_min  = { 0, 0 };
-        vec2 delta_max  = { 0, 0 };
-    };
 
     struct rect_transform_component : public component
     {
@@ -50,7 +36,7 @@ namespace Kengine
 
         rect_transform get_world_transform();
 
-        rect_data transform;
+        rect_data transf;
 
         inline void initialize(scene* sc, entt::entity cur_entity)
         {

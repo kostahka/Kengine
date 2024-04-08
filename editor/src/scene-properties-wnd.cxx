@@ -44,7 +44,7 @@ void scene_properties_wnd::display()
                     {
                         ImGui::PushID(sc_system.first);
                         auto sc_system_name = sc_system.first.get_string();
-                        ImGui::BulletText(sc_system_name);
+                        ImGui::BulletText("%s", sc_system_name);
                         ImGui::SameLine();
                         if (ImGui::Button("x"))
                         {

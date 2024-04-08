@@ -26,8 +26,8 @@ namespace Kengine
         , sc(sc)
         , current_entity(cur_entity)
     {
-        parent    = new_parent;
-        transform = other.transform;
+        parent = new_parent;
+        transf = other.transf;
     }
 
     transform_component::transform_component(transform_component&& other)
@@ -36,13 +36,13 @@ namespace Kengine
         std::swap(sc, other.sc);
         std::swap(current_entity, other.current_entity);
         std::swap(parent, other.parent);
-        std::swap(transform, other.transform);
+        std::swap(transf, other.transf);
     }
 
     transform_component& transform_component::operator=(
         transform_component& other)
     {
-        transform = other.transform;
+        transf = other.transf;
         return *this;
     }
 
@@ -52,7 +52,7 @@ namespace Kengine
         std::swap(sc, other.sc);
         std::swap(current_entity, other.current_entity);
         std::swap(parent, other.parent);
-        std::swap(transform, other.transform);
+        std::swap(transf, other.transf);
         return *this;
     }
 
@@ -60,12 +60,12 @@ namespace Kengine
     {
         std::size_t size = 0;
 
-        size += serialization::write(os, transform.position.x);
-        size += serialization::write(os, transform.position.y);
-        size += serialization::write(os, transform.angle);
-        size += serialization::write(os, transform.scale.x);
-        size += serialization::write(os, transform.scale.y);
-        size += serialization::write(os, transform.scale.z);
+        size += serialization::write(os, transf.position.x);
+        size += serialization::write(os, transf.position.y);
+        size += serialization::write(os, transf.angle);
+        size += serialization::write(os, transf.scale.x);
+        size += serialization::write(os, transf.scale.y);
+        size += serialization::write(os, transf.scale.z);
         size += serialization::write(os, parent);
         size += serialization::write(os, current_entity);
 
@@ -76,12 +76,12 @@ namespace Kengine
     {
         std::size_t size = 0;
 
-        size += serialization::read(is, transform.position.x);
-        size += serialization::read(is, transform.position.y);
-        size += serialization::read(is, transform.angle);
-        size += serialization::read(is, transform.scale.x);
-        size += serialization::read(is, transform.scale.y);
-        size += serialization::read(is, transform.scale.z);
+        size += serialization::read(is, transf.position.x);
+        size += serialization::read(is, transf.position.y);
+        size += serialization::read(is, transf.angle);
+        size += serialization::read(is, transf.scale.x);
+        size += serialization::read(is, transf.scale.y);
+        size += serialization::read(is, transf.scale.z);
         size += serialization::read(is, parent);
         size += serialization::read(is, current_entity);
 
@@ -92,12 +92,12 @@ namespace Kengine
     {
         std::size_t size = 0;
 
-        size += serialization::size(transform.position.x);
-        size += serialization::size(transform.position.y);
-        size += serialization::size(transform.angle);
-        size += serialization::size(transform.scale.x);
-        size += serialization::size(transform.scale.y);
-        size += serialization::size(transform.scale.z);
+        size += serialization::size(transf.position.x);
+        size += serialization::size(transf.position.y);
+        size += serialization::size(transf.angle);
+        size += serialization::size(transf.scale.x);
+        size += serialization::size(transf.scale.y);
+        size += serialization::size(transf.scale.z);
         size += serialization::size(parent);
         size += serialization::size(current_entity);
 
@@ -109,11 +109,11 @@ namespace Kengine
         bool edited = false;
 #ifdef KENGINE_IMGUI
         ImGui::PushID(this);
-        edited = edited || ImGui::DragFloat2(
-                               "Position", (float*)&transform.position, 0.1f);
-        edited = edited || ImGui::DragFloat("Angle", &transform.angle, 0.1f);
         edited = edited ||
-                 ImGui::DragFloat3("Scale", (float*)&transform.scale, 0.1f);
+                 ImGui::DragFloat2("Position", (float*)&transf.position, 0.1f);
+        edited = edited || ImGui::DragFloat("Angle", &transf.angle, 0.1f);
+        edited =
+            edited || ImGui::DragFloat3("Scale", (float*)&transf.scale, 0.1f);
         ImGui::PopID();
 #endif
         return edited;
@@ -123,13 +123,13 @@ namespace Kengine
     {
         if (!sc || parent == entt::null)
         {
-            return transform;
+            return transf;
         }
 
         if (!sc->registry.valid(parent))
         {
             parent = entt::null;
-            return transform;
+            return transf;
         }
 
         Kengine::transform result =
@@ -138,15 +138,15 @@ namespace Kengine
         float res_sin = static_cast<float>(sin(result.angle));
         float res_cos = static_cast<float>(cos(result.angle));
 
-        result.scale.x = transform.scale.x;
-        result.scale.y = transform.scale.y;
+        result.scale.x = transf.scale.x;
+        result.scale.y = transf.scale.y;
 
         result.position.x +=
-            transform.position.x * res_cos - transform.position.y * res_sin;
+            transf.position.x * res_cos - transf.position.y * res_sin;
         result.position.y +=
-            transform.position.x * res_sin + transform.position.y * res_cos;
+            transf.position.x * res_sin + transf.position.y * res_cos;
 
-        result.angle += transform.angle;
+        result.angle += transf.angle;
 
         return result;
     }

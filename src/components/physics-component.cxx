@@ -911,6 +911,9 @@ namespace Kengine
                                 case b2Shape::Type::e_polygon:
                                     new_shape = new b2PolygonShape();
                                     break;
+                                default:
+                                    new_shape = nullptr;
+                                    break;
                             }
                             recreate_fixture = i;
                         }

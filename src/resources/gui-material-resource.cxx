@@ -41,7 +41,7 @@ namespace Kengine
 
             for (auto& tex : textures)
             {
-                ImGui::Text(tex.second->get_resource_id().get_string());
+                ImGui::Text("%s", tex.second->get_resource_id().get_string());
             }
 
             ImGui::EndChild();
