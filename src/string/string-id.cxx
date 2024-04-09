@@ -50,6 +50,8 @@ namespace Kengine
 
     const char* string_id::get_string() const
     {
+        if (id == 0)
+            return "";
         auto s = string_table.find(id);
         KENGINE_ASSERT_WARN(s != string_table.end(),
                             "No such string id in table.");

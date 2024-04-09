@@ -362,7 +362,7 @@ namespace Kengine
         }
     }
 
-    void scene::on_event(event::game_event g_event)
+    void scene::on_event(const event::game_event& g_event)
     {
         for (auto& system : event_systems)
         {

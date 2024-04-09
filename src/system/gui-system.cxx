@@ -1,8 +1,11 @@
 #include "Kengine/system/gui-system.hxx"
 
+#include "../event/event.hxx"
 #include "../graphics/graphics.hxx"
 #include "Kengine/components/gui-component.hxx"
 #include "Kengine/components/rect-transform-component.hxx"
+#include "Kengine/event/event.hxx"
+#include "Kengine/io/input.hxx"
 #include "Kengine/scene/scene.hxx"
 
 namespace Kengine
@@ -124,13 +127,27 @@ namespace Kengine
         }
     }
 
-    void gui_system::on_event(scene& sc, event::game_event g_event)
+    void gui_system::on_event(scene& sc, const event::game_event& g_event)
     {
         switch (g_event.g_type)
         {
-            case event::type::window_resize:
-
-                break;
+            case event::type::mouse_button_event:
+            {
+                event::gui_event g_ev{};
+                g_ev.mouse.button  = g_event.mouse.button;
+                g_ev.mouse.clicks  = g_event.mouse.clicks;
+                g_ev.mouse.pressed = g_event.mouse.pressed;
+                auto gui_view      = sc.registry.view<gui_component>();
+                for (auto [ent, ent_gui] : gui_view.each())
+                {
+                    if (ent_gui.is_hovered)
+                    {
+                        g_ev.gui_id = ent_gui.gui_event_id;
+                        event::push_gui_event(g_ev);
+                    }
+                }
+            }
+            break;
             default:
                 break;
         }
@@ -192,6 +209,23 @@ namespace Kengine
                 sprite_matrix, { -ent_gui.origin.x, -ent_gui.origin.y, 0 });
 
             data[size].model = sprite_matrix;
+
+            // gui hovered
+            bool is_hovered = input::mouse::x >= world_transform.start.x &&
+                              input::mouse::x <= world_transform.start.x +
+                                                     world_transform.rect.x &&
+                              input::mouse::y >= world_transform.start.y &&
+                              input::mouse::y <= world_transform.start.y +
+                                                     world_transform.rect.y;
+
+            if (ent_gui.is_hovered != is_hovered)
+            {
+                event::gui_event g_ev{};
+                g_ev.gui_id        = ent_gui.gui_event_id;
+                g_ev.hover.hovered = is_hovered;
+                event::push_gui_event(g_ev);
+                ent_gui.is_hovered = is_hovered;
+            }
 
             size++;
         }

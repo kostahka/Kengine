@@ -29,7 +29,7 @@ namespace Kengine
         }
     }
 
-    void audio_system::on_event(scene& sc, event::game_event g_event) {}
+    void audio_system::on_event(scene& sc, const event::game_event& g_event) {}
 
     void audio_system::on_render(scene& sc, int delta_ms) {}
 

@@ -36,11 +36,14 @@ namespace Kengine
             return material;
         }
 
-        vec2  origin = { 0, 0 };
-        rect  uv{ 0, 0, 1, 1 };
-        float angle = 0;
-        vec2  scale{ 1, 1 };
-        int   layer = 0;
+        vec2      origin = { 0, 0 };
+        rect      uv{ 0, 0, 1, 1 };
+        float     angle = 0;
+        vec2      scale{ 1, 1 };
+        int       layer = 0;
+        string_id gui_event_id{};
+
+        bool is_hovered = false;
 
     private:
         res_ptr<gui_material_resource> material = nullptr;

@@ -18,7 +18,7 @@ public:
 
     ~editor() override;
     void on_start() override;
-    void on_event(Kengine::event::game_event) override;
+    void on_event(const Kengine::event::game_event&) override;
     void on_update(int delta_ms) override;
     void on_render(int delta_ms) override;
 

@@ -125,7 +125,7 @@ namespace Kengine
         }
     }
 
-    void graphics_system::on_event(scene& sc, event::game_event g_event)
+    void graphics_system::on_event(scene& sc, const event::game_event& g_event)
     {
         switch (g_event.g_type)
         {

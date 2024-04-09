@@ -4,15 +4,21 @@
 #include "../engine.hxx"
 #include "../window/window.hxx"
 #include "Kengine/engine.hxx"
+#include "Kengine/game.hxx"
+#include "Kengine/helpers/spin-lock.hxx"
 #include "Kengine/window/window.hxx"
-#include "handle-user-event.hxx"
 #include "imgui_impl_sdl3.h"
 
 #include <SDL_events.h>
 #include <SDL_mouse.h>
 
+#include <queue>
+
 namespace Kengine::event
 {
+    static spin_lock             gui_events_lock{};
+    static std::queue<gui_event> gui_events{};
+
     bool poll_events(game* game)
     {
         bool      no_quit = true;
@@ -79,7 +85,15 @@ namespace Kengine::event
                     break;
                 case SDL_EVENT_MOUSE_MOTION:
                     input::mouse::x = sdl_event.motion.x;
-                    input::mouse::y = sdl_event.button.y;
+                    input::mouse::y = sdl_event.motion.y;
+                    if (sdl_event.motion.which != SDL_TOUCH_MOUSEID)
+                    {
+                        event.g_type          = type::mouse_motion_event;
+                        event.motion.x        = sdl_event.motion.x;
+                        event.motion.y        = sdl_event.motion.y;
+                        event.motion.x_motion = sdl_event.motion.xrel;
+                        event.motion.y_motion = sdl_event.motion.yrel;
+                    }
                     break;
                 case SDL_EVENT_FINGER_MOTION:
                     window_size           = window::get_size_in_pixels();
@@ -110,10 +124,13 @@ namespace Kengine::event
                     no_quit      = false;
                     break;
                 case SDL_EVENT_USER:
-                    event.g_type = type::unknown;
-                    handle_user_event(sdl_event.user);
+                    event.g_type          = type::custom_event;
+                    event.custom.event_id = sdl_event.user.code;
+                    event.custom.data1    = sdl_event.user.data1;
+                    event.custom.data2    = sdl_event.user.data2;
+                    break;
                 default:
-                    event.g_type = type::unknown;
+                    break;
             }
 #ifdef KENGINE_IMGUI
             ImGui_ImplSDL3_ProcessEvent(&sdl_event);
@@ -125,6 +142,24 @@ namespace Kengine::event
             }
         }
 
+        {
+            std::lock_guard lock(gui_events_lock);
+            while (gui_events.size() > 0)
+            {
+                game_event event{ event::type::gui_event };
+                event.gui = gui_events.front();
+                Kengine::e_game->on_event(event);
+                Kengine::e_game->get_current_scene().on_event(event);
+                gui_events.pop();
+            }
+        }
+
         return no_quit;
     };
+
+    void push_gui_event(const gui_event& g_ev)
+    {
+        std::lock_guard lock(gui_events_lock);
+        gui_events.emplace(g_ev);
+    }
 } // namespace Kengine::event

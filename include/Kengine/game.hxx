@@ -38,11 +38,11 @@ namespace Kengine
 
         void save_scene(string_id scene_id, const scene& sc);
 
-        virtual ~game()                          = default;
-        virtual void on_start()                  = 0;
-        virtual void on_event(event::game_event) = 0;
-        virtual void on_update(int delta_ms)     = 0;
-        virtual void on_render(int delta_ms)     = 0;
+        virtual ~game()                                 = default;
+        virtual void on_start()                         = 0;
+        virtual void on_event(const event::game_event&) = 0;
+        virtual void on_update(int delta_ms)            = 0;
+        virtual void on_render(int delta_ms)            = 0;
 
         virtual on_imgui_render* get_imgui_render() { return nullptr; }
 

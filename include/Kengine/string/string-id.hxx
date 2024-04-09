@@ -20,14 +20,16 @@ namespace Kengine
 
         const char* get_string() const;
 
-        inline bool empty() const { return !id; };
+        inline uint32_t get_id() const { return id; }
+
+        inline bool empty() const { return !id; }
 
         operator uint32_t() const { return id; }
 
     private:
         void get_id_from_str(const char* c_str);
 
-        uint32_t id;
+        uint32_t id = 0;
     };
 } // namespace Kengine
 

@@ -340,7 +340,7 @@ void editor::on_start()
     b2_debug_draw.SetFlags(b2Draw::e_shapeBit);
 }
 
-void editor::on_event(Kengine::event::game_event event)
+void editor::on_event(const Kengine::event::game_event& event)
 {
     if (current_game)
     {

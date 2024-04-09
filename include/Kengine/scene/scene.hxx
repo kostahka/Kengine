@@ -31,7 +31,7 @@ namespace Kengine
 
         void on_update(int delta_ms);
         void on_render(int delta_ms);
-        void on_event(event::game_event);
+        void on_event(const event::game_event&);
 
         std::size_t serialize(std::ostream& os) const override;
         std::size_t deserialize(std::istream& is) override;

@@ -7,8 +7,6 @@
 #include <filesystem>
 #include <vector>
 
-#include "Kengine/event/user-events.hxx"
-
 namespace Kengine
 {
     struct file_modify_listener_info
@@ -76,11 +74,11 @@ namespace Kengine
                 switch (action)
                 {
                     case efsw::Actions::Modified:
-                        push_user_event(
-                            static_cast<int>(user_events::file_modified),
-                            reinterpret_cast<user_event_func>(
-                                &file_modify_event),
-                            reinterpret_cast<void*>(&(*f_listener)));
+                        // push_user_event(
+                        //     static_cast<int>(user_events::file_modified),
+                        //     reinterpret_cast<user_event_func>(
+                        //         &file_modify_event),
+                        //     reinterpret_cast<void*>(&(*f_listener)));
                         break;
                     case efsw::Actions::Add:
                         break;

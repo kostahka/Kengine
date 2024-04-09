@@ -29,7 +29,7 @@ namespace Kengine
 
         virtual void on_render(scene&, int delta_ms);
         virtual void on_update(scene&, int delta_ms);
-        virtual void on_event(scene&, event::game_event);
+        virtual void on_event(scene&, const event::game_event&);
 
         inline string_id get_name_id() const { return name_id; }
 

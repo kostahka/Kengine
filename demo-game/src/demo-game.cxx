@@ -19,7 +19,7 @@ void demo_game::on_start()
     set_current_scene(std::string_view("demo-main"));
 }
 
-void demo_game::on_event(Kengine::event::game_event e)
+void demo_game::on_event(const Kengine::event::game_event& e)
 {
     if (e.g_type == Kengine::event::type::keyboard_event)
     {

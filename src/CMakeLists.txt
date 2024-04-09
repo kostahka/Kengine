@@ -24,10 +24,9 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/configuration/configuration.cxx
     ${CMAKE_CURRENT_LIST_DIR}/engine.cxx
     ${CMAKE_CURRENT_LIST_DIR}/engine.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/event/custom-event.cxx
     ${CMAKE_CURRENT_LIST_DIR}/event/event.cxx
     ${CMAKE_CURRENT_LIST_DIR}/event/event.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/event/handle-user-event.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/event/user-events.cxx
     ${CMAKE_CURRENT_LIST_DIR}/file-last-modify-listener.cxx
     ${CMAKE_CURRENT_LIST_DIR}/game.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/b2GLDraw.cxx
@@ -117,8 +116,9 @@ set(KENGINE_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/configuration/configuration-file.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/configuration/configuration.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/engine.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/event/custom-event.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/event/event.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/event/user-events.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/event/gui-event.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/file-last-modify-listener.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/game.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/b2GLDraw.hxx

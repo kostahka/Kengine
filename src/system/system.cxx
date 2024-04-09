@@ -22,7 +22,7 @@ namespace Kengine
 
     void system::on_update(scene&, int delta_ms) {}
 
-    void system::on_event(scene&, event::game_event) {}
+    void system::on_event(scene&, const event::game_event&) {}
 
     void system_container::register_system(string_id        name_id,
                                            create_system_fp system_factory)

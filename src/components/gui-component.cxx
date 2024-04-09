@@ -144,6 +144,17 @@ namespace Kengine
         edited = edited || ImGui::DragFloat("Angle", (float*)&angle, 0.1f);
         edited = edited || ImGui::DragFloat2("Scale", (float*)&scale, 0.1f);
 
+        ImGui::BulletText("Gui event id: '%s'", gui_event_id.get_string());
+        static const int gui_event_name_length                 = 100;
+        static char      gui_event_name[gui_event_name_length] = "";
+        ImGui::InputText(
+            "New gui event id", gui_event_name, gui_event_name_length);
+        ImGui::SameLine();
+        if (ImGui::Button("Set id"))
+        {
+            gui_event_id = hash_string(gui_event_name);
+        }
+
         ImGui::PopID();
 #endif
         return edited;

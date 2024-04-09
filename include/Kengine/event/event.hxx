@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Kengine/event/gui-event.hxx"
 #include "Kengine/io/input.hxx"
 #include "Kengine/units/vector.hxx"
 #include <cstdint>
@@ -10,11 +11,14 @@ namespace Kengine::event
     {
         keyboard_event,
         mouse_button_event,
+        mouse_motion_event,
         touch_event,
         touch_move_event,
         window_resize,
         window_maximazed,
         window_hide_show,
+        gui_event,
+        custom_event,
 
         quit,
 
@@ -28,6 +32,14 @@ namespace Kengine::event
         bool                 pressed;
         float                x;
         float                y;
+    };
+
+    struct mouse_motion_event
+    {
+        float x;
+        float y;
+        float x_motion;
+        float y_motion;
     };
 
     struct keyboard_event
@@ -55,6 +67,13 @@ namespace Kengine::event
         };
     };
 
+    struct custom_event
+    {
+        string_id event_id{};
+        void*     data1;
+        void*     data2;
+    };
+
     struct game_event
     {
         type g_type;
@@ -62,9 +81,12 @@ namespace Kengine::event
         union
         {
             mouse_button_event mouse;
+            mouse_motion_event motion;
             keyboard_event     keyboard;
             touch_event        touch;
             window_event       window;
+            gui_event          gui;
+            custom_event       custom;
         };
     };
 

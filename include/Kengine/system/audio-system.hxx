@@ -22,7 +22,7 @@ namespace Kengine
 
         void on_start(scene&) override;
 
-        void on_event(scene&, event::game_event) override;
+        void on_event(scene&, const event::game_event&) override;
         void on_render(scene&, int delta_ms) override;
         void on_update(scene&, int delta_ms) override;
 
