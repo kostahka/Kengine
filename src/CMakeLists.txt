@@ -186,6 +186,8 @@ set(IMGUI_IMPL_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/imgui-impl)
 add_library(kengine-private INTERFACE)
 add_library(kengine-public INTERFACE)
 add_library(kengine-interface INTERFACE)
+add_library(kengine-shared-interface INTERFACE)
+add_library(kengine-static-interface INTERFACE)
 
 # Link external libs
 target_link_libraries(
@@ -242,8 +244,14 @@ if(WIN32 OR CYGWIN)
             kengine-private
             INTERFACE "-DE_DECLSPEC=__attribute__ ((dllexport))"
         )
-        target_compile_definitions(kengine-interface INTERFACE "-DE_DECLSPEC=")
-        target_compile_definitions(kengine-private INTERFACE "-DGAME_DECLSPEC=")
+        target_compile_definitions(
+            kengine-shared-interface
+            INTERFACE "-DE_DECLSPEC=__attribute__ ((dllimport))"
+        )
+        target_compile_definitions(
+            kengine-private
+            INTERFACE "-DGAME_DECLSPEC=__attribute__ ((dllimport))"
+        )
         target_compile_definitions(
             kengine-interface
             INTERFACE "-DGAME_DECLSPEC=__attribute__ ((dllexport))"
@@ -253,7 +261,8 @@ if(WIN32 OR CYGWIN)
             kengine-private INTERFACE "-DE_DECLSPEC=__declspec(dllexport)"
         )
         target_compile_definitions(
-            kengine-interface INTERFACE "-DE_DECLSPEC=__declspec(dllimport)"
+            kengine-shared-interface
+            INTERFACE "-DE_DECLSPEC=__declspec(dllimport)"
         )
         target_compile_definitions(
             kengine-private INTERFACE "-DGAME_DECLSPEC=__declspec(dllimport)"
@@ -262,6 +271,9 @@ if(WIN32 OR CYGWIN)
             kengine-interface INTERFACE "-DGAME_DECLSPEC=__declspec(dllexport)"
         )
     endif()
+    target_compile_definitions(
+        kengine-static-interface INTERFACE "-DE_DECLSPEC="
+    )
 else()
     if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.0)
         target_compile_definitions(
@@ -328,6 +340,7 @@ target_link_libraries(
     PUBLIC kengine-public
     PRIVATE kengine-private
     INTERFACE kengine-interface
+    INTERFACE kengine-shared-interface
 )
 
 # <<
@@ -340,6 +353,7 @@ target_link_libraries(
     PUBLIC kengine-public
     PRIVATE kengine-private
     INTERFACE kengine-interface
+    INTERFACE kengine-static-interface
 )
 
 # PIC for static lib
