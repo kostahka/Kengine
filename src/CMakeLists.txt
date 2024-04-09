@@ -227,13 +227,17 @@ target_compile_definitions(
     INTERFACE $<TARGET_PROPERTY:box2d,INTERFACE_COMPILE_DEFINITIONS>
 )
 
+target_compile_definitions(
+    kengine-shared-interface
+    INTERFACE B2_SHARED
+    INTERFACE SPDLOG_SHARED_LIB
+    INTERFACE FMT_SHARED
+)
+
 if(MSVC)
     target_compile_definitions(
         kengine-private INTERFACE "-D_CRT_SECURE_NO_WARNINGS=1"
     )
-
-else()
-
 endif()
 
 if(WIN32 OR CYGWIN)
@@ -256,6 +260,10 @@ if(WIN32 OR CYGWIN)
             kengine-interface
             INTERFACE "-DGAME_DECLSPEC=__attribute__ ((dllexport))"
         )
+        target_compile_definitions(
+            kengine-shared-interface
+            INTERFACE "-DIMGUI_API=__attribute__ ((dllimport))"
+        )
     else()
         target_compile_definitions(
             kengine-private INTERFACE "-DE_DECLSPEC=__declspec(dllexport)"
@@ -269,6 +277,10 @@ if(WIN32 OR CYGWIN)
         )
         target_compile_definitions(
             kengine-interface INTERFACE "-DGAME_DECLSPEC=__declspec(dllexport)"
+        )
+        target_compile_definitions(
+            kengine-shared-interface
+            INTERFACE "-DIMGUI_API=__declspec(dllimport)"
         )
     endif()
     target_compile_definitions(

@@ -45,7 +45,7 @@ option(BOX2D_USER_SETTINGS OFF)
 add_subdirectory(external/box2d)
 set_property(TARGET box2d PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-target_compile_definitions(box2d PUBLIC B2_SHARED)
+target_compile_definitions(box2d PRIVATE B2_SHARED)
 target_compile_definitions(box2d PRIVATE box2d_EXPORTS)
 
 # EFSW - cross-platform file watcher and notifier
@@ -73,12 +73,12 @@ option(SPDLOG_NO_TLS ON)
 option(SPDLOG_NO_ATOMIC_LEVELS ON)
 add_subdirectory(external/spdlog)
 set_property(TARGET spdlog PROPERTY POSITION_INDEPENDENT_CODE ON)
-target_compile_definitions(spdlog PUBLIC SPDLOG_SHARED_LIB)
+target_compile_definitions(spdlog PRIVATE SPDLOG_SHARED_LIB)
 target_compile_definitions(spdlog PRIVATE spdlog_EXPORTS)
 target_compile_definitions(
     spdlog
     PRIVATE FMT_EXPORT
-    PUBLIC FMT_SHARED
+    PRIVATE FMT_SHARED
 )
 if(MSVC)
 
