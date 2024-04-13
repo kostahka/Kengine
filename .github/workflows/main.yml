@@ -105,11 +105,13 @@ jobs:
     - name: Clone and build SDL3_ttf
       run: |
         if ! test -d SDL3_ttf; then
-            git clone https://github.com/libsdl-org/SDL_ttf SDL3_ttf 
-            if ! test -d SDL3_ttf/build; then
+            git clone https://github.com/libsdl-org/SDL_ttf SDL3_ttf
+            cd SDL3_ttf
+            git submodule update
+            if ! test -d build; then
                 mkdir SDL3_tff/build
-                cmake -S SDL3_ttf/ -B SDL3_ttf/build -G Ninja -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{ matrix.platform.cmake }}
-                cmake --build SDL3_ttf/build/ --parallel
+                cmake -S  -B build -G Ninja -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{ matrix.platform.cmake }}
+                cmake --build build/ --parallel
             fi
         fi
         
