@@ -117,20 +117,18 @@ jobs:
       run: |
         if ! test -d SDL3_ttf/build; then
             mkdir SDL3_ttf/build
-            cmake -S SDL3_ttf -B SDL3_ttf/build -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=prefix ${{ matrix.flags }}
+            cmake -S SDL3_ttf/ -B SDL3_ttf/build -G Ninja -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{ matrix.platform.cmake }}
             cmake --build SDL3_ttf/build --config ${{env.BUILD_TYPE}} --parallel
         fi
         
     - name: Install SDL3_ttf
       if: matrix.os != 'windows-latest'
       run: |
-        echo "SDL3_ttf_DIR=$Env:GITHUB_WORKSPACE/prefix" >> $Env:GITHUB_ENV
         sudo cmake --install SDL3_ttf/build
     
     - name: Install SDL3_ttf (Windows)
       if: matrix.os == 'windows-latest'
       run: |
-        echo "SDL3_ttf_DIR=$Env:GITHUB_WORKSPACE/prefix" >> $Env:GITHUB_ENV
         cmake --install SDL3_ttf/build
         
     - name: Configure CMake
