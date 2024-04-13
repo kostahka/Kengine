@@ -133,7 +133,7 @@ jobs:
         
     - name: Configure CMake
       run: |
-        cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G Ninja ${{ matrix.platform.cmake }} {{ matrix.platform.cmake-engine }}
+        cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G Ninja ${{ matrix.platform.cmake }} ${{ matrix.platform.cmake-engine }}
 
     - name: Build
       run: |

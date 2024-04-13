@@ -80,7 +80,7 @@ jobs:
     
     - name: Install SDL3_ttf
       run: |
-        echo "SDL_ttf_DIR=$Env:GITHUB_WORKSPACE/prefix" >> $Env:GITHUB_ENV
+        echo "SDL3_ttf_DIR=$Env:GITHUB_WORKSPACE/prefix" >> $Env:GITHUB_ENV
         cmake --install SDL3_ttf/build
         
     - name: Configure CMake
