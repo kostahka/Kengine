@@ -124,11 +124,13 @@ jobs:
     - name: Install SDL3_ttf
       if: matrix.os != 'windows-latest'
       run: |
+        echo "SDL3_ttf_DIR=$Env:GITHUB_WORKSPACE/prefix" >> $Env:GITHUB_ENV
         sudo cmake --install SDL3_ttf/build
     
     - name: Install SDL3_ttf (Windows)
       if: matrix.os == 'windows-latest'
       run: |
+        echo "SDL3_ttf_DIR=$Env:GITHUB_WORKSPACE/prefix" >> $Env:GITHUB_ENV
         cmake --install SDL3_ttf/build
         
     - name: Configure CMake
