@@ -94,6 +94,34 @@ jobs:
       if: matrix.os == 'windows-latest'
       run: |
         cmake --install SDL3/build
+
+    - name: Cache SDL3_ttf
+      uses: actions/cache@v4
+      with:
+        path: |
+          SDL3_ttf
+        key: sdl3-ttf-${{ matrix.artifact }}
+
+    - name: Clone and build SDL3_ttf
+      run: |
+        if ! test -d SDL3_ttf; then
+            git clone https://github.com/libsdl-org/SDL_ttf SDL3_ttf 
+            if ! test -d SDL3_ttf/build; then
+                mkdir SDL3_tff/build
+                cmake -S SDL3_ttf/ -B SDL3_ttf/build -G Ninja -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{ matrix.platform.cmake }}
+                cmake --build SDL3_ttf/build/ --parallel
+            fi
+        fi
+        
+    - name: Install SDL3_ttf
+      if: matrix.os != 'windows-latest'
+      run: |
+        sudo cmake --install SDL3_ttf/build
+    
+    - name: Install SDL3_ttf (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        cmake --install SDL3_ttf/build
         
     - name: Configure CMake
       run: |
