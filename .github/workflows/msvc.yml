@@ -43,12 +43,10 @@ jobs:
 
     - name: Build SDL3
       run: |
-        if ! test -d SDL3; then
-            if ! test -d SDL3/build; then
-                mkdir SDL3/build
-                cmake -S SDL3 -B SDL3/build -DSDL_STATIC_PIC=ON -DSDL_STATIC=ON -DCMAKE_INSTALL_PREFIX=prefix ${{ matrix.flags }}
-                cmake --build SDL3/build --config ${{env.BUILD_TYPE}} --parallel
-            fi
+        if ! test -d SDL3/build; then
+            mkdir SDL3/build
+            cmake -S SDL3 -B SDL3/build -DSDL_STATIC_PIC=ON -DSDL_STATIC=ON -DCMAKE_INSTALL_PREFIX=prefix ${{ matrix.flags }}
+            cmake --build SDL3/build --config ${{env.BUILD_TYPE}} --parallel
         fi
       shell: bash
     
@@ -73,12 +71,10 @@ jobs:
 
     - name: Build SDL3_ttf
       run: |
-        if ! test -d SDL3_ttf; then
-            if ! test -d SDL3_ttf/build; then
-                mkdir SDL3_ttf/build
-                cmake -S SDL3_ttf -B SDL3_ttf/build -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=prefix ${{ matrix.flags }}
-                cmake --build SDL3_ttf/build --config ${{env.BUILD_TYPE}} --parallel
-            fi
+        if ! test -d SDL3_ttf/build; then
+            mkdir SDL3_ttf/build
+            cmake -S SDL3_ttf -B SDL3_ttf/build -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=prefix ${{ matrix.flags }}
+            cmake --build SDL3_ttf/build --config ${{env.BUILD_TYPE}} --parallel
         fi
       shell: bash
     
