@@ -77,7 +77,7 @@ jobs:
     - name: Clone SDL3
       uses: actions/checkout@v4
       with:
-        repository: 'https://github.com/libsdl-org/SDL'
+        repository: 'libsdl-org/SDL'
         path: 'SDL3'
         submodules: true
 
@@ -108,10 +108,10 @@ jobs:
           SDL3_ttf
         key: sdl3-ttf-${{ matrix.artifact }}
 
-    - name: Clone SDL3
+    - name: Clone SDL3_ttf
       uses: actions/checkout@v4
       with:
-        repository: 'https://github.com/libsdl-org/SDL_ttf'
+        repository: 'libsdl-org/SDL_ttf'
         path: 'SDL3_ttf'
         submodules: true
 
