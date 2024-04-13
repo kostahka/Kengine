@@ -12,6 +12,7 @@
 #include <SDL_events.h>
 #include <SDL_mouse.h>
 
+#include <mutex>
 #include <queue>
 
 namespace Kengine::event
@@ -159,7 +160,10 @@ namespace Kengine::event
 
     void push_gui_event(const gui_event& g_ev)
     {
-        std::lock_guard lock(gui_events_lock);
-        gui_events.emplace(g_ev);
+        if (!g_ev.gui_id.empty())
+        {
+            std::lock_guard lock(gui_events_lock);
+            gui_events.emplace(g_ev);
+        }
     }
 } // namespace Kengine::event

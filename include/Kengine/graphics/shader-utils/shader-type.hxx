@@ -12,6 +12,15 @@ namespace Kengine::graphics
         uint_type,
         int_type,
         float_type,
+        vec2_type,
+        vec3_type,
+        vec4_type,
+        ivec2_type,
+        ivec3_type,
+        ivec4_type,
+        uvec2_type,
+        uvec3_type,
+        uvec4_type,
         mat2x2_type,
         mat2x3_type,
         mat2x4_type,
@@ -46,6 +55,60 @@ namespace Kengine::graphics
         shader_type_any(float value)
             : type(shader_type::float_type)
             , float_value(value)
+        {
+        }
+
+        shader_type_any(vec2 value)
+            : type(shader_type::vec2_type)
+            , vec2_value(value)
+        {
+        }
+
+        shader_type_any(vec3 value)
+            : type(shader_type::vec3_type)
+            , vec3_value(value)
+        {
+        }
+
+        shader_type_any(vec4 value)
+            : type(shader_type::vec4_type)
+            , vec4_value(value)
+        {
+        }
+
+        shader_type_any(ivec2 value)
+            : type(shader_type::ivec2_type)
+            , ivec2_value(value)
+        {
+        }
+
+        shader_type_any(ivec3 value)
+            : type(shader_type::ivec3_type)
+            , ivec3_value(value)
+        {
+        }
+
+        shader_type_any(ivec4 value)
+            : type(shader_type::ivec4_type)
+            , ivec4_value(value)
+        {
+        }
+
+        shader_type_any(uvec2 value)
+            : type(shader_type::uvec2_type)
+            , uvec2_value(value)
+        {
+        }
+
+        shader_type_any(uvec3 value)
+            : type(shader_type::uvec3_type)
+            , uvec3_value(value)
+        {
+        }
+
+        shader_type_any(uvec4 value)
+            : type(shader_type::uvec4_type)
+            , uvec4_value(value)
         {
         }
 
@@ -110,6 +173,15 @@ namespace Kengine::graphics
             unsigned int uint_value;
             int          int_value;
             float        float_value;
+            vec2         vec2_value;
+            vec3         vec3_value;
+            vec4         vec4_value;
+            ivec2        ivec2_value;
+            ivec3        ivec3_value;
+            ivec4        ivec4_value;
+            uvec2        uvec2_value;
+            uvec3        uvec3_value;
+            uvec4        uvec4_value;
             mat2x2       mat2x2_value;
             mat2x3       mat2x3_value;
             mat2x4       mat2x4_value;
@@ -135,6 +207,33 @@ namespace Kengine::graphics
                     break;
                 case shader_type::float_type:
                     set_uniform(location, float_value);
+                    break;
+                case shader_type::vec2_type:
+                    set_uniform(location, vec2_value);
+                    break;
+                case shader_type::vec3_type:
+                    set_uniform(location, vec3_value);
+                    break;
+                case shader_type::vec4_type:
+                    set_uniform(location, vec4_value);
+                    break;
+                case shader_type::uvec2_type:
+                    set_uniform(location, uvec2_value);
+                    break;
+                case shader_type::uvec3_type:
+                    set_uniform(location, uvec3_value);
+                    break;
+                case shader_type::uvec4_type:
+                    set_uniform(location, uvec4_value);
+                    break;
+                case shader_type::ivec2_type:
+                    set_uniform(location, ivec2_value);
+                    break;
+                case shader_type::ivec3_type:
+                    set_uniform(location, ivec3_value);
+                    break;
+                case shader_type::ivec4_type:
+                    set_uniform(location, ivec4_value);
                     break;
                 case shader_type::mat2x2_type:
                     set_uniform(location, mat2x2_value);

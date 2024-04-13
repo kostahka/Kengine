@@ -7,6 +7,7 @@
 #include "Kengine/components/rect-transform-component.hxx"
 #include "Kengine/components/render-component.hxx"
 #include "Kengine/components/sprite-component.hxx"
+#include "Kengine/components/text-component.hxx"
 #include "Kengine/components/transform-component.hxx"
 #include "Kengine/string/string-id.hxx"
 
@@ -24,6 +25,7 @@ namespace Kengine
                            transform_component::info);
         register_component<sprite_component>(sprite_component::name);
         register_component<gui_component>(gui_component::name);
+        register_component<text_component>(text_component::name);
         register_component<audio_component>(audio_component::name);
     }
 

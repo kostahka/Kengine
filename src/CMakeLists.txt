@@ -19,6 +19,7 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/components/rect-transform-component.cxx
     ${CMAKE_CURRENT_LIST_DIR}/components/render-component.cxx
     ${CMAKE_CURRENT_LIST_DIR}/components/sprite-component.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/components/text-component.cxx
     ${CMAKE_CURRENT_LIST_DIR}/components/transform-component.cxx
     ${CMAKE_CURRENT_LIST_DIR}/configuration/configuration-file.cxx
     ${CMAKE_CURRENT_LIST_DIR}/configuration/configuration.cxx
@@ -36,6 +37,7 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/graphics/framebuffer.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/graphics.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/graphics.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/graphics/gui-draw-debug.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/raw-vertex-buffer.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/renderbuffer.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/shader-utils/shader-type.cxx
@@ -72,6 +74,7 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/physics/physics.cxx
     ${CMAKE_CURRENT_LIST_DIR}/physics/physics.hxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/audio-resource.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/resources/font-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/framebuffer-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/gui-material-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/material-resource.cxx
@@ -112,6 +115,7 @@ set(KENGINE_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/rect-transform-component.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/render-component.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/sprite-component.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/text-component.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/transform-component.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/configuration/configuration-file.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/configuration/configuration.hxx
@@ -127,6 +131,7 @@ set(KENGINE_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/element-buffer.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/framebuffer.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/graphics.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/gui-draw-debug.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/raw-vertex-buffer.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/renderbuffer.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/shader-utils/shader-type.hxx
@@ -149,6 +154,7 @@ set(KENGINE_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/main.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/physics/physics.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/audio-resource.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/font-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/framebuffer-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/gui-material-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/material-resource.hxx
@@ -198,6 +204,7 @@ target_link_libraries(
     INTERFACE stb
     INTERFACE $<LINK_LIBRARY:WHOLE_ARCHIVE, spdlog>
     INTERFACE $<LINK_LIBRARY:WHOLE_ARCHIVE, box2d>
+    INTERFACE SDL3_ttf::SDL3_ttf
 )
 
 target_link_libraries(

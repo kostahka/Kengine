@@ -39,16 +39,23 @@ namespace Kengine
 
     private:
         void sort_sprites(entt::registry&, entt::entity);
+        void sort_text(entt::registry&, entt::entity);
         void increase_data_size();
         void draw_sprites(uint32_t                        count,
                           res_ptr<gui_material_resource>& material,
                           int                             layer);
+        void draw_text_sprites(uint32_t                count,
+                               res_ptr<font_resource>& font,
+                               int                     layer,
+                               vec4                    color);
 
         std::shared_ptr<graphics::vertex_buffer<gui_sprite_data>> vbo;
         std::unique_ptr<graphics::vertex_element_array>           vao;
         std::vector<gui_sprite_data>                              data;
-        uint32_t max_sprites_count = 128;
-        uint32_t vao_sprites_count = 128;
+        uint32_t              max_sprites_count = 128;
+        uint32_t              vao_sprites_count = 128;
+        std::vector<char32_t> text_word;
+        std::vector<char32_t> text_line;
 
         scene& sc;
     };

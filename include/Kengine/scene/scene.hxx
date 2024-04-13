@@ -74,6 +74,8 @@ namespace Kengine
         void on_construct_entity(entt::entity ent);
         void on_destroy_camera(entt::entity ent);
 
+        void on_update_rect_transform(entt::entity ent);
+
         std::unordered_map<string_id, res_ptr<resource>>       resources;
         std::unordered_map<string_id, std::shared_ptr<system>> systems;
         std::vector<system*>                                   render_systems;

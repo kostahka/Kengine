@@ -18,24 +18,36 @@ namespace Kengine
         , material(other.material)
         , uv(other.uv)
         , origin(other.origin)
+        , angle(other.angle)
+        , scale(other.scale)
+        , layer(other.layer)
+        , gui_event_id(other.gui_event_id)
     {
         material->take_data();
     }
 
     gui_component::gui_component(gui_component&& other)
         : component(name)
+        , material(nullptr)
         , uv(other.uv)
         , origin(other.origin)
-        , material(nullptr)
+        , angle(other.angle)
+        , scale(other.scale)
+        , layer(other.layer)
+        , gui_event_id(other.gui_event_id)
     {
         std::swap(material, other.material);
     }
 
     gui_component& gui_component::operator=(gui_component& other)
     {
-        uv       = other.uv;
-        origin   = other.origin;
-        material = other.material;
+        uv           = other.uv;
+        origin       = other.origin;
+        material     = other.material;
+        angle        = other.angle;
+        scale        = other.scale;
+        layer        = other.layer;
+        gui_event_id = other.gui_event_id;
         material->take_data();
         return *this;
     }
@@ -45,6 +57,10 @@ namespace Kengine
         uv     = other.uv;
         origin = other.origin;
         std::swap(material, other.material);
+        angle        = other.angle;
+        scale        = other.scale;
+        layer        = other.layer;
+        gui_event_id = other.gui_event_id;
         return *this;
     }
 
@@ -81,7 +97,9 @@ namespace Kengine
         size += serialization::write(os, angle);
         size += serialization::write(os, scale.x);
         size += serialization::write(os, scale.y);
+        size += serialization::write(os, layer);
         size += serialization::write(os, material);
+        size += serialization::write(os, gui_event_id);
 
         return size;
     }
@@ -101,7 +119,9 @@ namespace Kengine
         size += serialization::read(is, angle);
         size += serialization::read(is, scale.x);
         size += serialization::read(is, scale.y);
+        size += serialization::read(is, layer);
         size += serialization::read(is, material);
+        size += serialization::read(is, gui_event_id);
 
         set_material(material);
 
@@ -121,7 +141,9 @@ namespace Kengine
         size += serialization::size(angle);
         size += serialization::size(scale.x);
         size += serialization::size(scale.y);
+        size += serialization::size(layer);
         size += serialization::size(material);
+        size += serialization::size(gui_event_id);
 
         return size;
     }
@@ -143,6 +165,7 @@ namespace Kengine
         edited = edited || ImGui::DragFloat4("UV", (float*)&uv, 0.1f);
         edited = edited || ImGui::DragFloat("Angle", (float*)&angle, 0.1f);
         edited = edited || ImGui::DragFloat2("Scale", (float*)&scale, 0.1f);
+        edited = edited || ImGui::DragInt("Layer", &layer);
 
         ImGui::BulletText("Gui event id: '%s'", gui_event_id.get_string());
         static const int gui_event_name_length                 = 100;

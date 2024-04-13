@@ -28,6 +28,7 @@ namespace Kengine
         , material(other.material)
         , uv(other.uv)
         , origin(other.origin)
+        , layer(other.layer)
     {
         material->take_data();
     }
@@ -37,6 +38,7 @@ namespace Kengine
         , uv(other.uv)
         , origin(other.origin)
         , material(nullptr)
+        , layer(other.layer)
     {
         std::swap(material, other.material);
     }
@@ -46,6 +48,7 @@ namespace Kengine
         uv       = other.uv;
         origin   = other.origin;
         material = other.material;
+        layer    = other.layer;
         material->take_data();
         return *this;
     }
@@ -54,6 +57,7 @@ namespace Kengine
     {
         uv     = other.uv;
         origin = other.origin;
+        layer  = other.layer;
         std::swap(material, other.material);
         return *this;
     }
@@ -88,6 +92,7 @@ namespace Kengine
         size += serialization::write(os, uv.y);
         size += serialization::write(os, uv.w);
         size += serialization::write(os, uv.h);
+        size += serialization::write(os, layer);
         size += serialization::write(os, material);
 
         return size;
@@ -105,6 +110,7 @@ namespace Kengine
         size += serialization::read(is, uv.y);
         size += serialization::read(is, uv.w);
         size += serialization::read(is, uv.h);
+        size += serialization::read(is, layer);
         size += serialization::read(is, material);
 
         set_material(material);
@@ -122,6 +128,7 @@ namespace Kengine
         size += serialization::size(uv.y);
         size += serialization::size(uv.w);
         size += serialization::size(uv.h);
+        size += serialization::size(layer);
         size += serialization::size(material);
 
         return size;
@@ -142,6 +149,7 @@ namespace Kengine
 
         edited = edited || ImGui::DragFloat2("Origin", (float*)&origin, 0.1f);
         edited = edited || ImGui::DragFloat4("UV", (float*)&uv, 0.1f);
+        edited = edited || ImGui::DragInt("Layer", &layer);
 
         ImGui::PopID();
 #endif

@@ -50,11 +50,19 @@ namespace Kengine
 
         inline entt::entity get_parent() const { return parent; }
 
+        inline rect_transform get_last_transform() const { return last_trans; }
+
+        inline void invalidate_transform() { is_trans_valid = false; }
+
+        inline bool is_transform_valid() const { return is_trans_valid; }
+
     private:
         bool check_for_parent(entt::entity ent);
 
-        entt::entity parent         = entt::null;
-        entt::entity current_entity = entt::null;
-        scene*       sc;
+        entt::entity   parent         = entt::null;
+        entt::entity   current_entity = entt::null;
+        scene*         sc;
+        bool           is_trans_valid = false;
+        rect_transform last_trans;
     };
 } // namespace Kengine

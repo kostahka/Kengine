@@ -10,6 +10,8 @@
 
 #include <SDL3/SDL_audio.h>
 
+#include <mutex>
+
 namespace Kengine
 {
     audio_resource::audio_resource(std::string_view name)

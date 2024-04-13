@@ -11,8 +11,12 @@
 #include "Kengine/graphics/vertex-array.hxx"
 #include "Kengine/graphics/vertex-buffer.hxx"
 #include "Kengine/log/log.hxx"
+#include "Kengine/resources/font-resource.hxx"
+#include "Kengine/resources/gui-material-resource.hxx"
 #include "Kengine/resources/sprite-material-resource.hxx"
 #include "Kengine/scene/scene-manager.hxx"
+
+#include <SDL3_ttf/SDL_ttf.h>
 
 #include <list>
 #include <memory>
@@ -27,6 +31,10 @@ namespace Kengine::graphics
     res_ptr<vertex_shader_res>   gui_vertex_shader   = nullptr;
     res_ptr<fragment_shader_res> gui_fragment_shader = nullptr;
     res_ptr<shader_res>          gui_shader          = nullptr;
+
+    res_ptr<fragment_shader_res> text_fragment_shader = nullptr;
+    res_ptr<shader_res>          text_shader          = nullptr;
+    string_id                    text_color_property;
 
     res_ptr<vertex_shader_res>   primitive_lines_vertex_shader   = nullptr;
     res_ptr<fragment_shader_res> primitive_lines_fragment_shader = nullptr;
@@ -49,6 +57,8 @@ namespace Kengine::graphics
 
     bool initialize()
     {
+        TTF_Init();
+
         KENGINE_GL_CHECK(glEnable(GL_DEPTH_TEST));
         KENGINE_GL_CHECK(glDepthFunc(GL_ALWAYS));
         KENGINE_GL_CHECK(glEnable(GL_BLEND));
@@ -114,6 +124,8 @@ namespace Kengine::graphics
         sprite_shader = make_resource<shader_res>(
             sprite_vertex_shader, sprite_fragment_shader, "sprite_shader");
 
+        sprite_shader->take_data();
+
         KENGINE_GL_CHECK(glUseProgram(sprite_shader->get_id()));
         sprite_shader->set_uniform_block_binding("Matrices", 0);
 
@@ -162,8 +174,41 @@ namespace Kengine::graphics
         gui_shader = make_resource<shader_res>(
             gui_vertex_shader, gui_fragment_shader, "gui_shader");
 
+        gui_shader->take_data();
+
         KENGINE_GL_CHECK(glUseProgram(gui_shader->get_id()));
         gui_shader->set_uniform_block_binding("Matrices", 1);
+
+        text_fragment_shader =
+            make_resource<fragment_shader_res>(std::string_view(R"(
+                #version 300 es
+                precision mediump float;
+
+                in vec2 out_tex_coord;
+
+                uniform vec4 color;
+                uniform sampler2D texture0;
+
+                out vec4 out_color;
+
+                void main()
+                {
+                    out_color = texture(texture0, out_tex_coord) * color;
+                }
+            )"),
+                                               "text_fragment");
+
+        text_shader = make_resource<shader_res>(
+            gui_vertex_shader, text_fragment_shader, "text_shader");
+
+        text_shader->take_data();
+
+        KENGINE_GL_CHECK(glUseProgram(text_shader->get_id()));
+        text_shader->set_uniform_block_binding("Matrices", 1);
+
+        text_color_property = hash_string("color");
+        shader_type_any(vec4(1, 1, 1, 1))
+            .uniform(text_shader->get_uniform_location(text_color_property));
 
         primitive_points_vertex_shader =
             make_resource<vertex_shader_res>(std::string_view(R"(
@@ -209,6 +254,8 @@ namespace Kengine::graphics
             make_resource<shader_res>(primitive_points_vertex_shader,
                                       primitive_points_fragment_shader,
                                       "primitive_points_shader");
+
+        primitive_points_shader->take_data();
 
         KENGINE_GL_CHECK(glUseProgram(primitive_points_shader->get_id()));
         primitive_points_shader->set_uniform_block_binding("Matrices", 0);
@@ -256,6 +303,8 @@ namespace Kengine::graphics
                                       primitive_lines_fragment_shader,
                                       "primitive_lines_shader");
 
+        primitive_lines_shader->take_data();
+
         KENGINE_GL_CHECK(glUseProgram(primitive_lines_shader->get_id()));
         primitive_lines_shader->set_uniform_block_binding("Matrices", 0);
 
@@ -268,6 +317,7 @@ namespace Kengine::graphics
     {
         global_matrices.release();
         global_gui_matrices.release();
+        TTF_Quit();
     }
 
     void begin_render()
@@ -300,6 +350,18 @@ namespace Kengine::graphics
             }
         }
     };
+
+    void bind_shader(const res_ptr<shader_res>& shader)
+    {
+        KENGINE_GL_CHECK(glUseProgram(shader->get_id()));
+    };
+
+    void bind_font_texture(const res_ptr<font_resource>& font,
+                           uint32_t                      block_index)
+    {
+        KENGINE_GL_CHECK(glActiveTexture(GL_TEXTURE0 + block_index));
+        KENGINE_GL_CHECK(glBindTexture(GL_TEXTURE_2D, font->get_id()));
+    }
 
     void end_render()
     {

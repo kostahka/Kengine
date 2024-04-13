@@ -5,6 +5,7 @@
 #include "../scene/scene-manager.hxx"
 #include "Kengine/components/camera-component.hxx"
 #include "Kengine/components/physics-component.hxx"
+#include "Kengine/components/rect-transform-component.hxx"
 #include "Kengine/components/render-component.hxx"
 #include "Kengine/components/sprite-component.hxx"
 #include "Kengine/components/transform-component.hxx"
@@ -26,6 +27,8 @@ namespace Kengine
             .connect<&scene::on_construct_entity>(*this);
         registry.on_destroy<camera_component>()
             .connect<&scene::on_destroy_camera>(*this);
+        registry.on_update<rect_transform_component>()
+            .connect<&scene::on_update_rect_transform>(*this);
     };
 
     void scene::on_start()
@@ -45,6 +48,11 @@ namespace Kengine
             camera_entity  = entt::null;
             current_camera = graphics::default_camera;
         }
+    }
+
+    void scene::on_update_rect_transform(entt::entity ent)
+    {
+        registry.get<rect_transform_component>(ent).invalidate_transform();
     }
 
     std::size_t scene::serialize(std::ostream& os) const

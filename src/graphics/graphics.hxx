@@ -17,6 +17,9 @@ namespace Kengine::graphics
     extern res_ptr<fragment_shader_res> gui_fragment_shader;
     extern res_ptr<shader_res>          gui_shader;
 
+    extern res_ptr<shader_res> text_shader;
+    extern string_id           text_color_property;
+
     extern res_ptr<vertex_shader_res>   primitive_points_vertex_shader;
     extern res_ptr<fragment_shader_res> primitive_points_fragment_shader;
     extern res_ptr<shader_res>          primitive_points_shader;
@@ -31,12 +34,11 @@ namespace Kengine::graphics
     [[nodiscard]] bool initialize();
     void               shutdown();
 
-    void  update_viewport();
-    void  begin_render();
-    void  end_render();
-    void  update_matrices(const mat4x4& projection, const mat4x4& view);
-    void  update_projection(const mat4x4& projection);
-    void  update_gui_projection(const mat4x4& projection);
-    void  update_view(const mat4x4& view);
-    ivec2 get_current_viewport();
+    void update_viewport();
+    void begin_render();
+    void end_render();
+    void update_matrices(const mat4x4& projection, const mat4x4& view);
+    void update_projection(const mat4x4& projection);
+    void update_gui_projection(const mat4x4& projection);
+    void update_view(const mat4x4& view);
 } // namespace Kengine::graphics

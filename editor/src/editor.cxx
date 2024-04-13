@@ -12,6 +12,7 @@
 #include "Kengine/engine.hxx"
 #include "Kengine/graphics/b2GLDraw.hxx"
 #include "Kengine/graphics/graphics.hxx"
+#include "Kengine/graphics/gui-draw-debug.hxx"
 #include "Kengine/imgui/imgui.hxx"
 #include "Kengine/io/file-manager.hxx"
 #include "Kengine/log/log.hxx"
@@ -48,8 +49,10 @@ Kengine::configuration_file editor_config{ "kengine-editor" };
 
 editor* editor::instance = nullptr;
 
-b2GLDraw b2_debug_draw{};
-bool     physics_debug_draw = false;
+b2GLDraw                b2_debug_draw{};
+bool                    physics_debug_draw = false;
+bool                    is_gui_debug_draw  = false;
+Kengine::gui_draw_debug gui_debug_draw{};
 
 Kengine::ivec2 editor::game_viewport_size{ 800, 600 };
 
@@ -109,6 +112,8 @@ void editor::render_imgui()
             ImGui::Begin("Properties");
             bool properties_changed = false;
 
+            properties_changed |=
+                ImGui::Checkbox("GUI debug draw", &is_gui_debug_draw);
             properties_changed |=
                 ImGui::Checkbox("Physics debug draw", &physics_debug_draw);
 
@@ -279,6 +284,7 @@ editor::~editor()
     editor_config.set_setting("game", "assets_base_path", assets_base_path);
     editor_config.save();
 
+    gui_debug_draw.destroy();
     b2_debug_draw.Destroy();
 }
 
@@ -338,6 +344,7 @@ void editor::on_start()
 
     b2_debug_draw.Create();
     b2_debug_draw.SetFlags(b2Draw::e_shapeBit);
+    gui_debug_draw.create();
 }
 
 void editor::on_event(const Kengine::event::game_event& event)
@@ -400,6 +407,10 @@ void editor::on_render(int delta_ms)
         {
             current_game->get_current_scene().get_world().DebugDraw();
             b2_debug_draw.Draw();
+        }
+        if (is_gui_debug_draw)
+        {
+            gui_debug_draw.draw(current_game->get_current_scene());
         }
         Kengine::graphics::pop_framebuffer();
 

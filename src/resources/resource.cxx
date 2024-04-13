@@ -80,6 +80,8 @@ namespace Kengine
                 return "gui_material";
             case resource_type::renderbuffer:
                 return "renderbuffer";
+            case resource_type::font:
+                return "font";
         }
 
         return "undefined";

@@ -124,18 +124,20 @@ namespace Kengine
         edited = edited || ImGui::DragFloat2(
                                "Anchor max", (float*)&transf.anchor_max, 0.1f);
 
-        auto world_transform = get_world_transform();
+        auto world_transform = get_last_transform();
         vec2 world_start     = world_transform.start;
         if (ImGui::DragFloat2("Start", (float*)&world_start, 1.f))
         {
             transf.delta_min += world_start - world_transform.start;
             edited = true;
+            invalidate_transform();
         }
         vec2 world_rect = world_transform.rect;
         if (ImGui::DragFloat2("Rect", (float*)&world_rect, 1.f))
         {
             transf.delta_max += world_rect - world_transform.rect;
             edited = true;
+            invalidate_transform();
         }
 
         ImGui::PopID();
@@ -178,6 +180,9 @@ namespace Kengine
             result.rect.x = 0;
         if (result.rect.y < 0)
             result.rect.y = 0;
+
+        is_trans_valid = true;
+        last_trans     = result;
 
         return result;
     }

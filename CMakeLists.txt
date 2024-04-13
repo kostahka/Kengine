@@ -94,6 +94,9 @@ endif()
 # ENTT
 add_subdirectory(external/entt)
 
+# SDL_ttf
+find_package(SDL3_ttf REQUIRED)
+
 # Kengine source
 add_subdirectory(src)
 

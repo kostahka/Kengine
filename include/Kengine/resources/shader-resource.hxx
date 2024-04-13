@@ -130,6 +130,16 @@ namespace Kengine
             return uniform_locations;
         }
 
+        inline uint32_t get_uniform_location(string_id id) const
+        {
+            auto loc_it = uniform_locations.find(id);
+            if (loc_it != uniform_locations.end())
+            {
+                return loc_it->second;
+            }
+            return 0;
+        }
+
         std::size_t serialize(std::ostream& os) const override;
         std::size_t deserialize(std::istream& is) override;
         std::size_t serialize_size() const override;

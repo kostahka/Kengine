@@ -1,5 +1,6 @@
 #include "resource-wnd.hxx"
 
+#include "Kengine/resources/font-resource.hxx"
 #include "Kengine/resources/resource-manager.hxx"
 
 #include "imgui.h"
@@ -35,6 +36,45 @@ void resource_wnd::display()
                 {
                     current_res->reload_data();
                     editor::instance->invalid_scene_render();
+                }
+
+                ImGui::EndChild();
+            }
+
+            if (current_res_type == Kengine::resource_type::font)
+            {
+                ImGui::BeginChild("Prefiew",
+                                  { 50, 50 },
+                                  ImGuiChildFlags_ResizeX |
+                                      ImGuiChildFlags_ResizeY |
+                                      ImGuiChildFlags_FrameStyle);
+
+                static Kengine::res_ptr<Kengine::font_resource>
+                    display_font_res = nullptr;
+
+                auto font_res =
+                    Kengine::static_resource_cast<Kengine::font_resource>(
+                        current_res);
+
+                if (display_font_res != font_res)
+                {
+                    if (display_font_res)
+                    {
+                        display_font_res->free_data();
+                    }
+                    display_font_res = font_res;
+                    if (display_font_res)
+                    {
+                        display_font_res->take_data();
+                    }
+                }
+
+                if (display_font_res)
+                {
+                    auto image_size = display_font_res->get_texture_size();
+                    ImGui::Image(
+                        (ImTextureID)display_font_res->get_id(),
+                        { (float)image_size.x * 2, (float)image_size.y * 2 });
                 }
 
                 ImGui::EndChild();

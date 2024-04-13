@@ -23,6 +23,8 @@ namespace Kengine
 
         graphics::shader_type_any get_property(string_id name) const;
 
+        inline res_ptr<shader_res>& get_shader() { return shader; }
+
         inline const res_ptr<shader_res>& get_shader() const { return shader; }
 
         inline const std::unordered_map<uint32_t, res_ptr<texture_resource>>&
