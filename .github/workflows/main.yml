@@ -117,7 +117,7 @@ jobs:
       run: |
         if ! test -d SDL3_ttf/build; then
             mkdir SDL3_ttf/build
-            cmake -S SDL3_ttf/ -B SDL3_ttf/build -G Ninja -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{ matrix.platform.cmake }}
+            cmake -S SDL3_ttf/ -B SDL3_ttf/build -G Ninja -DSDL3TTF_VENDORED=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{ matrix.platform.cmake }}
             cmake --build SDL3_ttf/build --config ${{env.BUILD_TYPE}} --parallel
         fi
         
