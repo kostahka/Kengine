@@ -65,7 +65,7 @@ jobs:
     
     - uses: actions/checkout@v4
       with:
-        submodules: recursive
+        submodules: true
         
     - name: Cache SDL3
       uses: actions/cache@v4
@@ -74,10 +74,16 @@ jobs:
           SDL3
         key: sdl3-${{ matrix.artifact }}
         
-    - name: Clone and build SDL3
+    - name: Clone SDL3
+      uses: actions/checkout@v4
+      with:
+        repository: 'https://github.com/libsdl-org/SDL'
+        path: 'SDL3'
+        submodules: true
+
+    - name: Build SDL3
       run: |
         if ! test -d SDL3; then
-            git clone https://github.com/libsdl-org/SDL SDL3 
             if ! test -d SDL3/build; then
                 mkdir SDL3/build
                 cmake -S SDL3/ -B SDL3/build -G Ninja -DSDL_STATIC_PIC=ON -DSDL_STATIC=ON -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{ matrix.platform.cmake }}
@@ -102,10 +108,16 @@ jobs:
           SDL3_ttf
         key: sdl3-ttf-${{ matrix.artifact }}
 
-    - name: Clone and build SDL3_ttf
+    - name: Clone SDL3
+      uses: actions/checkout@v4
+      with:
+        repository: 'https://github.com/libsdl-org/SDL_ttf'
+        path: 'SDL3_ttf'
+        submodules: true
+
+    - name: Build SDL3_ttf
       run: |
         if ! test -d SDL3_ttf; then
-            git clone https://github.com/libsdl-org/SDL_ttf SDL3_ttf 
             if ! test -d SDL3_ttf/build; then
                 mkdir SDL3_ttf/build
                 cmake -S SDL3_ttf -B SDL3_ttf/build -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=prefix ${{ matrix.flags }}
