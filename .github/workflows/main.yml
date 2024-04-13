@@ -109,8 +109,8 @@ jobs:
             cd SDL3_ttf
             git submodule update
             if ! test -d build; then
-                mkdir SDL3_tff/build
-                cmake -S  -B build -G Ninja -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{ matrix.platform.cmake }}
+                mkdir build
+                cmake -S . -B build -G Ninja -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{ matrix.platform.cmake }}
                 cmake --build build/ --parallel
             fi
         fi

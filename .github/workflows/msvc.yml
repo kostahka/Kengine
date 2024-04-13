@@ -66,7 +66,7 @@ jobs:
             git submodule update 
             if ! test -d build; then
                 mkdir build
-                cmake -S SDL3_ttf -B build -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=prefix ${{ matrix.flags }}
+                cmake -S . -B build -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=prefix ${{ matrix.flags }}
                 cmake --build build --config ${{env.BUILD_TYPE}} --parallel
             fi
         fi
