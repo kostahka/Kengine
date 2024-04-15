@@ -10,6 +10,7 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/audio/audio-mix.hxx
     ${CMAKE_CURRENT_LIST_DIR}/audio/audio.cxx
     ${CMAKE_CURRENT_LIST_DIR}/audio/audio.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/components/animation-component.cxx
     ${CMAKE_CURRENT_LIST_DIR}/components/audio-component.cxx
     ${CMAKE_CURRENT_LIST_DIR}/components/camera-component.cxx
     ${CMAKE_CURRENT_LIST_DIR}/components/component-container.cxx
@@ -85,6 +86,7 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/resources/shader-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/sprite-material-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/texture-resource.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/resources/animation-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/scene/scene-manager.cxx
     ${CMAKE_CURRENT_LIST_DIR}/scene/scene-manager.hxx
     ${CMAKE_CURRENT_LIST_DIR}/scene/scene.cxx
@@ -105,6 +107,7 @@ set(KENGINE_HEADERS
     # cmake-format: sortable
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/audio/audio.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/audio/specs.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/animation-component.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/audio-component.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/camera-component.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/components/component-container.hxx
@@ -153,6 +156,7 @@ set(KENGINE_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/log/log.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/main.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/physics/physics.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/animation-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/audio-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/font-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/framebuffer-resource.hxx

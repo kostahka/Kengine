@@ -82,6 +82,8 @@ namespace Kengine
                 return "renderbuffer";
             case resource_type::font:
                 return "font";
+            case resource_type::animation:
+                return "animation";
         }
 
         return "undefined";

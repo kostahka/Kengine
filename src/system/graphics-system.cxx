@@ -1,6 +1,7 @@
 #include "Kengine/system/graphics-system.hxx"
 
 #include "../graphics/graphics.hxx"
+#include "Kengine/components/animation-component.hxx"
 #include "Kengine/components/render-component.hxx"
 #include "Kengine/components/sprite-component.hxx"
 #include "Kengine/components/transform-component.hxx"
@@ -142,6 +143,19 @@ namespace Kengine
 
     void graphics_system::on_render(scene& sc, int delta_ms)
     {
+        auto anim_view =
+            sc.registry.view<animation_component, sprite_component>();
+        for (auto [ent, ent_anim, ent_sprite] : anim_view.each())
+        {
+            ent_anim.animation_time += delta_ms;
+            ent_anim.set_current_frame(ent_anim.get_current_frame() +
+                                       ent_anim.animation_time /
+                                           ent_anim.delta_frame_time);
+            ent_anim.animation_time =
+                ent_anim.animation_time % ent_anim.delta_frame_time;
+            ent_sprite.uv = ent_anim.get_current_uv();
+        }
+
         if (update_projections)
         {
             auto camera_view = sc.registry.view<camera_component>();

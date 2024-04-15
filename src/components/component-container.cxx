@@ -1,5 +1,6 @@
 #include "Kengine/components/component-container.hxx"
 
+#include "Kengine/components/animation-component.hxx"
 #include "Kengine/components/audio-component.hxx"
 #include "Kengine/components/camera-component.hxx"
 #include "Kengine/components/gui-component.hxx"
@@ -27,6 +28,7 @@ namespace Kengine
         register_component<gui_component>(gui_component::name);
         register_component<text_component>(text_component::name);
         register_component<audio_component>(audio_component::name);
+        register_component<animation_component>(animation_component::name);
     }
 
     void component_container::register_component(string_id             name_id,

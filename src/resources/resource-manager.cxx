@@ -4,6 +4,7 @@
 #include "../scene/scene-manager.hxx"
 #include "Kengine/io/file-manager.hxx"
 #include "Kengine/log/log.hxx"
+#include "Kengine/resources/animation-resource.hxx"
 #include "Kengine/resources/audio-resource.hxx"
 #include "Kengine/resources/font-resource.hxx"
 #include "Kengine/resources/framebuffer-resource.hxx"
@@ -113,6 +114,11 @@ namespace Kengine::resource_manager
                     loaded_res = static_resource_cast<resource>(
                         make_resource_from_file<font_resource>(
                             res_path, f_path, res_name));
+                    break;
+                case resource_type::animation:
+                    loaded_res = static_resource_cast<resource>(
+                        make_resource_from_file<animation_resource>(res_path,
+                                                                    res_name));
                     break;
             }
             size += loaded_res->deserialize(res_is);
