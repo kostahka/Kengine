@@ -132,7 +132,7 @@ namespace Kengine
                     for (auto i = 0U; i < anim_it->second.size(); ++i)
                     {
                         ImGui::PushID(i);
-                        std::string uv_name = "uv" + i;
+                        std::string uv_name = "uv" + std::to_string(i);
                         if (ImGui::DragFloat4(uv_name.c_str(),
                                               (float*)&anim_it->second[i],
                                               0.001f))

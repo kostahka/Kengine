@@ -26,4 +26,8 @@ namespace Kengine::graphics
                                        uint32_t block_index);
     E_DECLSPEC ivec2 get_current_viewport();
 
+    E_DECLSPEC void update_matrices(const mat4x4& projection,
+                                    const mat4x4& view);
+    E_DECLSPEC void update_projection(const mat4x4& projection);
+    E_DECLSPEC void update_view(const mat4x4& view);
 } // namespace Kengine::graphics

@@ -104,10 +104,14 @@ namespace Kengine
         body_fixture create_fixture(const b2Shape* shape, float density);
         void         destroy_fixture(body_fixture);
 
+        inline std::vector<body_fixture>& get_fixtures() { return fixtures; }
+
         inline const std::vector<body_fixture>& get_fixtures() const
         {
             return fixtures;
         }
+
+        inline b2Body* get() { return body; }
 
         inline b2Body& operator*() { return *body; }
 

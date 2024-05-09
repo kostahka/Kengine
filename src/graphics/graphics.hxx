@@ -37,8 +37,6 @@ namespace Kengine::graphics
     void update_viewport();
     void begin_render();
     void end_render();
-    void update_matrices(const mat4x4& projection, const mat4x4& view);
-    void update_projection(const mat4x4& projection);
+
     void update_gui_projection(const mat4x4& projection);
-    void update_view(const mat4x4& view);
 } // namespace Kengine::graphics

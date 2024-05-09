@@ -50,6 +50,11 @@ namespace Kengine
 
         inline entt::entity get_parent() const { return parent; }
 
+        inline entt::entity get_current_entity() const
+        {
+            return current_entity;
+        }
+
         inline rect_transform get_last_transform() const { return last_trans; }
 
         inline void invalidate_transform() { is_trans_valid = false; }

@@ -17,7 +17,8 @@ namespace Kengine
     {
         const char* str = (const char*)u_str.data();
         int         c, i, ix, q;
-        for (q = 0, i = 0, ix = u_str.length(); i < ix; i++, q++)
+        for (q = 0, i = 0, ix = static_cast<int>(u_str.length()); i < ix;
+             i++, q++)
         {
             c = (unsigned char)str[i];
             if (c >= 0 && c <= 127)
@@ -450,7 +451,7 @@ namespace Kengine
                     }
                     int      i     = 0;
                     char32_t glyph = 0;
-                    while (glyph = next_glyph(u_str, &i))
+                    while ((glyph = next_glyph(u_str, &i)))
                     {
                         if (glyph == U'\n')
                         {

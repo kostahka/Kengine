@@ -115,6 +115,34 @@ namespace Kengine
 
         edited = edited || imgui::edit_resource("Shader", &shader);
 
+        {
+            ImGui::BeginChild("Textures",
+                              { 100, 100 },
+                              ImGuiChildFlags_ResizeX |
+                                  ImGuiChildFlags_ResizeY |
+                                  ImGuiChildFlags_Border);
+
+            for (auto& tex : textures)
+            {
+                ImGui::Text("%s", tex.second->get_resource_id().get_string());
+            }
+
+            ImGui::EndChild();
+        }
+
+        static int                       add_texture_id = 0;
+        static res_ptr<texture_resource> add_texture    = nullptr;
+
+        ImGui::InputInt("Texture id", &add_texture_id);
+        imgui::edit_resource("Texture to add", &add_texture);
+
+        if (ImGui::Button("Add texture") && add_texture && add_texture_id >= 0)
+        {
+            textures[add_texture_id] = add_texture;
+            add_texture              = nullptr;
+            edited                   = true;
+        }
+
         ImGui::PopID();
 #endif
         return edited;

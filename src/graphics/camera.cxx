@@ -37,6 +37,7 @@ namespace Kengine::graphics
         projection = glm::ortho(
             -width / 2, width / 2, -height / 2, height / 2, zNear, zFar);
         projection_valid = true;
+        invProjection    = glm::inverse(projection);
     }
 
     std::size_t camera::serialize(std::ostream& os) const
@@ -124,4 +125,18 @@ namespace Kengine::graphics
 
         return size;
     }
+
+    vec2 camera::screen_to_world(const vec2& point)
+    {
+        auto viewport = graphics::get_current_viewport();
+
+        vec4 ndc_pos = {
+            point.x / viewport.x, point.y / viewport.y, 0.0f, 1.0f
+        };
+        vec4 view_pos  = invProjection * ndc_pos;
+        vec4 world_pos = glm::inverse(view) * view_pos;
+
+        return { world_pos.x, world_pos.y };
+    }
+
 } // namespace Kengine::graphics

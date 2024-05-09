@@ -50,6 +50,11 @@ namespace Kengine
 
         inline entt::entity get_parent() const { return parent; }
 
+        inline entt::entity get_current_entity() const
+        {
+            return current_entity;
+        }
+
     private:
         bool check_for_parent(entt::entity ent);
 

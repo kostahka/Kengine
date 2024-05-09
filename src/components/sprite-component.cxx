@@ -30,7 +30,11 @@ namespace Kengine
         , origin(other.origin)
         , layer(other.layer)
     {
-        material->take_data();
+        visible = other.visible;
+        if (material)
+        {
+            material->take_data();
+        }
     }
 
     sprite_component::sprite_component(sprite_component&& other)
@@ -40,24 +44,38 @@ namespace Kengine
         , material(nullptr)
         , layer(other.layer)
     {
+        visible = other.visible;
         std::swap(material, other.material);
     }
 
     sprite_component& sprite_component::operator=(sprite_component& other)
     {
+        if (material)
+        {
+            material->free_data();
+        }
         uv       = other.uv;
         origin   = other.origin;
         material = other.material;
         layer    = other.layer;
-        material->take_data();
+        visible  = other.visible;
+        if (material)
+        {
+            material->take_data();
+        }
         return *this;
     }
 
     sprite_component& sprite_component::operator=(sprite_component&& other)
     {
-        uv     = other.uv;
-        origin = other.origin;
-        layer  = other.layer;
+        if (material)
+        {
+            material->free_data();
+        }
+        uv      = other.uv;
+        origin  = other.origin;
+        layer   = other.layer;
+        visible = other.visible;
         std::swap(material, other.material);
         return *this;
     }
@@ -94,6 +112,7 @@ namespace Kengine
         size += serialization::write(os, uv.h);
         size += serialization::write(os, layer);
         size += serialization::write(os, material);
+        size += serialization::write(os, visible);
 
         return size;
     }
@@ -112,6 +131,7 @@ namespace Kengine
         size += serialization::read(is, uv.h);
         size += serialization::read(is, layer);
         size += serialization::read(is, material);
+        size += serialization::read(is, visible);
 
         set_material(material);
 
@@ -130,6 +150,7 @@ namespace Kengine
         size += serialization::size(uv.h);
         size += serialization::size(layer);
         size += serialization::size(material);
+        size += serialization::size(visible);
 
         return size;
     }
@@ -150,6 +171,7 @@ namespace Kengine
         edited = edited || ImGui::DragFloat2("Origin", (float*)&origin, 0.1f);
         edited = edited || ImGui::DragFloat4("UV", (float*)&uv, 0.1f);
         edited = edited || ImGui::DragInt("Layer", &layer);
+        edited = edited || ImGui::Checkbox("Visible", &visible);
 
         ImGui::PopID();
 #endif

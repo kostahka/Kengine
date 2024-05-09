@@ -19,6 +19,26 @@ namespace Kengine
         total_size += serialization::read(is, size);
     }
 
+    archive_continuous_input::archive_continuous_input(
+        std::istream& is, scene& sc, entt::continuous_loader& loader)
+        : is(is)
+        , sc(sc)
+        , total_size(0)
+        , loader(loader)
+    {
+    }
+
+    void archive_continuous_input::operator()(entt::entity& ent)
+    {
+        total_size += serialization::read(is, ent);
+    }
+
+    void archive_continuous_input::operator()(
+        std::underlying_type_t<entt::entity>& size)
+    {
+        total_size += serialization::read(is, size);
+    }
+
     archive_output::archive_output(std::ostream& os, const scene& sc)
         : os(os)
         , sc(sc)

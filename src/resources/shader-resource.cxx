@@ -1,9 +1,11 @@
 #include "Kengine/resources/shader-resource.hxx"
 
 #include "../opengl/opengl.hxx"
+#include "../scene/scene-manager.hxx"
 #include "Kengine/imgui/imgui-edit.hxx"
 #include "Kengine/io/file-manager.hxx"
 #include "Kengine/resources/resource-manager.hxx"
+#include "Kengine/scene/scene-manager.hxx"
 #include "Kengine/string/string-id.hxx"
 
 #include "imgui.h"
@@ -98,7 +100,8 @@ namespace Kengine
         if (!f_path.empty())
         {
             std::stringstream s_code;
-            auto              file_buf = file_manager::load_file(f_path);
+            auto              file_buf = file_manager::load_file(
+                scene_manager::assets_base_folder / f_path);
             if (file_buf == nullptr)
                 return;
 
@@ -154,6 +157,23 @@ namespace Kengine
         bool edited = false;
 #ifdef KENGINE_IMGUI
         ImGui::PushID(this);
+
+        if (imgui::edit_file("Shader file", f_path))
+        {
+            edited = true;
+        }
+        if (f_path.empty())
+        {
+            if (ImGui::InputTextMultiline(
+                    "Code", code.data(), code.capacity() - 1))
+            {
+                if (code.capacity() - 5 < code.size())
+                {
+                    code.reserve(code.capacity() + 5);
+                }
+                edited = true;
+            }
+        }
 
         ImGui::PopID();
 #endif
@@ -240,7 +260,8 @@ namespace Kengine
         if (!f_path.empty())
         {
             std::stringstream s_code;
-            auto              file_buf = file_manager::load_file(f_path);
+            auto              file_buf = file_manager::load_file(
+                scene_manager::assets_base_folder / f_path);
             if (file_buf == nullptr)
                 return;
 
@@ -296,6 +317,23 @@ namespace Kengine
         bool edited = false;
 #ifdef KENGINE_IMGUI
         ImGui::PushID(this);
+
+        if (imgui::edit_file("Shader file", f_path))
+        {
+            edited = true;
+        }
+        if (f_path.empty())
+        {
+            if (ImGui::InputTextMultiline(
+                    "Code", code.data(), code.capacity() - 1))
+            {
+                if (code.capacity() - 5 < code.size())
+                {
+                    code.reserve(code.capacity() + 5);
+                }
+                edited = true;
+            }
+        }
 
         ImGui::PopID();
 #endif
@@ -382,7 +420,8 @@ namespace Kengine
         if (!f_path.empty())
         {
             std::stringstream s_code;
-            auto              file_buf = file_manager::load_file(f_path);
+            auto              file_buf = file_manager::load_file(
+                scene_manager::assets_base_folder / f_path);
             if (file_buf == nullptr)
                 return;
 
@@ -438,6 +477,23 @@ namespace Kengine
         bool edited = false;
 #ifdef KENGINE_IMGUI
         ImGui::PushID(this);
+
+        if (imgui::edit_file("Shader file", f_path))
+        {
+            edited = true;
+        }
+        if (f_path.empty())
+        {
+            if (ImGui::InputTextMultiline(
+                    "Code", code.data(), code.capacity() - 1))
+            {
+                if (code.capacity() - 5 < code.size())
+                {
+                    code.reserve(code.capacity() + 5);
+                }
+                edited = true;
+            }
+        }
 
         ImGui::PopID();
 #endif
@@ -720,6 +776,61 @@ namespace Kengine
             edited || imgui::edit_resource("Geometry resource", &geometry_res);
         edited =
             edited || imgui::edit_resource("Fragment resource", &fragment_res);
+
+        {
+            ImGui::BeginChild("Uniform block bindings",
+                              { 100, 100 },
+                              ImGuiChildFlags_ResizeX |
+                                  ImGuiChildFlags_ResizeY |
+                                  ImGuiChildFlags_Border);
+
+            static std::string remove_uniform_block_binding = "";
+
+            for (auto& uniform_block_binding : uniform_block_bindings)
+            {
+                ImGui::PushID(uniform_block_binding.second);
+                ImGui::Text("%s : %d",
+                            uniform_block_binding.first.data(),
+                            uniform_block_binding.second);
+                ImGui::SameLine();
+                if (ImGui::Button("x"))
+                {
+                    remove_uniform_block_binding = uniform_block_binding.first;
+                }
+                ImGui::PopID();
+            }
+
+            if (remove_uniform_block_binding != "")
+            {
+                auto remove_it =
+                    uniform_block_bindings.find(remove_uniform_block_binding);
+                if (remove_it != uniform_block_bindings.end())
+                {
+                    uniform_block_bindings.erase(remove_it);
+                }
+                remove_uniform_block_binding = "";
+                edited                       = true;
+            }
+
+            ImGui::EndChild();
+        }
+
+        static int           add_uniform_block_id                          = 0;
+        static constexpr int uniform_block_name_length                     = 50;
+        static char          uniform_block_name[uniform_block_name_length] = "";
+
+        ImGui::InputInt("Uniform block index", &add_uniform_block_id);
+        ImGui::InputText("Uniform block name",
+                         uniform_block_name,
+                         uniform_block_name_length);
+
+        if (ImGui::Button("Add uniform block binding") &&
+            add_uniform_block_id >= 0 && uniform_block_name[0])
+        {
+            uniform_block_bindings[std::string(uniform_block_name)] =
+                add_uniform_block_id;
+            edited = true;
+        }
 
         ImGui::PopID();
 #endif

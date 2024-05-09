@@ -27,7 +27,7 @@ void game_wnd::display()
         ImGui::SetCursorPosY((window_height - game_image_height) / 2);
 
         ImGui::Image(
-            reinterpret_cast<ImTextureID>(
+            (ImTextureID) static_cast<long long>(
                 editor::instance->game_framebuffer.get_color_texture_id()),
             { game_image_width, game_image_height },
             { 0, 1 },

@@ -760,6 +760,12 @@ namespace Kengine
         return size;
     }
 
+    static std::unordered_map<b2BodyType, const char*> b2_body_type_str{
+        {b2BodyType::b2_dynamicBody,    "Dynamic body"  },
+        { b2BodyType::b2_staticBody,    "Static body"   },
+        { b2BodyType::b2_kinematicBody, "Kinematic body"},
+    };
+
     bool physics_component::imgui_editable_render()
     {
         bool edited = false;
@@ -767,6 +773,24 @@ namespace Kengine
         ImGui::PushID(this);
         if (body)
         {
+            auto        body_type        = body->GetType();
+            auto        body_type_str_it = b2_body_type_str.find(body_type);
+            const char* body_type_str =
+                body_type_str_it != b2_body_type_str.end()
+                    ? body_type_str_it->second
+                    : "undefined";
+            if (ImGui::BeginCombo("Body type", body_type_str))
+            {
+                for (auto b2_body_type_it : b2_body_type_str)
+                {
+                    if (ImGui::Selectable(b2_body_type_it.second))
+                    {
+                        body->SetType(b2_body_type_it.first);
+                        edited = true;
+                    }
+                }
+                ImGui::EndCombo();
+            }
             vec2  position = body->GetPosition();
             float angle    = body->GetAngle();
             if (ImGui::DragFloat2("Position", (float*)&position, 0.1f) ||
@@ -1014,6 +1038,13 @@ namespace Kengine
         total_size += serialization::read(is, value);
     }
 
+    template <>
+    void archive_continuous_input::operator()(physics_component& value)
+    {
+        value.set_world(&(sc.get_world()));
+        total_size += serialization::read(is, value);
+    }
+
     component_info physics_component::info{
         [](scene& sc, entt::entity ent)
         { return sc.registry.any_of<physics_component>(ent); },
@@ -1032,7 +1063,7 @@ namespace Kengine
         [](entt::snapshot_loader& snapshot, archive_input& input)
         { snapshot.get<physics_component>(input); },
 
-        [](entt::continuous_loader& snapshot, archive_input& input)
+        [](entt::continuous_loader& snapshot, archive_continuous_input& input)
         { snapshot.get<physics_component>(input); },
 
         [](scene& sc, entt::entity ent)

@@ -19,8 +19,7 @@ void scene_objects_wnd::draw_entity_entry(Kengine::scene& current_scene,
 {
 
     static ImGuiTreeNodeFlags base_flags =
-        ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick |
-        ImGuiTreeNodeFlags_SpanAvailWidth;
+        ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
 
     if (ImGui::Button("Delete"))
     {
@@ -30,7 +29,9 @@ void scene_objects_wnd::draw_entity_entry(Kengine::scene& current_scene,
 
     bool entity_open = ImGui::TreeNodeEx(
         (void*)ent, base_flags, "Entity %d", static_cast<uint32_t>(ent));
-    if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+    if (ImGui::IsItemHovered() &&
+        ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) &&
+        !ImGui::IsItemToggledOpen())
     {
         editor::instance->selected_entity = ent;
     }

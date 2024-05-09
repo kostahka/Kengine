@@ -2,6 +2,7 @@
 
 #include "Kengine/log/log.hxx"
 #include "Kengine/resources/resource-manager.hxx"
+
 #include "imgui.h"
 
 namespace Kengine::imgui
@@ -44,6 +45,39 @@ namespace Kengine::imgui
                 auto r_path = *reinterpret_cast<path*>(payload->Data);
 
                 *res = resource_manager::load_resource(r_path);
+
+                changed = true;
+            }
+            ImGui::EndDragDropTarget();
+        }
+
+        return changed;
+    }
+
+    bool edit_entity(const char* name, entt::entity& ent)
+    {
+        bool changed = false;
+
+        ImGui::Text("%s:", name);
+        ImGui::SameLine();
+        {
+            ImGui::BeginChild(name,
+                              { 0, 0 },
+                              ImGuiChildFlags_Border |
+                                  ImGuiChildFlags_AutoResizeX |
+                                  ImGuiChildFlags_AutoResizeY);
+
+            ImGui::Text("%d", static_cast<int>(ent));
+
+            ImGui::EndChild();
+        }
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (auto payload = ImGui::AcceptDragDropPayload("ENTITY_DRAG"))
+            {
+                KENGINE_ASSERT(payload->DataSize == sizeof(entt::entity),
+                               "Dropped not entity");
+                ent = *reinterpret_cast<entt::entity*>(payload->Data);
 
                 changed = true;
             }

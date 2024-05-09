@@ -7,10 +7,8 @@
 
 #if defined(NDEBUG) && !defined(ENGINE_DEV)
  #define KENGINE_TRACE(...) (void)0
- #define KENGINE_DEBUG(...)                                                    \
-     {                                                                         \
-         Kengine::log::fatal_logger->debug(__VA_ARGS__);                       \
-     }
+ #define KENGINE_DEBUG(...) (void)0
+
  #define KENGINE_INFO(...)                                                     \
      {                                                                         \
          Kengine::log::fatal_logger->info(__VA_ARGS__);                        \
@@ -38,7 +36,6 @@
  #define KENGINE_DEBUG(...)                                                    \
      {                                                                         \
          Kengine::log::logger->debug(__VA_ARGS__);                             \
-         Kengine::log::fatal_logger->debug(__VA_ARGS__);                       \
      }
  #define KENGINE_INFO(...)                                                     \
      {                                                                         \

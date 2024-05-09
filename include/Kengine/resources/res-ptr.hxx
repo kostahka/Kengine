@@ -59,8 +59,11 @@ namespace Kengine
 
         void free()
         {
-            delete ptr;
-            ptr = nullptr;
+            if (ptr)
+            {
+                delete ptr;
+                ptr = nullptr;
+            }
         }
 
         ~res_ptr_counter()

@@ -184,8 +184,6 @@ namespace Kengine::resource_manager
 
     void remove_resource(string_id r_id)
     {
-        KENGINE_ASSERT(registered_resources.contains(r_id),
-                       "There's no resource with such id to remove");
         if (registered_resources.contains(r_id))
             registered_resources.erase(r_id);
     }

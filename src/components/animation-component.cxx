@@ -11,6 +11,7 @@ namespace Kengine
     animation_component::animation_component()
         : component(name)
     {
+        is_playing = is_play_on_start;
     }
 
     animation_component::animation_component(
@@ -22,6 +23,7 @@ namespace Kengine
         {
             anim_res->take_data();
         }
+        is_playing = is_play_on_start;
     }
 
     animation_component::animation_component(animation_component& other)
@@ -36,6 +38,7 @@ namespace Kengine
         {
             anim_res->take_data();
         }
+        is_playing = is_play_on_start;
     }
 
     animation_component::animation_component(animation_component&& other)
@@ -46,6 +49,7 @@ namespace Kengine
         delta_frame_time  = other.delta_frame_time;
         current_animation = other.current_animation;
         std::swap(anim_res, other.anim_res);
+        is_playing = is_play_on_start;
     }
 
     animation_component& animation_component::operator=(
@@ -64,6 +68,7 @@ namespace Kengine
         {
             anim_res->take_data();
         }
+        is_playing = is_play_on_start;
         return *this;
     }
 
@@ -80,6 +85,7 @@ namespace Kengine
         current_animation = other.current_animation;
         anim_res          = other.anim_res;
         std::swap(anim_res, other.anim_res);
+        is_playing = is_play_on_start;
         return *this;
     }
 
@@ -144,6 +150,8 @@ namespace Kengine
         size += serialization::write(os, delta_frame_time);
         size += serialization::write(os, current_animation);
         size += serialization::write(os, anim_res);
+        size += serialization::write(os, reversed);
+        size += serialization::write(os, is_looped);
 
         return size;
     }
@@ -156,6 +164,9 @@ namespace Kengine
         size += serialization::read(is, delta_frame_time);
         size += serialization::read(is, current_animation);
         size += serialization::read(is, anim_res);
+        size += serialization::read(is, reversed);
+        size += serialization::read(is, is_looped);
+        is_playing = is_play_on_start;
 
         return size;
     }
@@ -168,6 +179,8 @@ namespace Kengine
         size += serialization::size(delta_frame_time);
         size += serialization::size(current_animation);
         size += serialization::size(anim_res);
+        size += serialization::size(reversed);
+        size += serialization::size(is_looped);
 
         return size;
     }
@@ -179,6 +192,8 @@ namespace Kengine
         ImGui::PushID(this);
         edited =
             edited || ImGui::Checkbox("Is play on start", &is_play_on_start);
+        edited || ImGui::Checkbox("Is looped", &is_looped);
+        edited = edited || ImGui::Checkbox("Reversed", &reversed);
         edited =
             edited || ImGui::DragInt("Delta frame time", &delta_frame_time);
 
@@ -189,7 +204,7 @@ namespace Kengine
                                &current_frame,
                                1,
                                0,
-                               anim_it->second.size()))
+                               static_cast<int>(anim_it->second.size())))
             {
                 edited = true;
             }

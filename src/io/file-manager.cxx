@@ -201,7 +201,7 @@ namespace Kengine::file_manager
     {
         if (file)
         {
-            return SDL_GetIOSize(file);
+            return static_cast<int>(SDL_GetIOSize(file));
         }
         return -1;
     }

@@ -126,6 +126,8 @@ namespace Kengine
         }
     }
 
+    void graphics_system::on_start(scene& sc) {}
+
     void graphics_system::on_event(scene& sc, const event::game_event& g_event)
     {
         switch (g_event.g_type)
@@ -147,13 +149,25 @@ namespace Kengine
             sc.registry.view<animation_component, sprite_component>();
         for (auto [ent, ent_anim, ent_sprite] : anim_view.each())
         {
-            ent_anim.animation_time += delta_ms;
-            ent_anim.set_current_frame(ent_anim.get_current_frame() +
-                                       ent_anim.animation_time /
-                                           ent_anim.delta_frame_time);
-            ent_anim.animation_time =
-                ent_anim.animation_time % ent_anim.delta_frame_time;
-            ent_sprite.uv = ent_anim.get_current_uv();
+            if (ent_anim.is_playing)
+            {
+                ent_anim.animation_time += delta_ms;
+                int next_frame =
+                    ent_anim.get_current_frame() +
+                    ent_anim.animation_time / ent_anim.delta_frame_time;
+                ent_anim.set_current_frame(next_frame);
+                if (!ent_anim.is_looped &&
+                    next_frame >= ent_anim.get_anim_res()
+                                      ->get_animations()
+                                      .find(ent_anim.get_current_animation())
+                                      ->second.size())
+                {
+                    ent_anim.is_playing = false;
+                }
+                ent_anim.animation_time =
+                    ent_anim.animation_time % ent_anim.delta_frame_time;
+                ent_sprite.uv = ent_anim.get_current_uv();
+            }
         }
 
         if (update_projections)
@@ -197,38 +211,42 @@ namespace Kengine
         int                               layer    = 0;
         for (auto [ent, sprite, ent_transform] : sprite_view.each())
         {
-            if (sprite.get_material().get() != material.get() ||
-                sprite.layer != layer)
+            if (sprite.visible)
             {
-                draw_sprites(size, material, layer);
-                size     = 0;
-                material = sprite.get_material();
-                layer    = sprite.layer;
+                if (sprite.get_material().get() != material.get() ||
+                    sprite.layer != layer)
+                {
+                    draw_sprites(size, material, layer);
+                    size     = 0;
+                    material = sprite.get_material();
+                    layer    = sprite.layer;
+                }
+
+                if (data.size() < size + 1)
+                {
+                    increase_data_size();
+                }
+
+                data[size].uv = sprite.uv;
+                mat4x4 sprite_matrix(1);
+
+                transform world_transform = ent_transform.get_world_transform();
+
+                sprite_matrix = glm::translate(sprite_matrix,
+                                               { world_transform.position.x,
+                                                 world_transform.position.y,
+                                                 layer });
+                sprite_matrix =
+                    glm::scale(sprite_matrix, world_transform.scale);
+                sprite_matrix = glm::rotate(
+                    sprite_matrix, world_transform.angle, { 0, 0, 1 });
+                sprite_matrix = glm::translate(
+                    sprite_matrix, { -sprite.origin.x, -sprite.origin.y, 0 });
+
+                data[size].model = sprite_matrix;
+
+                size++;
             }
-
-            if (data.size() < size + 1)
-            {
-                increase_data_size();
-            }
-
-            data[size].uv = sprite.uv;
-            mat4x4 sprite_matrix(1);
-
-            transform world_transform = ent_transform.get_world_transform();
-
-            sprite_matrix = glm::translate(sprite_matrix,
-                                           { world_transform.position.x,
-                                             world_transform.position.y,
-                                             layer });
-            sprite_matrix = glm::scale(sprite_matrix, world_transform.scale);
-            sprite_matrix =
-                glm::rotate(sprite_matrix, world_transform.angle, { 0, 0, 1 });
-            sprite_matrix = glm::translate(
-                sprite_matrix, { -sprite.origin.x, -sprite.origin.y, 0 });
-
-            data[size].model = sprite_matrix;
-
-            size++;
         }
         draw_sprites(size, material, layer);
     }
@@ -244,8 +262,8 @@ namespace Kengine
                                          cam_transform.position.y,
                                          0 };
             const vec3 center        = { eye.x, eye.y, eye.z - 1 };
-            const vec3 up            = { std::sin(cam_transform.angle),
-                                         std::cos(cam_transform.angle),
+            const vec3 up            = { std::sin(-cam_transform.angle),
+                                         std::cos(-cam_transform.angle),
                                          0 };
 
             const auto view_matrix = glm::lookAt(eye, center, up);

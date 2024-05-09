@@ -1,13 +1,14 @@
 #pragma once
 
 #include "Kengine/resources/res-ptr.hxx"
+#include "Kengine/scene/scene.hxx"
 
 #include <filesystem>
 
 namespace Kengine::imgui
 {
     E_DECLSPEC bool edit_file(const char* name, std::filesystem::path& path);
-
+    E_DECLSPEC bool edit_entity(const char* name, entt::entity& ent);
     E_DECLSPEC bool edit_resource(const char* name, res_ptr<resource>* res);
 
     template <typename ResourceType>

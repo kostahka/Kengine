@@ -15,7 +15,7 @@ namespace Kengine
     typedef void (*deserialize_component_fp)(entt::snapshot_loader&,
                                              archive_input&);
     typedef void (*deserialize_continuous_component_fp)(
-        entt::continuous_loader&, archive_input&);
+        entt::continuous_loader&, archive_continuous_input&);
 
     typedef void (*erase_component_fp)(scene&, entt::entity);
     typedef void (*emplace_component_fp)(scene&, entt::entity);
@@ -70,7 +70,8 @@ namespace Kengine
         { snapshot.get<ComponentType>(input); };
 
         c_info.deserialize_continuous_component =
-            [](entt::continuous_loader& snapshot, archive_input& input)
+            [](entt::continuous_loader&  snapshot,
+               archive_continuous_input& input)
         { snapshot.get<ComponentType>(input); };
 
         c_info.erase_component = [](scene& sc, entt::entity ent)

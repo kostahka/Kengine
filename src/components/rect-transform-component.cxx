@@ -219,6 +219,17 @@ namespace Kengine
         value.initialize(&sc);
     }
 
+    template <>
+    void archive_continuous_input::operator()(rect_transform_component& value)
+    {
+        total_size += serialization::read(is, value);
+        value.initialize(&sc, loader.map(value.get_current_entity()));
+        if (value.get_parent() != entt::null)
+        {
+            value.set_parent(loader.map(value.get_parent()));
+        }
+    }
+
     component_info rect_transform_component::info{
         [](scene& sc, entt::entity ent)
         { return sc.registry.any_of<rect_transform_component>(ent); },
@@ -238,7 +249,7 @@ namespace Kengine
         [](entt::snapshot_loader& snapshot, archive_input& input)
         { snapshot.get<rect_transform_component>(input); },
 
-        [](entt::continuous_loader& snapshot, archive_input& input)
+        [](entt::continuous_loader& snapshot, archive_continuous_input& input)
         { snapshot.get<rect_transform_component>(input); },
 
         [](scene& sc, entt::entity ent)

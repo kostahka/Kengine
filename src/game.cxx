@@ -21,12 +21,14 @@ namespace Kengine
         {
             current_scene = scene_manager::load_scene(scene_link->second, this);
             current_scene_id = scene_id;
+            current_scene->on_start();
         }
     }
 
     void game::set_current_scene(std::shared_ptr<scene> sc)
     {
         current_scene = sc;
+        current_scene->on_start();
         sc->set_game(this);
     }
 
@@ -41,6 +43,7 @@ namespace Kengine
                 sc_path, scene_manager::assets_base_folder);
             current_scene    = sc;
             current_scene_id = name_id;
+            current_scene->on_start();
         }
     }
 

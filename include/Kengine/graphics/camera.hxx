@@ -2,6 +2,7 @@
 
 #include "Kengine/serialization/serialization.hxx"
 #include "Kengine/units/matrix.hxx"
+#include "Kengine/units/vector.hxx"
 
 namespace Kengine::graphics
 {
@@ -20,6 +21,8 @@ namespace Kengine::graphics
         void set_projection(float height, float zNear, float zFar);
         void set_height(float height);
 
+        vec2 screen_to_world(const vec2& point);
+
         inline float get_height() const { return height; }
 
         inline float get_zNear() const { return zNear; }
@@ -34,6 +37,7 @@ namespace Kengine::graphics
 
     private:
         mat4x4 projection;
+        mat4x4 invProjection;
         float  height           = 2;
         float  zNear            = -50;
         float  zFar             = 50;

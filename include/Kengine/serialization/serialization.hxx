@@ -188,6 +188,21 @@ namespace Kengine
             requires AssociativeContainer<T>
         class stream_writer<T, void>
         {
+            template <typename I, typename V = void>
+            struct converter
+            {
+                using type = I;
+            };
+
+            template <typename I>
+                requires Pair<I>
+            struct converter<I, void>
+            {
+                using type =
+                    std::pair<std::remove_const_t<typename I::first_type>,
+                              typename I::second_type>;
+            };
+
         public:
             static auto write(std::ostream& os, const T& value) -> std::size_t
             {
@@ -199,7 +214,8 @@ namespace Kengine
                 auto size = static_cast<std::size_t>(os.tellp() - pos);
                 if (len > 0)
                 {
-                    using value_t = typename T::value_type;
+                    using value_t =
+                        typename converter<typename T::value_type>::type;
                     std::for_each(
                         value.cbegin(),
                         value.cend(),

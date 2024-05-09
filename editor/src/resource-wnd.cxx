@@ -73,7 +73,8 @@ void resource_wnd::display()
                 {
                     auto image_size = display_font_res->get_texture_size();
                     ImGui::Image(
-                        (ImTextureID)display_font_res->get_id(),
+                        (ImTextureID) static_cast<long long>(
+                            display_font_res->get_id()),
                         { (float)image_size.x * 2, (float)image_size.y * 2 });
                 }
 

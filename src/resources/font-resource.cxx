@@ -157,8 +157,8 @@ namespace Kengine
                     (float)advance / (float)font_size;
             }
             space_advance = max_glyph_width;
-            int max_area =
-                max_glyph_width * max_glyph_height * characters_count;
+            int max_area = static_cast<int>(max_glyph_width * max_glyph_height *
+                                            characters_count);
             int texture_size = closest_pow_2_area(max_area);
 
             auto surface = SDL_CreateSurface(
@@ -338,14 +338,16 @@ namespace Kengine
 
         edited = edited || imgui::edit_file("Font file", f_path);
         edited = edited || ImGui::DragInt("Font size", &font_size, 1, 0, 48);
-        edited =
-            edited ||
-            ImGui::DragInt(
-                "First char code", (int*)&first_char, 1, 0, 0xFFFFFFFFFFFFFFFF);
-        edited =
-            edited ||
-            ImGui::DragInt(
-                "Last char code", (int*)&last_char, 1, 0, 0xFFFFFFFFFFFFFFFF);
+        edited = edited || ImGui::DragInt("First char code",
+                                          (int*)&first_char,
+                                          1,
+                                          0,
+                                          static_cast<int>(0xFFFFFFFFFFFF));
+        edited = edited || ImGui::DragInt("Last char code",
+                                          (int*)&last_char,
+                                          1,
+                                          0,
+                                          static_cast<int>(0xFFFFFFFFFFFF));
 
         auto current_min_filter = min_filter;
         auto current_min_filter_str =

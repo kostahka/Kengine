@@ -60,7 +60,7 @@ void game_properties_wnd::display()
                                 new_scene_link_path.extension() == ".ksc")
                             {
                                 auto new_scene_link_name =
-                                    new_scene_link_path.filename().string();
+                                    new_scene_link_path.stem().string();
                                 current_game->add_scene_link(
                                     new_scene_link_name, new_scene_link_path);
                                 current_game->save_scene_links();

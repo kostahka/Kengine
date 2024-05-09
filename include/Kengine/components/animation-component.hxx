@@ -42,6 +42,7 @@ namespace Kengine
         int animation_time   = 0;
         int delta_frame_time = 16; // ~60 FPS
 
+        bool reversed   = false;
         bool is_playing = false;
 
         void set_current_frame(int frame);

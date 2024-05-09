@@ -189,8 +189,14 @@ namespace Kengine
             }
             else
             {
+                auto start_comp = input.get_size();
                 component_info_it->second.deserialize_component(snapshot,
                                                                 input);
+                auto comp_size = input.get_size() - start_comp;
+                if (comp_size != component_size)
+                {
+                    is.seekg(component_size - comp_size, std::ios_base::cur);
+                }
             }
         }
 
@@ -314,9 +320,9 @@ namespace Kengine
         registry.on_construct<entt::entity>()
             .disconnect<&scene::on_construct_entity>(*this);
 
-        archive_input input(is, *this);
-
         entt::continuous_loader snapshot{ registry };
+
+        archive_continuous_input input(is, *this, snapshot);
 
         snapshot.get<entt::entity>(input);
 
@@ -339,8 +345,14 @@ namespace Kengine
             }
             else
             {
+                auto start_comp = input.get_size();
                 component_info_it->second.deserialize_continuous_component(
                     snapshot, input);
+                auto comp_size = input.get_size() - start_comp;
+                if (comp_size != component_size)
+                {
+                    is.seekg(component_size - comp_size, std::ios_base::cur);
+                }
             }
         }
 
@@ -433,6 +445,8 @@ namespace Kengine
             {
                 event_systems.push_back(system.get());
             }
+
+            system->on_start(*this);
         }
     }
 

@@ -375,7 +375,7 @@ namespace Kengine::audio
             }
             if (cont_it->to_destroy)
             {
-                continuous_list.erase(cont_it);
+                continuous_list.erase(cont_it++);
             }
             else
             {
