@@ -309,7 +309,7 @@ namespace Kengine::audio
                                     one_shot_it->res->get_spec().fmt,
                                     rest,
                                     one_shot_it->volume);
-                one_shot_list.erase(one_shot_it);
+                one_shot_list.erase(one_shot_it++);
                 continue;
             }
             else
@@ -327,7 +327,7 @@ namespace Kengine::audio
         for (auto cont_it = continuous_list.begin();
              cont_it != continuous_list.end();)
         {
-            auto audio_res = cont_it->get_res();
+            auto& audio_res = cont_it->get_res();
             if (cont_it->is_playing && audio_res)
             {
                 std::lock_guard lock_sound(audio_res->data_lock);
@@ -430,6 +430,7 @@ namespace Kengine::audio
         SDL_DestroyAudioStream(main_audio_stream);
         main_audio_stream = nullptr;
         one_shot_list.clear();
+        internal_sample_buffer.clear();
     }
 
     spec get_current_out_spec()

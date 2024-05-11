@@ -325,9 +325,9 @@ namespace Kengine
                 sprite_matrix = glm::translate(
                     sprite_matrix, { ent_gui.origin.x, ent_gui.origin.y, 0 });
                 sprite_matrix =
-                    glm::scale(sprite_matrix, { ent_gui.scale, 1.f });
-                sprite_matrix =
                     glm::rotate(sprite_matrix, ent_gui.angle, { 0, 0, 1 });
+                sprite_matrix =
+                    glm::scale(sprite_matrix, { ent_gui.scale, 1.f });
                 sprite_matrix = glm::translate(
                     sprite_matrix, { -ent_gui.origin.x, -ent_gui.origin.y, 0 });
 
@@ -412,9 +412,9 @@ namespace Kengine
                                          ent_text.origin.y * rect_height,
                                          0 });
                     text_matrix =
-                        glm::scale(text_matrix, { ent_text.scale, 1.f });
-                    text_matrix =
                         glm::rotate(text_matrix, ent_text.angle, { 0, 0, 1 });
+                    text_matrix =
+                        glm::scale(text_matrix, { ent_text.scale, 1.f });
                     text_matrix =
                         glm::translate(text_matrix,
                                        { -ent_text.origin.x * rect_width,

@@ -25,6 +25,9 @@ namespace Kengine
         void set_current_scene(std::shared_ptr<scene> sc);
         void set_current_scene(std::filesystem::path);
 
+        std::shared_ptr<scene> load_scene(string_id);
+        std::shared_ptr<scene> load_scene(std::filesystem::path);
+
         inline void set_current_scene(std::string_view scene_name)
         {
             auto name_id = hash_string(scene_name.data());

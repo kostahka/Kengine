@@ -49,8 +49,8 @@ namespace Kengine
         void load_data() override;
         void unload_data() override;
 
-        std::unordered_map<string_id, graphics::shader_type_any> properties;
-        std::unordered_map<uint32_t, res_ptr<texture_resource>>  textures;
-        res_ptr<shader_res>                                      shader;
+        std::unordered_map<string_id, graphics::shader_type_any> properties{};
+        std::unordered_map<uint32_t, res_ptr<texture_resource>>  textures{};
+        res_ptr<shader_res> shader = nullptr;
     };
 } // namespace Kengine

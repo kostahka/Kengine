@@ -74,6 +74,7 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/opengl/opengl.hxx
     ${CMAKE_CURRENT_LIST_DIR}/physics/physics.cxx
     ${CMAKE_CURRENT_LIST_DIR}/physics/physics.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/resources/animation-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/audio-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/font-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/framebuffer-resource.cxx
@@ -86,7 +87,6 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/resources/shader-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/sprite-material-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/texture-resource.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/resources/animation-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/scene/scene-manager.cxx
     ${CMAKE_CURRENT_LIST_DIR}/scene/scene-manager.hxx
     ${CMAKE_CURRENT_LIST_DIR}/scene/scene.cxx

@@ -111,8 +111,7 @@ namespace Kengine
     {
         if (count && material)
         {
-            graphics::bind_material(
-                static_resource_cast<material_resource>(material));
+            graphics::bind_material(material);
             if (vao_sprites_count < count)
             {
                 vao_sprites_count = count;
@@ -236,10 +235,10 @@ namespace Kengine
                                                { world_transform.position.x,
                                                  world_transform.position.y,
                                                  layer });
-                sprite_matrix =
-                    glm::scale(sprite_matrix, world_transform.scale);
                 sprite_matrix = glm::rotate(
                     sprite_matrix, world_transform.angle, { 0, 0, 1 });
+                sprite_matrix =
+                    glm::scale(sprite_matrix, world_transform.scale);
                 sprite_matrix = glm::translate(
                     sprite_matrix, { -sprite.origin.x, -sprite.origin.y, 0 });
 

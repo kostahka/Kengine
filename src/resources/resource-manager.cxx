@@ -26,6 +26,7 @@ namespace Kengine::resource_manager
         while (registered_resources.size() > 0)
         {
             registered_resources.begin()->second.counter->free();
+            registered_resources.erase(registered_resources.begin());
         }
     }
 

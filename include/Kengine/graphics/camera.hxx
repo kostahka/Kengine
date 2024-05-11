@@ -22,6 +22,7 @@ namespace Kengine::graphics
         void set_height(float height);
 
         vec2 screen_to_world(const vec2& point);
+        vec2 get_position() const;
 
         inline float get_height() const { return height; }
 

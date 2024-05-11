@@ -138,13 +138,13 @@ namespace Kengine
         float res_sin = static_cast<float>(sin(result.angle));
         float res_cos = static_cast<float>(cos(result.angle));
 
-        result.scale.x = transf.scale.x;
-        result.scale.y = transf.scale.y;
+        result.position.x += transf.position.x * result.scale.x * res_cos -
+                             transf.position.y * result.scale.y * res_sin;
+        result.position.y += transf.position.x * result.scale.x * res_sin +
+                             transf.position.y * result.scale.y * res_cos;
 
-        result.position.x +=
-            transf.position.x * res_cos - transf.position.y * res_sin;
-        result.position.y +=
-            transf.position.x * res_sin + transf.position.y * res_cos;
+        result.scale.x *= transf.scale.x;
+        result.scale.y *= transf.scale.y;
 
         result.angle += transf.angle;
 

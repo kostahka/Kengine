@@ -1,13 +1,17 @@
 #pragma once
 
+#include "Kengine/helpers/spin-lock.hxx"
+#include "Kengine/log/log.hxx"
 #include "Kengine/serialization/serialization.hxx"
 #include "resource.hxx"
+
 #include <cstddef>
 
 namespace Kengine::resource_manager
 {
     E_DECLSPEC res_ptr<resource> get_resource(string_id r_id);
     E_DECLSPEC res_ptr<resource> load_resource(path res_path);
+    E_DECLSPEC void              remove_resource(string_id r_id);
 
     void initialize();
     void shutdown();
@@ -90,31 +94,82 @@ namespace Kengine
         friend void resource_manager::initialize();
 
     public:
-        res_weak_ptr(const res_ptr<ResourceType>& ptr)
-        {
-            counter = ptr.counter;
-            if (counter)
-                counter->w_count++;
-        }
-
         res_weak_ptr()
             : counter(nullptr)
         {
         }
 
-        res_weak_ptr(std::nullptr_t)
+        constexpr res_weak_ptr(std::nullptr_t)
             : counter(nullptr)
         {
+        }
+
+        res_weak_ptr(const res_ptr<ResourceType>& ptr)
+        {
+            counter = ptr.counter;
+            if (counter)
+            {
+                counter->w_count++;
+            }
         }
 
         explicit res_weak_ptr(res_ptr_counter* counter)
             : counter(counter)
         {
             if (counter)
+            {
                 counter->w_count++;
+            }
         }
 
-        ~res_weak_ptr()
+        res_weak_ptr(const res_weak_ptr& other)
+            : counter(other.counter)
+        {
+            if (counter)
+            {
+                counter->w_count++;
+            }
+        }
+
+        res_weak_ptr(res_weak_ptr&& other)
+        {
+            counter       = other.counter;
+            other.counter = nullptr;
+        }
+
+        res_weak_ptr& operator=(const res_weak_ptr& other)
+        {
+            free_counter();
+            counter = other.counter;
+            if (counter)
+            {
+                counter->w_count++;
+            }
+
+            return *this;
+        }
+
+        res_weak_ptr& operator=(res_weak_ptr&& other)
+        {
+            free_counter();
+            counter       = other.counter;
+            other.counter = nullptr;
+
+            return *this;
+        }
+
+        ~res_weak_ptr() { free_counter(); }
+
+        res_ptr<ResourceType> lock()
+        {
+            if (counter && counter->ptr != nullptr)
+                return res_ptr<ResourceType>(counter);
+            else
+                return res_ptr<ResourceType>(nullptr);
+        }
+
+    private:
+        void free_counter()
         {
             if (counter)
             {
@@ -126,15 +181,6 @@ namespace Kengine
             }
         }
 
-        res_ptr<ResourceType> lock()
-        {
-            if (counter && counter->ptr != nullptr)
-                return res_ptr<ResourceType>(counter);
-            else
-                return res_ptr<ResourceType>(nullptr);
-        }
-
-    private:
         res_ptr_counter* counter;
     };
 
@@ -191,8 +237,8 @@ namespace Kengine
             if (counter)
             {
                 ptr = static_cast<ResourceType*>(counter->ptr);
-                if (counter)
-                    counter->p_count++;
+
+                counter->p_count++;
             }
         }
 
@@ -201,7 +247,9 @@ namespace Kengine
             ptr     = other.ptr;
             counter = other.counter;
             if (counter)
+            {
                 counter->p_count++;
+            }
         }
 
         res_ptr(res_ptr&& other)
@@ -219,16 +267,20 @@ namespace Kengine
 
         res_ptr& operator=(const res_ptr& other)
         {
+            free_counter();
             ptr     = other.ptr;
             counter = other.counter;
             if (counter)
+            {
                 counter->p_count++;
+            }
 
             return *this;
         }
 
         res_ptr& operator=(res_ptr&& other)
         {
+            free_counter();
             ptr           = other.ptr;
             counter       = other.counter;
             other.ptr     = nullptr;
@@ -239,20 +291,7 @@ namespace Kengine
 
         inline operator bool() const { return ptr != nullptr; }
 
-        ~res_ptr()
-        {
-            if (counter)
-            {
-                counter->p_count--;
-                if (counter->p_count <= 0)
-                {
-                    if (counter->w_count <= 0)
-                        delete counter;
-                    else
-                        counter->free();
-                }
-            }
-        }
+        ~res_ptr() { free_counter(); }
 
         std::size_t serialize(std::ostream& os) const override
         {
@@ -336,6 +375,28 @@ namespace Kengine
         };
 
     private:
+        void free_counter()
+        {
+            if (counter)
+            {
+                counter->p_count--;
+
+                if (counter->p_count <= 0)
+                {
+                    if (counter->w_count <= 0)
+                    {
+                        delete counter;
+                    }
+                    else
+                    {
+                        auto r_id = ptr->get_resource_id();
+                        counter->free();
+                        resource_manager::remove_resource(r_id);
+                    }
+                }
+            }
+        }
+
         ResourceType*    ptr;
         res_ptr_counter* counter;
     };

@@ -124,6 +124,8 @@ namespace Kengine::graphics
         sprite_shader = make_resource<shader_res>(
             sprite_vertex_shader, sprite_fragment_shader, "sprite_shader");
 
+        KENGINE_INFO("Create sprite_shader");
+
         sprite_shader->take_data();
 
         KENGINE_GL_CHECK(glUseProgram(sprite_shader->get_id()));
@@ -326,11 +328,61 @@ namespace Kengine::graphics
         KENGINE_GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
     }
 
+    void bind_material(const res_ptr<gui_material_resource>& material)
+    {
+        const auto& textures   = material->get_textures();
+        const auto& shader     = material->get_shader();
+        const auto& properties = material->get_properties();
+
+        for (auto& [block, texture] : textures)
+        {
+            KENGINE_GL_CHECK(glActiveTexture(GL_TEXTURE0 + block));
+            KENGINE_GL_CHECK(glBindTexture(GL_TEXTURE_2D, texture->get_id()));
+        }
+
+        KENGINE_GL_CHECK(glUseProgram(shader->get_id()));
+
+        const auto uniform_locations = shader->get_uniform_locations();
+        for (auto& [name_id, property] : properties)
+        {
+            auto uniform_location = uniform_locations.find(name_id);
+            if (uniform_location != uniform_locations.end())
+            {
+                property.uniform(uniform_location->second);
+            }
+        }
+    };
+
+    void bind_material(const res_ptr<sprite_material_resource>& material)
+    {
+        const auto& textures   = material->get_textures();
+        const auto& shader     = material->get_shader();
+        const auto& properties = material->get_properties();
+
+        for (auto& [block, texture] : textures)
+        {
+            KENGINE_GL_CHECK(glActiveTexture(GL_TEXTURE0 + block));
+            KENGINE_GL_CHECK(glBindTexture(GL_TEXTURE_2D, texture->get_id()));
+        }
+
+        KENGINE_GL_CHECK(glUseProgram(shader->get_id()));
+
+        const auto uniform_locations = shader->get_uniform_locations();
+        for (auto& [name_id, property] : properties)
+        {
+            auto uniform_location = uniform_locations.find(name_id);
+            if (uniform_location != uniform_locations.end())
+            {
+                property.uniform(uniform_location->second);
+            }
+        }
+    };
+
     void bind_material(const res_ptr<material_resource>& material)
     {
-        const auto textures   = material->get_textures();
-        const auto shader     = material->get_shader();
-        const auto properties = material->get_properties();
+        const auto& textures   = material->get_textures();
+        const auto& shader     = material->get_shader();
+        const auto& properties = material->get_properties();
 
         for (auto& [block, texture] : textures)
         {

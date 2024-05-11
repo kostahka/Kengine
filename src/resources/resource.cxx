@@ -42,7 +42,7 @@ namespace Kengine
 
     resource::~resource()
     {
-        resource_manager::remove_resource(r_id);
+        // resource_manager::remove_resource(r_id);
     }
 
     void resource::reload_data()

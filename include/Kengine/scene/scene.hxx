@@ -84,7 +84,8 @@ namespace Kengine
 
         entt::entity      camera_entity  = entt::null;
         graphics::camera* current_camera = nullptr;
-        game*             scene_game     = nullptr;
-        b2World*          scene_world    = nullptr;
+        graphics::camera  last_camera{};
+        game*             scene_game  = nullptr;
+        b2World*          scene_world = nullptr;
     };
 } // namespace Kengine

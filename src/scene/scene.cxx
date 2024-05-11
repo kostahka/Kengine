@@ -46,7 +46,9 @@ namespace Kengine
         if (ent == camera_entity)
         {
             camera_entity  = entt::null;
-            current_camera = graphics::default_camera;
+            auto& cam_comp = registry.get<camera_component>(ent);
+            last_camera    = cam_comp.camera;
+            current_camera = &last_camera;
         }
     }
 

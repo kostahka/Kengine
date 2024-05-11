@@ -344,8 +344,7 @@ namespace Kengine
                     static_cast<b2PolygonShape*>(shape);
                 auto copy_polygon = new b2PolygonShape();
 
-                copy_polygon->Set(copy_polygon->m_vertices,
-                                  copy_polygon->m_count);
+                copy_polygon->Set(polygon->m_vertices, polygon->m_count);
 
                 return copy_polygon;
             }
@@ -934,6 +933,8 @@ namespace Kengine
                                     break;
                                 case b2Shape::Type::e_polygon:
                                     new_shape = new b2PolygonShape();
+                                    ((b2PolygonShape*)new_shape)
+                                        ->SetAsBox(1.0f, 1.0f);
                                     break;
                                 default:
                                     new_shape = nullptr;

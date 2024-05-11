@@ -19,9 +19,13 @@ namespace Kengine
         auto scene_link = scene_links.find(scene_id);
         if (scene_link != scene_links.end())
         {
-            current_scene = scene_manager::load_scene(scene_link->second, this);
-            current_scene_id = scene_id;
-            current_scene->on_start();
+            auto temp_sc = scene_manager::load_scene(scene_link->second, this);
+            if (temp_sc)
+            {
+                current_scene    = temp_sc;
+                current_scene_id = scene_id;
+                current_scene->on_start();
+            }
         }
     }
 
@@ -37,7 +41,7 @@ namespace Kengine
         auto sc = scene_manager::load_scene(sc_path, this);
         if (sc)
         {
-            auto name            = sc_path.filename();
+            auto name            = sc_path.stem();
             auto name_id         = hash_string(name.string().c_str());
             scene_links[name_id] = std::filesystem::proximate(
                 sc_path, scene_manager::assets_base_folder);
@@ -45,6 +49,37 @@ namespace Kengine
             current_scene_id = name_id;
             current_scene->on_start();
         }
+    }
+
+    std::shared_ptr<scene> game::load_scene(string_id scene_id)
+    {
+        std::shared_ptr<scene> ret_scene  = nullptr;
+        auto                   scene_link = scene_links.find(scene_id);
+        if (scene_link != scene_links.end())
+        {
+            ret_scene = scene_manager::load_scene(scene_link->second, this);
+            if (ret_scene)
+            {
+                ret_scene->on_start();
+            }
+        }
+        return ret_scene;
+    }
+
+    std::shared_ptr<scene> game::load_scene(std::filesystem::path sc_path)
+    {
+        std::shared_ptr<scene> ret_scene = nullptr;
+        auto                   sc = scene_manager::load_scene(sc_path, this);
+        if (sc)
+        {
+            auto name            = sc_path.stem();
+            auto name_id         = hash_string(name.string().c_str());
+            scene_links[name_id] = std::filesystem::proximate(
+                sc_path, scene_manager::assets_base_folder);
+            ret_scene = sc;
+            ret_scene->on_start();
+        }
+        return ret_scene;
     }
 
     static std::filesystem::path scene_links_path = "scene-data.kpkg";

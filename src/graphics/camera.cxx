@@ -1,6 +1,7 @@
 #include "Kengine/graphics/camera.hxx"
 
 #include "../scene/scene-manager.hxx"
+#include "Kengine/log/log.hxx"
 #include "graphics.hxx"
 
 namespace Kengine::graphics
@@ -130,12 +131,21 @@ namespace Kengine::graphics
     {
         auto viewport = graphics::get_current_viewport();
 
-        vec4 ndc_pos = {
-            point.x / viewport.x, point.y / viewport.y, 0.0f, 1.0f
-        };
+        vec4 ndc_pos = { (point.x / viewport.x - 0.5f) * 2.0f,
+                         -(point.y / viewport.y - 0.5f) * 2.0f,
+                         0.0f,
+                         1.0f };
+
         vec4 view_pos  = invProjection * ndc_pos;
         vec4 world_pos = glm::inverse(view) * view_pos;
 
+        return { world_pos.x, world_pos.y };
+    }
+
+    vec2 camera::get_position() const
+    {
+        vec4 view_pos  = { 0, 0, 0, 1.f };
+        vec4 world_pos = glm::inverse(view) * view_pos;
         return { world_pos.x, world_pos.y };
     }
 

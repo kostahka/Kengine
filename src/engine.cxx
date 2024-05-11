@@ -87,8 +87,8 @@ namespace Kengine
 
         scene_manager::shutdown();
         physics::shutdown();
-        resource_manager::shutdown();
         audio::shutdown();
+        resource_manager::shutdown();
         window::shutdown();
 
         engine_settings.save();
