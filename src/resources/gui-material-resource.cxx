@@ -23,6 +23,7 @@ namespace Kengine
                   graphics::gui_vertex_shader, fragment_shader, shader_name),
               name)
     {
+        resource::r_type = resource_type::gui_material;
     }
 
     gui_material_resource::~gui_material_resource() {}

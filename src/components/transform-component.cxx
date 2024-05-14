@@ -188,10 +188,7 @@ namespace Kengine
     {
         total_size += serialization::read(is, value);
         value.initialize(&sc, loader.map(value.get_current_entity()));
-        if (value.get_parent() != entt::null)
-        {
-            value.set_parent(loader.map(value.get_parent()));
-        }
+        value.parent = loader.map(value.get_parent());
     }
 
     component_info transform_component::info{

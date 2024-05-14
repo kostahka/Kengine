@@ -14,8 +14,14 @@ namespace Kengine
             std::string_view                    name);
         ~sprite_material_resource();
 
+        std::size_t serialize(std::ostream& os) const override;
+        std::size_t deserialize(std::istream& is) override;
+        std::size_t serialize_size() const override;
+
         bool imgui_editable_render() override;
 
     private:
+        res_ptr<fragment_shader_res> custom_fragment_shader = nullptr;
+        string_id                    custom_shader_name{};
     };
 } // namespace Kengine

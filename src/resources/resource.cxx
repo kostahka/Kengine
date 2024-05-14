@@ -84,6 +84,8 @@ namespace Kengine
                 return "font";
             case resource_type::animation:
                 return "animation";
+            case resource_type::font_material:
+                return "font_material";
         }
 
         return "undefined";

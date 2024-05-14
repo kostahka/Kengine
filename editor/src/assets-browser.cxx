@@ -7,6 +7,7 @@
 #include "Kengine/log/log.hxx"
 #include "Kengine/resources/animation-resource.hxx"
 #include "Kengine/resources/audio-resource.hxx"
+#include "Kengine/resources/font-material-resource.hxx"
 #include "Kengine/resources/font-resource.hxx"
 #include "Kengine/resources/framebuffer-resource.hxx"
 #include "Kengine/resources/gui-material-resource.hxx"
@@ -152,6 +153,12 @@ void assets_browser::display()
                         create_file_type      = file_type::resource;
                         create_res_type = Kengine::resource_type::animation;
                     }
+                    if (ImGui::Selectable("Font material"))
+                    {
+                        create_resource_modal = true;
+                        create_file_type      = file_type::resource;
+                        create_res_type = Kengine::resource_type::font_material;
+                    }
                     ImGui::EndMenu();
                 }
             }
@@ -289,6 +296,13 @@ void assets_browser::display()
                         new_res = Kengine::make_resource_from_file<
                             Kengine::animation_resource>(new_file_path,
                                                          filename);
+                    }
+                    else if (create_res_type ==
+                             Kengine::resource_type::font_material)
+                    {
+                        new_res = Kengine::make_resource_from_file<
+                            Kengine::font_material_resource>(new_file_path,
+                                                             filename);
                     }
 
                     Kengine::resource_manager::save_resource(new_res);

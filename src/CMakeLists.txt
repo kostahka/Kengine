@@ -40,6 +40,8 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/graphics/graphics.hxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/gui-draw-debug.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/raw-vertex-buffer.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/graphics/render-packet.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/graphics/render-pass.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/renderbuffer.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/shader-utils/shader-type.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/shader-utils/shader-utils.cxx
@@ -76,6 +78,7 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/physics/physics.hxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/animation-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/audio-resource.cxx
+    ${CMAKE_CURRENT_LIST_DIR}/resources/font-material-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/font-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/framebuffer-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/gui-material-resource.cxx
@@ -136,6 +139,8 @@ set(KENGINE_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/graphics.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/gui-draw-debug.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/raw-vertex-buffer.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/render-packet.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/render-pass.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/renderbuffer.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/shader-utils/shader-type.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/graphics/shader-utils/shader-utils.hxx
@@ -158,6 +163,7 @@ set(KENGINE_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/physics/physics.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/animation-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/audio-resource.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/font-material-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/font-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/framebuffer-resource.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/resources/gui-material-resource.hxx

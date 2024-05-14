@@ -42,24 +42,21 @@ int closest_pow_2_area(int i)
 namespace Kengine
 {
     font_resource::font_resource(std::string_view name)
-        : resource(resource_type::font, name)
+        : texture_resource(name)
     {
+        r_type = resource_type::font;
     }
 
     font_resource::font_resource(path font_path, std::string_view name)
-        : resource(resource_type::font, font_path, name)
-        , texture_size({ 1, 1 })
-        , format(texture_format::none)
+        : texture_resource(name)
     {
+        r_type = resource_type::font;
+        f_path = font_path;
     }
 
     font_resource::~font_resource()
     {
-        if (id)
-        {
-            KENGINE_GL_CHECK(glDeleteTextures(1, &id));
-            KENGINE_INFO("Unloaded font: {}", r_id.get_string());
-        }
+        KENGINE_INFO("Unloaded font: {}", r_id.get_string());
     }
 
     std::size_t font_resource::serialize(std::ostream& os) const
@@ -233,7 +230,7 @@ namespace Kengine
             SDL_DestroySurface(surface);
             TTF_CloseFont(f);
 
-            this->texture_size = { texture_size, texture_size };
+            this->size = { texture_size, texture_size };
 
             KENGINE_INFO("Loaded font {}", r_id.get_string());
 
@@ -268,45 +265,6 @@ namespace Kengine
             KENGINE_INFO("Unloaded font: {}", r_id.get_string());
             id = 0;
         }
-    }
-
-    void font_resource::load_invalid_texture()
-    {
-        // clang-format off
-        static const float pixels[] = {
-            1.f, 0.f, 1.f,   0.f, 0.f, 0.f,   1.f, 0.f, 1.f,   0.f, 0.f, 0.f,
-            0.f, 0.f, 0.f,   1.f, 0.f, 1.f,   0.f, 0.f, 0.f,   1.f, 0.f, 1.f,
-            1.f, 0.f, 1.f,   0.f, 0.f, 0.f,   1.f, 0.f, 1.f,   0.f, 0.f, 0.f,
-            0.f, 0.f, 0.f,   1.f, 0.f, 1.f,   0.f, 0.f, 0.f,   1.f, 0.f, 1.f,
-        };
-        // clang-format on
-
-        texture_size = { 4, 4 };
-
-        KENGINE_GL_CHECK(glGenTextures(1, &id));
-        KENGINE_GL_CHECK(glBindTexture(GL_TEXTURE_2D, id));
-
-        KENGINE_GL_CHECK(glTexImage2D(GL_TEXTURE_2D,
-                                      0,
-                                      GL_RGB,
-                                      static_cast<GLsizei>(texture_size.x),
-                                      static_cast<GLsizei>(texture_size.y),
-                                      0,
-                                      GL_RGB,
-                                      GL_FLOAT,
-                                      pixels));
-
-        KENGINE_GL_CHECK(
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-        KENGINE_GL_CHECK(
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-
-        min_filter = texture_filter::nearest;
-        mag_filter = texture_filter::nearest;
-
-        format = texture_format::rgb;
-
-        KENGINE_WARN("Unable to load texture, defaulting to checkerboard");
     }
 
     static texture_format t_formats[]{

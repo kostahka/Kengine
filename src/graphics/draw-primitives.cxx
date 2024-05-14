@@ -54,6 +54,7 @@ namespace Kengine::graphics
                                          sizeof(point_vertex)));
             vao->add_vertex_buffer(vbo);
             m_count = 0;
+            vao->unbind();
         };
 
         void destroy() override
@@ -85,6 +86,7 @@ namespace Kengine::graphics
             vao->bind();
             vao->draw(draw_mode::points, m_count);
             m_count = 0;
+            vao->unbind();
         };
 
         std::shared_ptr<shader>                      program;
@@ -113,6 +115,7 @@ namespace Kengine::graphics
                 g_float, 4, offsetof(line_vertex, color), sizeof(line_vertex)));
             vao->add_vertex_buffer(vbo);
             m_count = 0;
+            vao->unbind();
         };
 
         void destroy() override
@@ -143,6 +146,7 @@ namespace Kengine::graphics
             vao->bind();
             vao->draw(draw_mode::lines, m_count);
             m_count = 0;
+            vao->unbind();
         };
 
         std::shared_ptr<shader>                     program;
@@ -171,6 +175,7 @@ namespace Kengine::graphics
                 g_float, 4, offsetof(line_vertex, color), sizeof(line_vertex)));
             vao->add_vertex_buffer(vbo);
             m_count = 0;
+            vao->unbind();
         };
 
         void destroy() override
@@ -201,6 +206,7 @@ namespace Kengine::graphics
             vao->bind();
             vao->draw(draw_mode::triangles, static_cast<int>(m_count));
             m_count = 0;
+            vao->unbind();
         };
 
         std::shared_ptr<shader>                     program;

@@ -271,10 +271,16 @@ editor::editor()
         a_browser.assets_file_browser.SetPwd(assets_base_path);
         need_reload = true;
     }
+
+    edit_camera.set_projection(1, -100, 100);
 };
 
 editor::~editor()
 {
+    if (current_game)
+    {
+        delete current_game;
+    }
     game_framebuffer      = Kengine::graphics::framebuffer();
     game_texture_res      = nullptr;
     game_renderbuffer_res = nullptr;
@@ -290,20 +296,21 @@ editor::~editor()
 
 void editor::set_game_scene(Kengine::string_id sc_link)
 {
-    edit_camera       = Kengine::graphics::camera();
+    edit_camera = Kengine::graphics::camera();
+    edit_camera.set_projection(1, -100, 100);
     edit_camera_pos   = { 0, 0 };
     edit_camera_angle = 0;
 
     get_current_scene().clear_resources();
     current_game->set_current_scene(sc_link);
     invalid_scene_render();
-    current_game->get_current_scene().get_world().SetDebugDraw(&b2_debug_draw);
     current_game->get_current_scene().set_camera(&edit_camera);
 }
 
 void editor::set_game_scene(std::filesystem::path sc_path)
 {
-    edit_camera       = Kengine::graphics::camera();
+    edit_camera = Kengine::graphics::camera();
+    edit_camera.set_projection(1, -100, 100);
     edit_camera_pos   = { 0, 0 };
     edit_camera_angle = 0;
 
@@ -311,7 +318,6 @@ void editor::set_game_scene(std::filesystem::path sc_path)
     current_game->set_current_scene(sc_path);
     current_game->save_scene_links();
     invalid_scene_render();
-    current_game->get_current_scene().get_world().SetDebugDraw(&b2_debug_draw);
     current_game->get_current_scene().set_camera(&edit_camera);
 }
 
@@ -405,6 +411,8 @@ void editor::on_render(int delta_ms)
         current_game->get_current_scene().on_render(delta_ms);
         if (physics_debug_draw)
         {
+            current_game->get_current_scene().get_world().SetDebugDraw(
+                &b2_debug_draw);
             current_game->get_current_scene().get_world().DebugDraw();
             b2_debug_draw.Draw();
         }

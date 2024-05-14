@@ -12,6 +12,8 @@ namespace Kengine
 
     struct E_DECLSPEC transform_component : public component
     {
+        friend class archive_continuous_input;
+
         static constexpr auto name = "transform_component";
         static component_info info;
 

@@ -32,6 +32,7 @@ namespace Kengine::graphics
     res_ptr<fragment_shader_res> gui_fragment_shader = nullptr;
     res_ptr<shader_res>          gui_shader          = nullptr;
 
+    res_ptr<vertex_shader_res>   text_vertex_shader   = nullptr;
     res_ptr<fragment_shader_res> text_fragment_shader = nullptr;
     res_ptr<shader_res>          text_shader          = nullptr;
     string_id                    text_color_property;
@@ -181,27 +182,54 @@ namespace Kengine::graphics
         KENGINE_GL_CHECK(glUseProgram(gui_shader->get_id()));
         gui_shader->set_uniform_block_binding("Matrices", 1);
 
+        text_vertex_shader =
+            make_resource<vertex_shader_res>(std::string_view(R"(
+                #version 300 es
+                precision mediump float;
+
+                layout (location = 0) in vec3 in_position;
+                layout (location = 1) in vec2 uv_pos;
+                layout (location = 2) in vec2 uv_size;
+                layout (location = 3) in vec4 color;
+                layout (location = 4) in mat4 model;
+               
+                out vec2 out_tex_coord;
+                out vec4 text_color;
+
+                layout (std140) uniform Matrices{
+                    mat4 projection;
+                };
+
+                void main()
+                {
+                    text_color = color;
+                    out_tex_coord = in_position.xy * uv_size + uv_pos;
+                    gl_Position = projection * model * vec4(in_position, 1.0);
+                }
+                )"),
+                                             "text_vertex");
+
         text_fragment_shader =
             make_resource<fragment_shader_res>(std::string_view(R"(
                 #version 300 es
                 precision mediump float;
 
                 in vec2 out_tex_coord;
+                in vec4 text_color;
 
-                uniform vec4 color;
                 uniform sampler2D texture0;
 
                 out vec4 out_color;
 
                 void main()
                 {
-                    out_color = texture(texture0, out_tex_coord) * color;
+                    out_color = texture(texture0, out_tex_coord) * text_color;
                 }
             )"),
                                                "text_fragment");
 
         text_shader = make_resource<shader_res>(
-            gui_vertex_shader, text_fragment_shader, "text_shader");
+            text_vertex_shader, text_fragment_shader, "text_shader");
 
         text_shader->take_data();
 

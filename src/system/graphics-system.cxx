@@ -14,10 +14,9 @@ namespace Kengine
         : system(name)
         , sc(sc)
     {
-        vao = std::make_unique<graphics::vertex_element_array>();
-        vao->bind();
+        data.resize(128);
 
-        auto sprite_vbo = std::make_shared<graphics::vertex_buffer<vec3>>();
+        sprite_vbo = std::make_shared<graphics::vertex_buffer<vec3>>();
 
         static std::vector<vec3> sprite_pos_vertices{
             {0,  0, 0},
@@ -31,66 +30,14 @@ namespace Kengine
         sprite_vbo->add_attribute_pointer(graphics::vertex_attribute_pointer(
             graphics::g_float, 3, 0, sizeof(vec3)));
 
-        vao->add_vertex_buffer(sprite_vbo);
-
-        vbo = std::make_shared<graphics::vertex_buffer<sprite_data>>();
-
-        data.resize(max_sprites_count);
-
-        vbo->bind();
-
-        vbo->allocate_vertices(data.data(), max_sprites_count, true);
-        vbo->add_attribute_pointer(
-            graphics::vertex_attribute_pointer(graphics::g_float,
-                                               2,
-                                               offsetof(sprite_data, uv),
-                                               sizeof(sprite_data),
-                                               1));
-        vbo->add_attribute_pointer(graphics::vertex_attribute_pointer(
-            graphics::g_float,
-            2,
-            offsetof(sprite_data, uv) + offsetof(rect, w),
-            sizeof(sprite_data),
-            1));
-        vbo->add_attribute_pointer(
-            graphics::vertex_attribute_pointer(graphics::g_float,
-                                               4,
-                                               offsetof(sprite_data, model),
-                                               sizeof(sprite_data),
-                                               1));
-        vbo->add_attribute_pointer(graphics::vertex_attribute_pointer(
-            graphics::g_float,
-            4,
-            offsetof(sprite_data, model) + sizeof(vec4),
-            sizeof(sprite_data),
-            1));
-        vbo->add_attribute_pointer(graphics::vertex_attribute_pointer(
-            graphics::g_float,
-            4,
-            offsetof(sprite_data, model) + 2 * sizeof(vec4),
-            sizeof(sprite_data),
-            1));
-        vbo->add_attribute_pointer(graphics::vertex_attribute_pointer(
-            graphics::g_float,
-            4,
-            offsetof(sprite_data, model) + 3 * sizeof(vec4),
-            sizeof(sprite_data),
-            1));
-
-        vao->add_vertex_buffer(vbo);
-
-        auto sprite_element_buffer =
-            std::make_shared<graphics::element_buffer>();
-        sprite_element_buffer->bind();
+        sprite_ebo = std::make_shared<graphics::element_buffer>();
+        sprite_ebo->bind();
 
         static std::vector<uint32_t> sprite_indexes{ 0, 2, 1, 0, 3, 2 };
 
-        sprite_element_buffer->allocate_indexes(
-            sprite_indexes.data(), 6, false);
+        sprite_ebo->allocate_indexes(sprite_indexes.data(), 6, false);
 
-        vao->set_elements(sprite_element_buffer);
-
-        vbo->allocate_vertices(nullptr, vao_sprites_count, true);
+        create_vao();
 
         sc.registry.on_construct<sprite_component>()
             .connect<&graphics_system::sort_sprites>(*this);
@@ -111,17 +58,28 @@ namespace Kengine
     {
         if (count && material)
         {
-            graphics::bind_material(material);
-            if (vao_sprites_count < count)
+            if (vaos.size() <= vao_number)
             {
-                vao_sprites_count = count;
-                vbo->allocate_vertices(data.data(), count, true);
+                create_vao();
             }
-            else
-            {
-                vbo->set_vertices(data.data(), 0, count);
-            }
-            vao->draw_instanced(graphics::draw_mode::triangles, count, 6);
+            auto& vao = vaos[vao_number];
+            auto& vbo = vbos[vao_number];
+
+            vbo->bind();
+            vbo->allocate_vertices(data.data(), count, true);
+
+            graphics::render_packet packet(
+                static_resource_cast<material_resource>(material));
+
+            packet.vao = std::static_pointer_cast<graphics::vertex_array>(vao);
+            packet.layer           = layer;
+            packet.instances_count = count;
+            packet.mode            = graphics::draw_mode::triangles;
+            packet.vertices_count  = 6;
+            packet.vertices_start  = 0;
+
+            sc.get_main_pass().add_render_packet(packet);
+            vao_number++;
         }
     }
 
@@ -144,6 +102,8 @@ namespace Kengine
 
     void graphics_system::on_render(scene& sc, int delta_ms)
     {
+        vao_number = 0;
+
         auto anim_view =
             sc.registry.view<animation_component, sprite_component>();
         for (auto [ent, ent_anim, ent_sprite] : anim_view.each())
@@ -196,14 +156,12 @@ namespace Kengine
             ent_render.vao->draw(ent_render.draw_mode,
                                  ent_render.vertices_count,
                                  ent_render.vertices_start);
+            ent_render.vao->unbind();
         };
 
         auto sprite_view =
             sc.registry.view<sprite_component, transform_component>();
         sprite_view.use<sprite_component>();
-
-        vao->bind();
-        vbo->bind();
 
         uint32_t                          size     = 0;
         res_ptr<sprite_material_resource> material = nullptr;
@@ -288,8 +246,7 @@ namespace Kengine
 
     void graphics_system::increase_data_size()
     {
-        max_sprites_count *= 2;
-        data.resize(max_sprites_count);
+        data.resize(data.size() * 2);
     }
 
     void graphics_system::sort_sprites(entt::registry& registry,
@@ -308,4 +265,64 @@ namespace Kengine
             registry.view<sprite_component, transform_component>();
         sprite_view.use<sprite_component>();
     }
+
+    void graphics_system::create_vao()
+    {
+
+        auto vao = std::make_shared<graphics::vertex_element_array>();
+        vao->bind();
+
+        vao->add_vertex_buffer(sprite_vbo);
+
+        auto vbo = std::make_shared<graphics::vertex_buffer<sprite_data>>();
+
+        vbo->bind();
+
+        vbo->allocate_vertices(data.data(), 128, true);
+        vbo->add_attribute_pointer(
+            graphics::vertex_attribute_pointer(graphics::g_float,
+                                               2,
+                                               offsetof(sprite_data, uv),
+                                               sizeof(sprite_data),
+                                               1));
+        vbo->add_attribute_pointer(graphics::vertex_attribute_pointer(
+            graphics::g_float,
+            2,
+            offsetof(sprite_data, uv) + offsetof(rect, w),
+            sizeof(sprite_data),
+            1));
+        vbo->add_attribute_pointer(
+            graphics::vertex_attribute_pointer(graphics::g_float,
+                                               4,
+                                               offsetof(sprite_data, model),
+                                               sizeof(sprite_data),
+                                               1));
+        vbo->add_attribute_pointer(graphics::vertex_attribute_pointer(
+            graphics::g_float,
+            4,
+            offsetof(sprite_data, model) + sizeof(vec4),
+            sizeof(sprite_data),
+            1));
+        vbo->add_attribute_pointer(graphics::vertex_attribute_pointer(
+            graphics::g_float,
+            4,
+            offsetof(sprite_data, model) + 2 * sizeof(vec4),
+            sizeof(sprite_data),
+            1));
+        vbo->add_attribute_pointer(graphics::vertex_attribute_pointer(
+            graphics::g_float,
+            4,
+            offsetof(sprite_data, model) + 3 * sizeof(vec4),
+            sizeof(sprite_data),
+            1));
+
+        vao->add_vertex_buffer(vbo);
+
+        vao->set_elements(sprite_ebo);
+
+        vaos.push_back(vao);
+        vbos.push_back(vbo);
+        vao->unbind();
+    }
+
 } // namespace Kengine

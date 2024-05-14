@@ -29,15 +29,17 @@ namespace Kengine::graphics
         void add_vertex_buffer(std::shared_ptr<raw_vertex_buffer>
                                    vbo); // make sure do bind() before
 
-        void bind();
+        void        bind();
+        static void unbind();
 
-        void draw(draw_mode mode,
-                  uint32_t  v_count,
-                  uint32_t  v_start = 0); // make sure do bind() before
-        void draw_instanced(draw_mode mode,
-                            uint32_t  i_count,
-                            uint32_t  v_count,
-                            uint32_t v_start = 0); // make sure do bind() before
+        virtual void draw(draw_mode mode,
+                          uint32_t  v_count,
+                          uint32_t  v_start = 0); // make sure do bind() before
+        virtual void draw_instanced(
+            draw_mode mode,
+            uint32_t  i_count,
+            uint32_t  v_count,
+            uint32_t  v_start = 0); // make sure do bind() before
 
     protected:
         uint32_t vao;
@@ -52,18 +54,17 @@ namespace Kengine::graphics
     public:
         vertex_element_array();
 
-        void bind();
-
         void set_elements(
             std::shared_ptr<element_buffer> ebo); // make sure do bind() before
 
         void draw(draw_mode mode,
                   uint32_t  v_count,
-                  uint32_t  v_start = 0); // make sure do bind() before
-        void draw_instanced(draw_mode mode,
-                            uint32_t  i_count,
-                            uint32_t  v_count,
-                            uint32_t v_start = 0); // make sure do bind() before
+                  uint32_t  v_start = 0) override; // make sure do bind() before
+        void draw_instanced(
+            draw_mode mode,
+            uint32_t  i_count,
+            uint32_t  v_count,
+            uint32_t  v_start = 0) override; // make sure do bind() before
 
     private:
         std::shared_ptr<element_buffer> ebo;

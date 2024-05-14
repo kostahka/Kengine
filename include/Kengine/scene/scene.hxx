@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Kengine/graphics/graphics.hxx"
+#include "Kengine/graphics/render-pass.hxx"
 #include "Kengine/resources/res-ptr.hxx"
 #include "Kengine/serialization/serialization.hxx"
 #include "Kengine/string/string-id.hxx"
@@ -70,6 +71,8 @@ namespace Kengine
 
         inline const auto& get_resources() const { return resources; }
 
+        inline graphics::render_pass& get_main_pass() { return main_pass; }
+
     private:
         void on_construct_entity(entt::entity ent);
         void on_destroy_camera(entt::entity ent);
@@ -87,5 +90,7 @@ namespace Kengine
         graphics::camera  last_camera{};
         game*             scene_game  = nullptr;
         b2World*          scene_world = nullptr;
+
+        graphics::render_pass main_pass;
     };
 } // namespace Kengine

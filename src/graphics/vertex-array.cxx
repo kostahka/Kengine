@@ -52,6 +52,11 @@ namespace Kengine::graphics
         KENGINE_GL_CHECK(glBindVertexArray(vao));
     }
 
+    void vertex_array::unbind()
+    {
+        KENGINE_GL_CHECK(glBindVertexArray(0));
+    }
+
     void vertex_array::draw(draw_mode mode, uint32_t v_count, uint32_t v_start)
     {
         KENGINE_GL_CHECK(
@@ -71,13 +76,6 @@ namespace Kengine::graphics
         : ebo(nullptr)
         , vertex_array()
     {
-    }
-
-    void vertex_element_array::bind()
-    {
-        KENGINE_GL_CHECK(glBindVertexArray(vao));
-        if (ebo)
-            ebo->bind();
     }
 
     void vertex_element_array::set_elements(std::shared_ptr<element_buffer> ebo)

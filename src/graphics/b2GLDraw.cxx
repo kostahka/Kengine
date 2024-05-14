@@ -4,7 +4,7 @@
 
 inline Kengine::vec3 vec_to_tr(const b2Vec2 v)
 {
-    return { v.x, v.y, -1 };
+    return { v.x, v.y, 1 };
 }
 
 //

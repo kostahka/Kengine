@@ -39,19 +39,22 @@ namespace Kengine
         void on_update(scene&, int delta_ms) override;
 
     private:
+        void create_vao();
         void sort_sprites(entt::registry&, entt::entity);
         void increase_data_size();
         void draw_sprites(uint32_t                           count,
                           res_ptr<sprite_material_resource>& material,
                           int                                layer);
 
-        std::shared_ptr<graphics::vertex_buffer<sprite_data>> vbo;
-        std::unique_ptr<graphics::vertex_element_array>       vao;
-        std::vector<sprite_data>                              data;
-        uint32_t max_sprites_count = 128;
-        uint32_t vao_sprites_count = 128;
+        std::vector<std::shared_ptr<graphics::vertex_buffer<sprite_data>>>
+                                                                     vbos{};
+        std::vector<std::shared_ptr<graphics::vertex_element_array>> vaos{};
+        std::vector<sprite_data>                                     data{};
+        bool     update_projections = true;
+        uint32_t vao_number         = 0;
 
-        bool update_projections = true;
+        std::shared_ptr<graphics::vertex_buffer<vec3>> sprite_vbo = nullptr;
+        std::shared_ptr<graphics::element_buffer>      sprite_ebo = nullptr;
 
         scene& sc;
     };

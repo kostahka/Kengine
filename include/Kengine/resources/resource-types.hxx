@@ -16,6 +16,7 @@ namespace Kengine
         sprite_material,
         gui_material,
         font,
-        animation
+        animation,
+        font_material
     };
 }

@@ -99,7 +99,7 @@ void scene_properties_wnd::display()
                         ImGui::PushID(static_cast<uint32_t>(ent));
 
                         ImGui::Text("Entity %d", static_cast<uint32_t>(ent));
-                        if (current_scene.get_camera_entity() == ent)
+                        if (current_scene.get_camera_entity() != ent)
                         {
                             ImGui::SameLine();
                             if (ImGui::Button("Bind"))

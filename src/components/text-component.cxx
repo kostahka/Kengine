@@ -17,13 +17,13 @@ namespace Kengine
 
     text_component::text_component()
         : component(name)
-        , font(nullptr)
+        , material(nullptr)
     {
     }
 
     text_component::text_component(text_component& other)
         : component(name)
-        , font(other.font)
+        , material(other.material)
         , origin(other.origin)
         , text(other.text)
         , line_advance(other.line_advance)
@@ -35,12 +35,15 @@ namespace Kengine
         , layer(other.layer)
         , gui_event_id(other.gui_event_id)
     {
-        font->take_data();
+        if (material)
+        {
+            material->take_data();
+        }
     }
 
     text_component::text_component(text_component&& other)
         : component(name)
-        , font(nullptr)
+        , material(nullptr)
         , origin(other.origin)
         , text(other.text)
         , line_advance(other.line_advance)
@@ -52,12 +55,16 @@ namespace Kengine
         , layer(other.layer)
         , gui_event_id(other.gui_event_id)
     {
-        std::swap(font, other.font);
+        std::swap(material, other.material);
     }
 
     text_component& text_component::operator=(text_component& other)
     {
-        font         = other.font;
+        if (material)
+        {
+            material->free_data();
+        }
+        material     = other.material;
         origin       = other.origin;
         text         = other.text;
         line_advance = other.line_advance;
@@ -68,13 +75,16 @@ namespace Kengine
         scale        = other.scale;
         layer        = other.layer;
         gui_event_id = other.gui_event_id;
-        font->take_data();
+        if (material)
+        {
+            material->take_data();
+        }
         return *this;
     }
 
     text_component& text_component::operator=(text_component&& other)
     {
-        std::swap(font, other.font);
+        std::swap(material, other.material);
         origin       = other.origin;
         text         = other.text;
         line_advance = other.line_advance;
@@ -88,23 +98,26 @@ namespace Kengine
         return *this;
     }
 
-    void text_component::set_font(const res_ptr<font_resource>& font)
+    void text_component::set_material(
+        const res_ptr<font_material_resource>& material)
     {
-        if (this->font)
+        if (this->material)
         {
-            this->font->free_data();
+            this->material->free_data();
         }
-        this->font = font;
-        if (this->font)
+        this->material = material;
+        if (this->material)
         {
-            this->font->take_data();
+            this->material->take_data();
         }
     }
 
     text_component::~text_component()
     {
-        if (font)
-            font->free_data();
+        if (material)
+        {
+            material->free_data();
+        }
     }
 
     std::size_t text_component::serialize(std::ostream& os) const
@@ -126,7 +139,7 @@ namespace Kengine
         size += serialization::write(os, scale.y);
         size += serialization::write(os, layer);
         size += serialization::write(os, gui_event_id);
-        size += serialization::write(os, font);
+        size += serialization::write(os, material);
 
         return size;
     }
@@ -135,7 +148,7 @@ namespace Kengine
     {
         std::size_t size = 0;
 
-        res_ptr<font_resource> font;
+        res_ptr<font_material_resource> material;
 
         size += serialization::read(is, text);
         size += serialization::read(is, line_advance);
@@ -152,9 +165,9 @@ namespace Kengine
         size += serialization::read(is, scale.y);
         size += serialization::read(is, layer);
         size += serialization::read(is, gui_event_id);
-        size += serialization::read(is, font);
+        size += serialization::read(is, material);
 
-        set_font(font);
+        set_material(material);
 
         return size;
     }
@@ -178,7 +191,7 @@ namespace Kengine
         size += serialization::size(scale.y);
         size += serialization::size(layer);
         size += serialization::size(gui_event_id);
-        size += serialization::size(font);
+        size += serialization::size(material);
 
         return size;
     }
@@ -189,10 +202,10 @@ namespace Kengine
 #ifdef KENGINE_IMGUI
         ImGui::PushID(this);
 
-        auto new_font = font;
-        if (imgui::edit_resource("Sprite font", &new_font))
+        auto new_material = material;
+        if (imgui::edit_resource("Font material", &new_material))
         {
-            set_font(new_font);
+            set_material(new_material);
             edited = true;
         }
 

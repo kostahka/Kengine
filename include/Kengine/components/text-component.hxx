@@ -2,7 +2,7 @@
 
 #include "Kengine/components/component-info.hxx"
 #include "Kengine/components/component.hxx"
-#include "Kengine/resources/font-resource.hxx"
+#include "Kengine/resources/font-material-resource.hxx"
 #include "Kengine/units/rect.hxx"
 
 #include "entt/entt.hpp"
@@ -38,11 +38,17 @@ namespace Kengine
 
         bool imgui_editable_render() override;
 
-        void set_font(const res_ptr<font_resource>& font);
+        void set_material(const res_ptr<font_material_resource>& material);
 
-        inline const res_ptr<font_resource>& get_font() const { return font; }
+        inline res_ptr<font_material_resource>& get_material()
+        {
+            return material;
+        }
 
-        inline res_ptr<font_resource>& get_font() { return font; }
+        inline const res_ptr<font_material_resource>& get_material() const
+        {
+            return material;
+        }
 
         std::u32string text         = U"";
         float          line_advance = 1.f;
@@ -58,7 +64,7 @@ namespace Kengine
         bool is_hovered = false;
 
     private:
-        res_ptr<font_resource> font = nullptr;
+        res_ptr<font_material_resource> material = nullptr;
     };
 
 } // namespace Kengine

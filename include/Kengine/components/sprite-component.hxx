@@ -39,6 +39,11 @@ namespace Kengine
             return material;
         }
 
+        inline res_ptr<sprite_material_resource>& get_material()
+        {
+            return material;
+        }
+
         vec2 origin = { 0, 0 };
         rect uv{ 0, 0, 1, 1 };
         int  layer   = 0;

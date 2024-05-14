@@ -74,6 +74,7 @@ namespace Kengine
         size += serialization::write(os, transf.delta_max.y);
         size += serialization::write(os, parent);
         size += serialization::write(os, current_entity);
+        size += serialization::write(os, transf.enabled);
 
         return size;
     }
@@ -92,6 +93,7 @@ namespace Kengine
         size += serialization::read(is, transf.delta_max.y);
         size += serialization::read(is, parent);
         size += serialization::read(is, current_entity);
+        size += serialization::read(is, transf.enabled);
 
         return size;
     }
@@ -110,6 +112,7 @@ namespace Kengine
         size += serialization::size(transf.delta_max.y);
         size += serialization::size(parent);
         size += serialization::size(current_entity);
+        size += serialization::size(transf.enabled);
 
         return size;
     }
@@ -119,6 +122,7 @@ namespace Kengine
         bool edited = false;
 #ifdef KENGINE_IMGUI
         ImGui::PushID(this);
+        edited = edited || ImGui::Checkbox("Enabled", &transf.enabled);
         edited = edited || ImGui::DragFloat2(
                                "Anchor min", (float*)&transf.anchor_min, 0.1f);
         edited = edited || ImGui::DragFloat2(
@@ -156,11 +160,12 @@ namespace Kengine
 
         if (!sc || parent == entt::null)
         {
-            auto current_viewport   = graphics::get_current_viewport();
-            vec2 f_current_viewport = { (float)current_viewport.x,
-                                        (float)current_viewport.y };
-            parent_transform.start  = { 0, 0 };
-            parent_transform.rect   = f_current_viewport;
+            auto current_viewport    = graphics::get_current_viewport();
+            vec2 f_current_viewport  = { (float)current_viewport.x,
+                                         (float)current_viewport.y };
+            parent_transform.start   = { 0, 0 };
+            parent_transform.rect    = f_current_viewport;
+            parent_transform.enabled = true;
         }
         else
         {
@@ -175,11 +180,7 @@ namespace Kengine
         result.rect = (transf.anchor_max * parent_transform.rect +
                        parent_transform.start + transf.delta_max) -
                       result.start;
-
-        if (result.rect.x < 0)
-            result.rect.x = 0;
-        if (result.rect.y < 0)
-            result.rect.y = 0;
+        result.enabled = transf.enabled && parent_transform.enabled;
 
         is_trans_valid = true;
         last_trans     = result;
@@ -224,10 +225,7 @@ namespace Kengine
     {
         total_size += serialization::read(is, value);
         value.initialize(&sc, loader.map(value.get_current_entity()));
-        if (value.get_parent() != entt::null)
-        {
-            value.set_parent(loader.map(value.get_parent()));
-        }
+        value.parent = loader.map(value.get_parent());
     }
 
     component_info rect_transform_component::info{

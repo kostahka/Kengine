@@ -27,7 +27,14 @@ namespace Kengine
         std::size_t deserialize(std::istream& is) override;
         std::size_t serialize_size() const override;
 
-        [[nodiscard]] inline uint32_t get_id() const { return id; }
+        [[nodiscard]] inline uint32_t get_id() const
+        {
+
+            ;
+            ;
+
+            return id;
+        }
 
         [[nodiscard]] inline const ivec2& get_size() const { return size; }
 
@@ -52,16 +59,15 @@ namespace Kengine
         virtual void load_data() override;
         virtual void unload_data() override;
 
-    private:
         void load_invalid_texture();
 
-        ivec2    size;
-        int      num_channels;
-        uint32_t id;
+        ivec2    size         = { 1, 1 };
+        int      num_channels = 0;
+        uint32_t id           = 0;
 
-        texture_filter mag_filter;
-        texture_filter min_filter;
+        texture_filter mag_filter = texture_filter::linear;
+        texture_filter min_filter = texture_filter::linear;
 
-        texture_format format;
+        texture_format format = texture_format::none;
     };
 } // namespace Kengine

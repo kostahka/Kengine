@@ -377,11 +377,11 @@ namespace Kengine
 
     void scene::on_render(int delta_ms)
     {
-
         for (auto& system : render_systems)
         {
             system->on_render(*this, delta_ms);
         }
+        main_pass.render();
     }
 
     void scene::on_event(const event::game_event& g_event)
