@@ -7,7 +7,6 @@
 #include "Kengine/scene/scene-manager.hxx"
 
 #include "imgui.h"
-#include "picopng.hxx"
 #include "stb_image.h"
 
 #include <iterator>

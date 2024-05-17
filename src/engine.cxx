@@ -16,7 +16,6 @@
 #include "Kengine/graphics/framebuffer.hxx"
 #include "Kengine/graphics/graphics.hxx"
 #include "Kengine/log/log.hxx"
-#include "Kengine/render/engine-resources.hxx"
 #include "Kengine/resources/res-ptr.hxx"
 #include "Kengine/scene/scene-manager.hxx"
 #include "Kengine/window/window.hxx"
