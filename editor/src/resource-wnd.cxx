@@ -43,7 +43,7 @@ void resource_wnd::display()
 
             if (current_res_type == Kengine::resource_type::font)
             {
-                ImGui::BeginChild("Prefiew",
+                ImGui::BeginChild("Preview",
                                   { 50, 50 },
                                   ImGuiChildFlags_ResizeX |
                                       ImGuiChildFlags_ResizeY |

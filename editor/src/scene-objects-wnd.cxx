@@ -119,8 +119,11 @@ void scene_objects_wnd::display()
                     ImGui::Text("Objects:");
                     {
 
-                        ImGui::BeginChild(
-                            "objects", { 0, 0 }, ImGuiChildFlags_FrameStyle);
+                        ImGui::BeginChild("objects",
+                                          { 0, 0 },
+                                          ImGuiChildFlags_FrameStyle |
+                                              ImGuiChildFlags_ResizeX |
+                                              ImGuiChildFlags_ResizeY);
 
                         auto ent_view =
                             current_scene.registry.view<entt::entity>();
