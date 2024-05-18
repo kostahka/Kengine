@@ -76,6 +76,8 @@ namespace Kengine
 #ifdef KENGINE_IMGUI
         imgui::initialize();
 #endif
+        KENGINE_INFO("Assets folder: {}",
+                     scene_manager::assets_base_folder.string().c_str());
 
         return true;
     };

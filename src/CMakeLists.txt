@@ -83,7 +83,6 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/resources/framebuffer-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/gui-material-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/material-resource.cxx
-    ${CMAKE_CURRENT_LIST_DIR}/resources/picopng.hxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/renderbuffer-resource.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/resource-manager.cxx
     ${CMAKE_CURRENT_LIST_DIR}/resources/resource.cxx

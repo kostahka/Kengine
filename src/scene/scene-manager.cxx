@@ -15,6 +15,11 @@ namespace Kengine::scene_manager
         assets_base_folder = folder;
     }
 
+    path get_assets_base_folder()
+    {
+        return assets_base_folder;
+    }
+
     std::shared_ptr<scene> load_scene(const path& scene_path, game* sc_game)
     {
         auto loaded_scene = std::make_shared<scene>(sc_game);
