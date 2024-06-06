@@ -109,11 +109,9 @@ namespace Kengine
         bool edited = false;
 #ifdef KENGINE_IMGUI
         ImGui::PushID(this);
-        edited = edited ||
-                 ImGui::DragFloat2("Position", (float*)&transf.position, 0.1f);
-        edited = edited || ImGui::DragFloat("Angle", &transf.angle, 0.1f);
-        edited =
-            edited || ImGui::DragFloat3("Scale", (float*)&transf.scale, 0.1f);
+        edited |= ImGui::DragFloat2("Position", (float*)&transf.position, 0.1f);
+        edited |= ImGui::DragFloat("Angle", &transf.angle, 0.1f);
+        edited |= ImGui::DragFloat3("Scale", (float*)&transf.scale, 0.1f);
         ImGui::PopID();
 #endif
         return edited;

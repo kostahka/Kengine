@@ -253,22 +253,17 @@ namespace Kengine
     {
         bool edited = false;
 #ifdef KENGINE_IMGUI
-        edited =
-            edited || ImGui::Checkbox("Is play on start", &is_play_on_start);
+        edited |= ImGui::Checkbox("Is play on start", &is_play_on_start);
 
-        edited = edited || ImGui::Checkbox("Is surrounded", &is_surrounded);
-        edited =
-            edited || ImGui::DragFloat("Max distance", &max_distance, 0.1f);
-        edited =
-            edited ||
-            ImGui::DragFloat2(
-                "Channels intensity", &channels_intensity.x, 0.01f, 0.0f, 1.0f);
-        edited =
-            edited || ImGui::DragFloat("Volume", &volume, 0.1f, 0.0f, 1.0f);
+        edited |= ImGui::Checkbox("Is surrounded", &is_surrounded);
+        edited |= ImGui::DragFloat("Max distance", &max_distance, 0.1f);
+        edited |= ImGui::DragFloat2(
+            "Channels intensity", &channels_intensity.x, 0.01f, 0.0f, 1.0f);
+        edited |= ImGui::DragFloat("Volume", &volume, 0.1f, 0.0f, 1.0f);
         if (continuous_object)
         {
-            edited = edited || ImGui::Checkbox("Is looped",
-                                               &continuous_object->is_looped);
+            edited |=
+                ImGui::Checkbox("Is looped", &continuous_object->is_looped);
         }
 
         auto new_audio_res =

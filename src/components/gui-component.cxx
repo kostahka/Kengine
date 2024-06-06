@@ -161,11 +161,11 @@ namespace Kengine
             edited = true;
         }
 
-        edited = edited || ImGui::DragFloat2("Origin", (float*)&origin, 0.1f);
-        edited = edited || ImGui::DragFloat4("UV", (float*)&uv, 0.1f);
-        edited = edited || ImGui::DragFloat("Angle", (float*)&angle, 0.1f);
-        edited = edited || ImGui::DragFloat2("Scale", (float*)&scale, 0.1f);
-        edited = edited || ImGui::DragInt("Layer", &layer);
+        edited |= ImGui::DragFloat2("Origin", (float*)&origin, 0.1f);
+        edited |= ImGui::DragFloat4("UV", (float*)&uv, 0.1f);
+        edited |= ImGui::DragFloat("Angle", (float*)&angle, 0.1f);
+        edited |= ImGui::DragFloat2("Scale", (float*)&scale, 0.1f);
+        edited |= ImGui::DragInt("Layer", &layer);
 
         ImGui::BulletText("Gui event id: '%s'", gui_event_id.get_string());
         static const int gui_event_name_length                 = 100;
@@ -176,6 +176,7 @@ namespace Kengine
         if (ImGui::Button("Set id"))
         {
             gui_event_id = hash_string(gui_event_name);
+            edited       = true;
         }
 
         ImGui::PopID();

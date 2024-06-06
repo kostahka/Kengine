@@ -190,7 +190,7 @@ static ImGuiKey ImGui_ImplSDL3_KeycodeToImGuiKey(int keycode)
             return ImGuiKey_Enter;
         case SDLK_ESCAPE:
             return ImGuiKey_Escape;
-        case SDLK_QUOTE:
+        case SDLK_APOSTROPHE:
             return ImGuiKey_Apostrophe;
         case SDLK_COMMA:
             return ImGuiKey_Comma;
@@ -210,7 +210,7 @@ static ImGuiKey ImGui_ImplSDL3_KeycodeToImGuiKey(int keycode)
             return ImGuiKey_Backslash;
         case SDLK_RIGHTBRACKET:
             return ImGuiKey_RightBracket;
-        case SDLK_BACKQUOTE:
+        case SDLK_GRAVE:
             return ImGuiKey_GraveAccent;
         case SDLK_CAPSLOCK:
             return ImGuiKey_CapsLock;

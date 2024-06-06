@@ -236,10 +236,6 @@ namespace Kengine::graphics
         KENGINE_GL_CHECK(glUseProgram(text_shader->get_id()));
         text_shader->set_uniform_block_binding("Matrices", 1);
 
-        text_color_property = hash_string("color");
-        shader_type_any(vec4(1, 1, 1, 1))
-            .uniform(text_shader->get_uniform_location(text_color_property));
-
         primitive_points_vertex_shader =
             make_resource<vertex_shader_res>(std::string_view(R"(
                 #version 300 es

@@ -366,10 +366,8 @@ namespace Kengine
             {
                 b2CircleShape* circle = static_cast<b2CircleShape*>(shape);
 
-                edited = edited ||
-                         ImGui::DragFloat2("Position", (float*)&circle->m_p);
-                edited =
-                    edited || ImGui::DragFloat("Radius", &circle->m_radius);
+                edited |= ImGui::DragFloat2("Position", (float*)&circle->m_p);
+                edited |= ImGui::DragFloat("Radius", &circle->m_radius);
             }
             else if (shape_type == b2Shape::Type::e_chain)
             {
@@ -542,7 +540,7 @@ namespace Kengine
                                   ImGuiChildFlags_AutoResizeY |
                                   ImGuiChildFlags_Border);
 
-            edited = edited || shape.imgui_editable_render();
+            edited |= shape.imgui_editable_render();
 
             ImGui::EndChild();
             ImGui::PopID();
@@ -946,7 +944,7 @@ namespace Kengine
                     ImGui::EndCombo();
                 }
 
-                edited = edited || fixtures[i].imgui_editable_render();
+                edited |= fixtures[i].imgui_editable_render();
 
                 if (ImGui::Button("Delete"))
                 {

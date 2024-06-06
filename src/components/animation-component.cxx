@@ -190,12 +190,10 @@ namespace Kengine
         bool edited = false;
 #ifdef KENGINE_IMGUI
         ImGui::PushID(this);
-        edited =
-            edited || ImGui::Checkbox("Is play on start", &is_play_on_start);
-        edited || ImGui::Checkbox("Is looped", &is_looped);
-        edited = edited || ImGui::Checkbox("Reversed", &reversed);
-        edited =
-            edited || ImGui::DragInt("Delta frame time", &delta_frame_time);
+        edited |= ImGui::Checkbox("Is play on start", &is_play_on_start);
+        edited |= ImGui::Checkbox("Is looped", &is_looped);
+        edited |= ImGui::Checkbox("Reversed", &reversed);
+        edited |= ImGui::DragInt("Delta frame time", &delta_frame_time);
 
         if (anim_res)
         {

@@ -84,7 +84,8 @@ namespace Kengine::file_manager
             return false;
         }
 
-        file = SDL_IOFromFile(path.string().c_str(), sdl_openmode_map->second);
+        file = SDL_IOFromFile((char*)path.u8string().c_str(),
+                              sdl_openmode_map->second);
         if (!file)
         {
             KENGINE_ERROR("Failed to open file [{}], error: {}",
@@ -132,7 +133,7 @@ namespace Kengine::file_manager
 
     bool file_buffer_impl::load(std::filesystem::path path)
     {
-        file = SDL_IOFromFile(path.string().c_str(), "rb");
+        file = SDL_IOFromFile((char*)path.u8string().c_str(), "rb");
         if (!file)
         {
             KENGINE_ERROR("Failed to open file [{}], error: {}",
@@ -389,7 +390,7 @@ namespace Kengine::file_manager
 
     bool file_exists(std::filesystem::path path)
     {
-        auto file = SDL_IOFromFile(path.string().c_str(), "rb");
+        auto file = SDL_IOFromFile((char*)path.u8string().c_str(), "rb");
         if (file)
         {
             SDL_CloseIO(file);

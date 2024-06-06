@@ -268,9 +268,8 @@ namespace Kengine::audio
                                      Uint32          len,
                                      vec2            volume)
     {
-        int final_volume =
-            static_cast<int>(((volume.x + volume.y) / 2) * SDL_MIX_MAXVOLUME);
-        return SDL_MixAudioFormat(dst, src, format, len, final_volume);
+        float final_volume = ((volume.x + volume.y) / 2);
+        return SDL_MixAudio(dst, src, format, len, final_volume);
     }
 
     void audio_callback(void*            userdata,

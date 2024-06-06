@@ -122,11 +122,11 @@ namespace Kengine
         bool edited = false;
 #ifdef KENGINE_IMGUI
         ImGui::PushID(this);
-        edited = edited || ImGui::Checkbox("Enabled", &transf.enabled);
-        edited = edited || ImGui::DragFloat2(
-                               "Anchor min", (float*)&transf.anchor_min, 0.1f);
-        edited = edited || ImGui::DragFloat2(
-                               "Anchor max", (float*)&transf.anchor_max, 0.1f);
+        edited |= ImGui::Checkbox("Enabled", &transf.enabled);
+        edited |=
+            ImGui::DragFloat2("Anchor min", (float*)&transf.anchor_min, 0.1f);
+        edited |=
+            ImGui::DragFloat2("Anchor max", (float*)&transf.anchor_max, 0.1f);
 
         auto world_transform = get_last_transform();
         vec2 world_start     = world_transform.start;

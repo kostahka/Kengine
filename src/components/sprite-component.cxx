@@ -168,10 +168,10 @@ namespace Kengine
             edited = true;
         }
 
-        edited = edited || ImGui::DragFloat2("Origin", (float*)&origin, 0.1f);
-        edited = edited || ImGui::DragFloat4("UV", (float*)&uv, 0.1f);
-        edited = edited || ImGui::DragInt("Layer", &layer);
-        edited = edited || ImGui::Checkbox("Visible", &visible);
+        edited |= ImGui::DragFloat2("Origin", (float*)&origin, 0.1f);
+        edited |= ImGui::DragFloat4("UV", (float*)&uv, 0.1f);
+        edited |= ImGui::DragInt("Layer", &layer);
+        edited |= ImGui::Checkbox("Visible", &visible);
 
         ImGui::PopID();
 #endif

@@ -78,12 +78,9 @@ namespace Kengine
 
             bool projection_edited = false;
 
-            projection_edited =
-                projection_edited || ImGui::DragFloat("Height", &height, 0.1f);
-            projection_edited =
-                projection_edited || ImGui::DragFloat("zNear", &zNear, 0.1f);
-            projection_edited =
-                projection_edited || ImGui::DragFloat("zFar", &zFar, 0.1f);
+            projection_edited |= ImGui::DragFloat("Height", &height, 0.1f);
+            projection_edited |= ImGui::DragFloat("zNear", &zNear, 0.1f);
+            projection_edited |= ImGui::DragFloat("zFar", &zFar, 0.1f);
 
             if (projection_edited)
             {
