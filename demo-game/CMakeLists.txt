@@ -1,5 +1,9 @@
 include(../cmake/Kengine.cmake)
 
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(${CMAKE_EXE_LINKER_FLAGS} "${CMAKE_EXE_LINKER_FLAGS} -ld64")
+endif()
+
 set(KENGINE_DEMO_GAME_SOURCES # cmake-format: sortable
                               src/demo-game.cxx
 )
@@ -26,10 +30,6 @@ target_include_directories(
 )
 
 target_link_libraries(kengine-demo-static PRIVATE Kengine::kengine-static)
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    target_compile_options(kengine-demo-static PRIVATE "-ld64")
-endif()
 
 add_custom_target(
     demo_game_copy_assets_shaders ALL
