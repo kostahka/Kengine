@@ -92,7 +92,7 @@ void editor::render_imgui()
         base_assets_file_browser.ClearSelected();
     }
 
-    ImGui::ShowDemoWindow();
+    // ImGui::ShowDemoWindow();
     {
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
         ImGui::DockSpaceOverViewport(viewport);

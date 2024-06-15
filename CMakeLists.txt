@@ -12,6 +12,10 @@ option(KENGINE_EDITOR "Build kengine editor" ON)
 option(KENGINE_DEMO_GAME "Build demo game" ON)
 option(KENGINE_IMGUI "Integration with imgui" ON)
 
+if(ANDROID)
+    set(KENGINE_EDITOR OFF)
+endif()
+
 if(KENGINE_EDITOR OR KENGINE_DEMO_GAME)
     set(KENGINE_IMGUI
         ON
@@ -31,6 +35,18 @@ if(SDL3_SRC_DIR AND ANDROID)
     )
 else()
     find_package(SDL3 REQUIRED)
+endif()
+
+# SDL_ttf
+if(SDL3_TTF_SRC_DIR AND ANDROID)
+    add_subdirectory(
+        # Specifies the directory of the CMakeLists.txt file.
+        ${SDL3_TTF_SRC_DIR}
+        # Specifies the directory for the build outputs.
+        ${CMAKE_CURRENT_BINARY_DIR}/SDL_ttf_${ANDROID_ABI}
+    )
+else()
+    find_package(SDL3_ttf REQUIRED)
 endif()
 
 # Build static external libs
@@ -93,9 +109,6 @@ endif()
 
 # ENTT
 add_subdirectory(external/entt)
-
-# SDL_ttf
-find_package(SDL3_ttf REQUIRED)
 
 # Kengine source
 add_subdirectory(src)

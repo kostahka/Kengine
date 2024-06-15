@@ -211,10 +211,22 @@ target_link_libraries(
     INTERFACE efsw
     INTERFACE glad
     INTERFACE stb
-    INTERFACE $<LINK_LIBRARY:WHOLE_ARCHIVE, spdlog>
-    INTERFACE $<LINK_LIBRARY:WHOLE_ARCHIVE, box2d>
     INTERFACE SDL3_ttf::SDL3_ttf
 )
+
+if(ANDROID)
+    target_link_libraries(
+        kengine-private
+        INTERFACE spdlog
+        INTERFACE box2d
+    )
+else()
+    target_link_libraries(
+        kengine-private
+        INTERFACE $<LINK_LIBRARY:WHOLE_ARCHIVE, spdlog>
+        INTERFACE $<LINK_LIBRARY:WHOLE_ARCHIVE, box2d>
+    )
+endif()
 
 target_link_libraries(
     kengine-public
@@ -344,9 +356,13 @@ target_compile_definitions(kengine-public INTERFACE "-DIMGUI_IMPL_API=")
 
 if(KENGINE_IMGUI)
     target_compile_definitions(kengine-public INTERFACE KENGINE_IMGUI)
-    target_link_libraries(
-        kengine-private INTERFACE $<LINK_LIBRARY:WHOLE_ARCHIVE, imgui>
-    )
+    if(ANDROID)
+        target_link_libraries(kengine-private INTERFACE imgui)
+    else()
+        target_link_libraries(
+            kengine-private INTERFACE $<LINK_LIBRARY:WHOLE_ARCHIVE, imgui>
+        )
+    endif()
 
     target_compile_definitions(
         kengine-interface
