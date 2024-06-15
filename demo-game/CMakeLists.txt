@@ -16,8 +16,9 @@ set(KENGINE_DEMO_GAME_HEADERS # cmake-format: sortable
 )
 
 add_executable(
-    kengine-demo-static ${KENGINE_DEMO_GAME_SOURCES}
-                        ${KENGINE_DEMO_GAME_HEADERS}
+    kengine-demo-static
+    ${KENGINE_DEMO_GAME_SOURCES} ${KENGINE_DEMO_GAME_HEADERS}
+    $<$<PLATFORM_ID:"Darwin">:"-ld64">
 )
 
 developgame(
