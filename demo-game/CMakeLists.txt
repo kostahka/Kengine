@@ -2,6 +2,9 @@ include(../cmake/Kengine.cmake)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(${CMAKE_EXE_LINKER_FLAGS} "${CMAKE_EXE_LINKER_FLAGS} -ld64")
+    set(${CMAKE_SHARED_LINKER_FLAGS} "${CMAKE_SHARED_LINKER_FLAGS} -ld64")
+    set(${CMAKE_STATIC_LINKER_FLAGS} "${CMAKE_STATIC_LINKER_FLAGS} -ld64")
+    set(${CMAKE_MODULE_LINKER_FLAGS} "${CMAKE_MODULE_LINKER_FLAGS} -ld64")
 endif()
 
 set(KENGINE_DEMO_GAME_SOURCES # cmake-format: sortable
