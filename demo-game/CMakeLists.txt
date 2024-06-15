@@ -27,8 +27,12 @@ target_include_directories(
 
 target_link_libraries(kengine-demo-static PRIVATE Kengine::kengine-static)
 
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    target_compile_options(kengine-demo-static PRIVATE "-ld64")
+endif()
+
 add_custom_target(
-    copy_assets_shaders ALL
+    demo_game_copy_assets_shaders ALL
     COMMAND
         ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets/
         $<TARGET_FILE_DIR:kengine-demo-static>/assets
