@@ -1,6 +1,6 @@
 #include "Kengine/event/custom-event.hxx"
 
-#include <SDL_events.h>
+#include <SDL3/SDL_events.h>
 
 namespace Kengine
 {

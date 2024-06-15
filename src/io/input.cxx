@@ -4,9 +4,9 @@
 
 #include <array>
 
-#include <SDL_keyboard.h>
-#include <SDL_mouse.h>
-#include <SDL_touch.h>
+#include <SDL3/SDL_keyboard.h>
+#include <SDL3/SDL_mouse.h>
+#include <SDL3/SDL_touch.h>
 
 namespace Kengine::input
 {
@@ -47,7 +47,7 @@ namespace Kengine::input
 
         void update()
         {
-            const Uint8 *state = SDL_GetKeyboardState(nullptr);
+            const Uint8* state = SDL_GetKeyboardState(nullptr);
             for (int i = static_cast<int>(key::key_first); i < keys_count; i++)
             {
                 k_pressed[i] = state[i];

@@ -654,23 +654,23 @@ static bool ImGui_ImplSDL3_Init(SDL_Window*   window,
 
     // Load mouse cursors
     bd->MouseCursors[ImGuiMouseCursor_Arrow] =
-        SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+        SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_DEFAULT);
     bd->MouseCursors[ImGuiMouseCursor_TextInput] =
-        SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM);
+        SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_TEXT);
     bd->MouseCursors[ImGuiMouseCursor_ResizeAll] =
-        SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEALL);
+        SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_MOVE);
     bd->MouseCursors[ImGuiMouseCursor_ResizeNS] =
-        SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENS);
+        SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NS_RESIZE);
     bd->MouseCursors[ImGuiMouseCursor_ResizeEW] =
-        SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE);
+        SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_EW_RESIZE);
     bd->MouseCursors[ImGuiMouseCursor_ResizeNESW] =
-        SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENESW);
+        SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NESW_RESIZE);
     bd->MouseCursors[ImGuiMouseCursor_ResizeNWSE] =
-        SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENWSE);
+        SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NWSE_RESIZE);
     bd->MouseCursors[ImGuiMouseCursor_Hand] =
-        SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+        SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_POINTER);
     bd->MouseCursors[ImGuiMouseCursor_NotAllowed] =
-        SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NO);
+        SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NOT_ALLOWED);
 
     // Set platform dependent data in viewport
     // Our mouse update function expect PlatformHandle to be filled for the main
@@ -1342,7 +1342,7 @@ static void ImGui_ImplSDL3_InitPlatformInterface(SDL_Window* window,
     vd->Window                      = window;
     vd->WindowID                    = SDL_GetWindowID(window);
     vd->WindowOwned                 = false;
-    vd->GLContext                   = sdl_gl_context;
+    vd->GLContext = static_cast<SDL_GLContext>(sdl_gl_context);
     main_viewport->PlatformUserData = vd;
     main_viewport->PlatformHandle   = vd->Window;
 }

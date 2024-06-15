@@ -127,9 +127,9 @@ namespace Kengine
                 while (len--)
                 {
                     channel = (channel + 1) % 2;
-                    src1    = SDL_SwapLE16(*(Sint16*)src);
+                    src1    = SDL_Swap16LE(*(Sint16*)src);
                     ADJUST_VOLUME(Sint16, src1, volume, channel);
-                    src2 = SDL_SwapLE16(*(Sint16*)dst);
+                    src2 = SDL_Swap16LE(*(Sint16*)dst);
                     src += 2;
                     dst_sample = src1 + src2;
                     if (dst_sample > max_audioval)
@@ -140,7 +140,7 @@ namespace Kengine
                     {
                         dst_sample = min_audioval;
                     }
-                    *(Sint16*)dst = SDL_SwapLE16((Sint16)dst_sample);
+                    *(Sint16*)dst = SDL_Swap16LE((Sint16)dst_sample);
                     dst += 2;
                 }
             }
@@ -157,9 +157,9 @@ namespace Kengine
                 while (len--)
                 {
                     channel = (channel + 1) % 2;
-                    src1    = SDL_SwapBE16(*(Sint16*)src);
+                    src1    = SDL_Swap16BE(*(Sint16*)src);
                     ADJUST_VOLUME(Sint16, src1, volume, channel);
-                    src2 = SDL_SwapBE16(*(Sint16*)dst);
+                    src2 = SDL_Swap16BE(*(Sint16*)dst);
                     src += 2;
                     dst_sample = src1 + src2;
                     if (dst_sample > max_audioval)
@@ -170,7 +170,7 @@ namespace Kengine
                     {
                         dst_sample = min_audioval;
                     }
-                    *(Sint16*)dst = SDL_SwapBE16((Sint16)dst_sample);
+                    *(Sint16*)dst = SDL_Swap16BE((Sint16)dst_sample);
                     dst += 2;
                 }
             }
@@ -189,10 +189,10 @@ namespace Kengine
                 while (len--)
                 {
                     channel = (channel + 1) % 2;
-                    src1    = (Sint64)((Sint32)SDL_SwapLE32(*src32));
+                    src1    = (Sint64)((Sint32)SDL_Swap32LE(*src32));
                     src32++;
                     ADJUST_VOLUME(Sint64, src1, volume, channel);
-                    src2       = (Sint64)((Sint32)SDL_SwapLE32(*dst32));
+                    src2       = (Sint64)((Sint32)SDL_Swap32LE(*dst32));
                     dst_sample = src1 + src2;
                     if (dst_sample > max_audioval)
                     {
@@ -202,7 +202,7 @@ namespace Kengine
                     {
                         dst_sample = min_audioval;
                     }
-                    *(dst32++) = SDL_SwapLE32((Uint32)((Sint32)dst_sample));
+                    *(dst32++) = SDL_Swap32LE((Uint32)((Sint32)dst_sample));
                 }
             }
             break;
@@ -220,10 +220,10 @@ namespace Kengine
                 while (len--)
                 {
                     channel = (channel + 1) % 2;
-                    src1    = (Sint64)((Sint32)SDL_SwapBE32(*src32));
+                    src1    = (Sint64)((Sint32)SDL_Swap32BE(*src32));
                     src32++;
                     ADJUST_VOLUME(Sint64, src1, volume, channel);
-                    src2       = (Sint64)((Sint32)SDL_SwapBE32(*dst32));
+                    src2       = (Sint64)((Sint32)SDL_Swap32BE(*dst32));
                     dst_sample = src1 + src2;
                     if (dst_sample > max_audioval)
                     {
@@ -233,7 +233,7 @@ namespace Kengine
                     {
                         dst_sample = min_audioval;
                     }
-                    *(dst32++) = SDL_SwapBE32((Uint32)((Sint32)dst_sample));
+                    *(dst32++) = SDL_Swap32BE((Uint32)((Sint32)dst_sample));
                 }
             }
             break;

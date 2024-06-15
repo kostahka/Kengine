@@ -424,7 +424,9 @@ namespace Kengine::file_manager
         return instance->file->total_size();
     }
 
-    Sint64 sdl_io_stream::seek(void* userdata, Sint64 offset, int whence)
+    Sint64 sdl_io_stream::seek(void*        userdata,
+                               Sint64       offset,
+                               SDL_IOWhence whence)
     {
         sdl_io_stream* instance = reinterpret_cast<sdl_io_stream*>(userdata);
         auto           std_seekdir_it = sdl_seekdirs.find(whence);

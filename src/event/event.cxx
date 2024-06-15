@@ -9,8 +9,8 @@
 #include "Kengine/window/window.hxx"
 #include "imgui_impl_sdl3.h"
 
-#include <SDL_events.h>
-#include <SDL_mouse.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_mouse.h>
 
 #include <mutex>
 #include <queue>

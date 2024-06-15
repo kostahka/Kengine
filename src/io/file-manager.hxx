@@ -52,7 +52,7 @@ namespace Kengine::file_manager
         ~sdl_io_stream();
 
         static Sint64 size(void* userdata);
-        static Sint64 seek(void* userdata, Sint64 offset, int whence);
+        static Sint64 seek(void* userdata, Sint64 offset, SDL_IOWhence whence);
 
         static size_t read(void*         userdata,
                            void*         ptr,

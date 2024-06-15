@@ -403,7 +403,7 @@ namespace Kengine::audio
         std::lock_guard<spin_lock> lock(audio_lock);
         internal_sample_buffer.resize(internal_buffer_size);
         main_audio_stream =
-            SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_OUTPUT,
+            SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK,
                                       &default_spec,
                                       &audio_callback,
                                       nullptr);

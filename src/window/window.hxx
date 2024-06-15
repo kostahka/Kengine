@@ -3,10 +3,11 @@
 #include "Kengine/units/vector.hxx"
 #include "Kengine/window/window.hxx"
 
+#include <SDL3/SDL_render.h>
+
 #include <string_view>
 
 struct SDL_Window;
-typedef void* SDL_GLContext;
 
 namespace Kengine::window
 {
