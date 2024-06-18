@@ -1,9 +1,5 @@
 include(../cmake/Kengine.cmake)
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set(${CMAKE_EXE_LINKER_FLAGS} "${CMAKE_EXE_LINKER_FLAGS} -ld_classic")
-endif()
-
 set(KENGINE_DEMO_GAME_SOURCES # cmake-format: sortable
                               src/demo-game.cxx
 )

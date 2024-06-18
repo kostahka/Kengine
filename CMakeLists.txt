@@ -7,6 +7,12 @@ set(CMAKE_UNITY_BUILD ON)
 
 project(Kengine VERSION 0.0.0)
 
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(${CMAKE_EXE_LINKER_FLAGS} "${CMAKE_EXE_LINKER_FLAGS} -ld_classic")
+    set(${CMAKE_SHARED_LINKER_FLAGS} "${CMAKE_SHARED_LINKER_FLAGS} -ld_classic")
+    set(${CMAKE_STATIC_LINKER_FLAGS} "${CMAKE_STATIC_LINKER_FLAGS} -ld_classic")
+endif()
+
 # Options for Kengine.
 option(KENGINE_EDITOR "Build kengine editor" ON)
 option(KENGINE_DEMO_GAME "Build demo game" ON)
