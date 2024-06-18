@@ -1,10 +1,7 @@
 include(../cmake/Kengine.cmake)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set(${CMAKE_EXE_LINKER_FLAGS} "${CMAKE_EXE_LINKER_FLAGS} ld64")
-    set(${CMAKE_SHARED_LINKER_FLAGS} "${CMAKE_SHARED_LINKER_FLAGS} ld64")
-    set(${CMAKE_STATIC_LINKER_FLAGS} "${CMAKE_STATIC_LINKER_FLAGS} ld64")
-    set(${CMAKE_MODULE_LINKER_FLAGS} "${CMAKE_MODULE_LINKER_FLAGS} ld64")
+    set(${CMAKE_EXE_LINKER_FLAGS} "${CMAKE_EXE_LINKER_FLAGS} -ld_classic")
 endif()
 
 set(KENGINE_DEMO_GAME_SOURCES # cmake-format: sortable
@@ -16,9 +13,8 @@ set(KENGINE_DEMO_GAME_HEADERS # cmake-format: sortable
 )
 
 add_executable(
-    kengine-demo-static
-    ${KENGINE_DEMO_GAME_SOURCES} ${KENGINE_DEMO_GAME_HEADERS}
-    $<$<PLATFORM_ID:"Darwin">:"-ld64">
+    kengine-demo-static ${KENGINE_DEMO_GAME_SOURCES}
+                        ${KENGINE_DEMO_GAME_HEADERS}
 )
 
 developgame(
