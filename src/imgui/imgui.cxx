@@ -22,7 +22,7 @@ namespace Kengine::imgui
         ImGui::CreateContext();
         ImGui_ImplSDL3_InitForOpenGL(window::window, window::context);
         ImGui_ImplOpenGL3_Init("#version 300 es");
-        SDL_StartTextInput();
+        SDL_StartTextInput(window::window);
     }
 
     void shutdown()
@@ -30,7 +30,7 @@ namespace Kengine::imgui
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplSDL3_Shutdown();
         ImGui::DestroyContext();
-        SDL_StopTextInput();
+        SDL_StopTextInput(window::window);
     }
 
     void draw()

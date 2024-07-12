@@ -145,19 +145,70 @@ static void ImGui_ImplSDL3_SetClipboardText(void*, const char* text)
 static void ImGui_ImplSDL3_SetPlatformImeData(ImGuiViewport*        viewport,
                                               ImGuiPlatformImeData* data)
 {
+    ImGui_ImplSDL3_Data* bd     = ImGui_ImplSDL3_GetBackendData();
+    SDL_Window*          window = (SDL_Window*)viewport->PlatformHandle;
+    if ((data->WantVisible == false || bd->Window != window) &&
+        bd->Window != NULL)
+    {
+        SDL_StopTextInput(bd->Window);
+        bd->Window = nullptr;
+    }
     if (data->WantVisible)
     {
         SDL_Rect r;
-        r.x = (int)(data->InputPos.x - viewport->Pos.x);
-        r.y = (int)(data->InputPos.y - viewport->Pos.y + data->InputLineHeight);
+        r.x = (int)data->InputPos.x;
+        r.y = (int)data->InputPos.y;
         r.w = 1;
         r.h = (int)data->InputLineHeight;
-        SDL_SetTextInputRect(&r);
+        SDL_SetTextInputArea(window, &r, 0);
+        SDL_StartTextInput(window);
+        bd->Window = window;
     }
 }
 
-static ImGuiKey ImGui_ImplSDL3_KeycodeToImGuiKey(int keycode)
+static ImGuiKey ImGui_ImplSDL3_KeyEventToImGuiKey(SDL_Keycode  keycode,
+                                                  SDL_Scancode scancode)
 {
+    // Keypad doesn't have individual key values in SDL3
+    switch (scancode)
+    {
+        case SDL_SCANCODE_KP_0:
+            return ImGuiKey_Keypad0;
+        case SDL_SCANCODE_KP_1:
+            return ImGuiKey_Keypad1;
+        case SDL_SCANCODE_KP_2:
+            return ImGuiKey_Keypad2;
+        case SDL_SCANCODE_KP_3:
+            return ImGuiKey_Keypad3;
+        case SDL_SCANCODE_KP_4:
+            return ImGuiKey_Keypad4;
+        case SDL_SCANCODE_KP_5:
+            return ImGuiKey_Keypad5;
+        case SDL_SCANCODE_KP_6:
+            return ImGuiKey_Keypad6;
+        case SDL_SCANCODE_KP_7:
+            return ImGuiKey_Keypad7;
+        case SDL_SCANCODE_KP_8:
+            return ImGuiKey_Keypad8;
+        case SDL_SCANCODE_KP_9:
+            return ImGuiKey_Keypad9;
+        case SDL_SCANCODE_KP_PERIOD:
+            return ImGuiKey_KeypadDecimal;
+        case SDL_SCANCODE_KP_DIVIDE:
+            return ImGuiKey_KeypadDivide;
+        case SDL_SCANCODE_KP_MULTIPLY:
+            return ImGuiKey_KeypadMultiply;
+        case SDL_SCANCODE_KP_MINUS:
+            return ImGuiKey_KeypadSubtract;
+        case SDL_SCANCODE_KP_PLUS:
+            return ImGuiKey_KeypadAdd;
+        case SDL_SCANCODE_KP_ENTER:
+            return ImGuiKey_KeypadEnter;
+        case SDL_SCANCODE_KP_EQUALS:
+            return ImGuiKey_KeypadEqual;
+        default:
+            break;
+    }
     switch (keycode)
     {
         case SDLK_TAB:
@@ -222,40 +273,6 @@ static ImGuiKey ImGui_ImplSDL3_KeycodeToImGuiKey(int keycode)
             return ImGuiKey_PrintScreen;
         case SDLK_PAUSE:
             return ImGuiKey_Pause;
-        case SDLK_KP_0:
-            return ImGuiKey_Keypad0;
-        case SDLK_KP_1:
-            return ImGuiKey_Keypad1;
-        case SDLK_KP_2:
-            return ImGuiKey_Keypad2;
-        case SDLK_KP_3:
-            return ImGuiKey_Keypad3;
-        case SDLK_KP_4:
-            return ImGuiKey_Keypad4;
-        case SDLK_KP_5:
-            return ImGuiKey_Keypad5;
-        case SDLK_KP_6:
-            return ImGuiKey_Keypad6;
-        case SDLK_KP_7:
-            return ImGuiKey_Keypad7;
-        case SDLK_KP_8:
-            return ImGuiKey_Keypad8;
-        case SDLK_KP_9:
-            return ImGuiKey_Keypad9;
-        case SDLK_KP_PERIOD:
-            return ImGuiKey_KeypadDecimal;
-        case SDLK_KP_DIVIDE:
-            return ImGuiKey_KeypadDivide;
-        case SDLK_KP_MULTIPLY:
-            return ImGuiKey_KeypadMultiply;
-        case SDLK_KP_MINUS:
-            return ImGuiKey_KeypadSubtract;
-        case SDLK_KP_PLUS:
-            return ImGuiKey_KeypadAdd;
-        case SDLK_KP_ENTER:
-            return ImGuiKey_KeypadEnter;
-        case SDLK_KP_EQUALS:
-            return ImGuiKey_KeypadEqual;
         case SDLK_LCTRL:
             return ImGuiKey_LeftCtrl;
         case SDLK_LSHIFT:
@@ -294,57 +311,57 @@ static ImGuiKey ImGui_ImplSDL3_KeycodeToImGuiKey(int keycode)
             return ImGuiKey_8;
         case SDLK_9:
             return ImGuiKey_9;
-        case SDLK_a:
+        case SDLK_A:
             return ImGuiKey_A;
-        case SDLK_b:
+        case SDLK_B:
             return ImGuiKey_B;
-        case SDLK_c:
+        case SDLK_C:
             return ImGuiKey_C;
-        case SDLK_d:
+        case SDLK_D:
             return ImGuiKey_D;
-        case SDLK_e:
+        case SDLK_E:
             return ImGuiKey_E;
-        case SDLK_f:
+        case SDLK_F:
             return ImGuiKey_F;
-        case SDLK_g:
+        case SDLK_G:
             return ImGuiKey_G;
-        case SDLK_h:
+        case SDLK_H:
             return ImGuiKey_H;
-        case SDLK_i:
+        case SDLK_I:
             return ImGuiKey_I;
-        case SDLK_j:
+        case SDLK_J:
             return ImGuiKey_J;
-        case SDLK_k:
+        case SDLK_K:
             return ImGuiKey_K;
-        case SDLK_l:
+        case SDLK_L:
             return ImGuiKey_L;
-        case SDLK_m:
+        case SDLK_M:
             return ImGuiKey_M;
-        case SDLK_n:
+        case SDLK_N:
             return ImGuiKey_N;
-        case SDLK_o:
+        case SDLK_O:
             return ImGuiKey_O;
-        case SDLK_p:
+        case SDLK_P:
             return ImGuiKey_P;
-        case SDLK_q:
+        case SDLK_Q:
             return ImGuiKey_Q;
-        case SDLK_r:
+        case SDLK_R:
             return ImGuiKey_R;
-        case SDLK_s:
+        case SDLK_S:
             return ImGuiKey_S;
-        case SDLK_t:
+        case SDLK_T:
             return ImGuiKey_T;
-        case SDLK_u:
+        case SDLK_U:
             return ImGuiKey_U;
-        case SDLK_v:
+        case SDLK_V:
             return ImGuiKey_V;
-        case SDLK_w:
+        case SDLK_W:
             return ImGuiKey_W;
-        case SDLK_x:
+        case SDLK_X:
             return ImGuiKey_X;
-        case SDLK_y:
+        case SDLK_Y:
             return ImGuiKey_Y;
-        case SDLK_z:
+        case SDLK_Z:
             return ImGuiKey_Z;
         case SDLK_F1:
             return ImGuiKey_F1;
@@ -398,6 +415,8 @@ static ImGuiKey ImGui_ImplSDL3_KeycodeToImGuiKey(int keycode)
             return ImGuiKey_AppBack;
         case SDLK_AC_FORWARD:
             return ImGuiKey_AppForward;
+        default:
+            break;
     }
     return ImGuiKey_None;
 }
@@ -509,19 +528,17 @@ bool ImGui_ImplSDL3_ProcessEvent(const SDL_Event* event)
         case SDL_EVENT_KEY_DOWN:
         case SDL_EVENT_KEY_UP:
         {
-            ImGui_ImplSDL3_UpdateKeyModifiers(
-                (SDL_Keymod)event->key.keysym.mod);
-            ImGuiKey key =
-                ImGui_ImplSDL3_KeycodeToImGuiKey(event->key.keysym.sym);
+            ImGui_ImplSDL3_UpdateKeyModifiers((SDL_Keymod)event->key.mod);
+            ImGuiKey key = ImGui_ImplSDL3_KeyEventToImGuiKey(
+                event->key.key, event->key.scancode);
             io.AddKeyEvent(key, (event->type == SDL_EVENT_KEY_DOWN));
             io.SetKeyEventNativeData(
                 key,
-                event->key.keysym.sym,
-                event->key.keysym.scancode,
-                event->key.keysym
-                    .scancode); // To support legacy indexing (<1.87 user code).
-                                // Legacy backend uses SDLK_*** as indices to
-                                // IsKeyXXX() functions.
+                event->key.key,
+                event->key.scancode,
+                event->key.scancode); // To support legacy indexing (<1.87 user
+                                      // code). Legacy backend uses SDLK_*** as
+                                      // indices to IsKeyXXX() functions.
             return true;
         }
         case SDL_EVENT_DISPLAY_ORIENTATION:
@@ -624,8 +641,8 @@ static bool ImGui_ImplSDL3_Init(SDL_Window*   window,
         ImGuiBackendFlags_HasMouseCursors; // We can honor GetMouseCursor()
                                            // values (optional)
     io.BackendFlags |=
-        ImGuiBackendFlags_HasSetMousePos;  // We can honor io.WantSetMousePos
-                                           // requests (optional, rarely used)
+        ImGuiBackendFlags_HasSetMousePos; // We can honor io.WantSetMousePos
+                                          // requests (optional, rarely used)
     if (mouse_can_use_global_state)
         io.BackendFlags |=
             ImGuiBackendFlags_PlatformHasViewports; // We can create
@@ -788,7 +805,7 @@ static void ImGui_ImplSDL3_UpdateMouseData()
          (bd->Window == focused_window ||
           ImGui::FindViewportByPlatformHandle((void*)focused_window)));
  #else
-    SDL_Window* focused_window        = bd->Window;
+    SDL_Window* focused_window = bd->Window;
     const bool  is_app_focused =
         (SDL_GetWindowFlags(bd->Window) & SDL_WINDOW_INPUT_FOCUS) !=
         0; // SDL 2.0.3 and non-windowed systems: single-viewport only
@@ -924,9 +941,9 @@ static void ImGui_ImplSDL3_UpdateGamepads()
     MAP_BUTTON(ImGuiKey_GamepadStart, SDL_GAMEPAD_BUTTON_START);
     MAP_BUTTON(ImGuiKey_GamepadBack, SDL_GAMEPAD_BUTTON_BACK);
     MAP_BUTTON(ImGuiKey_GamepadFaceLeft,
-               SDL_GAMEPAD_BUTTON_WEST);  // Xbox X, PS Square
+               SDL_GAMEPAD_BUTTON_WEST); // Xbox X, PS Square
     MAP_BUTTON(ImGuiKey_GamepadFaceRight,
-               SDL_GAMEPAD_BUTTON_EAST);  // Xbox B, PS Circle
+               SDL_GAMEPAD_BUTTON_EAST); // Xbox B, PS Circle
     MAP_BUTTON(ImGuiKey_GamepadFaceUp,
                SDL_GAMEPAD_BUTTON_NORTH); // Xbox Y, PS Triangle
     MAP_BUTTON(ImGuiKey_GamepadFaceDown,

@@ -56,7 +56,7 @@ namespace Kengine::event
                 case SDL_EVENT_KEY_UP:
                     event.g_type       = type::keyboard_event;
                     event.keyboard.key = static_cast<input::keyboard::key>(
-                        sdl_event.key.keysym.scancode);
+                        sdl_event.key.scancode);
                     event.keyboard.pressed =
                         sdl_event.type == SDL_EVENT_KEY_DOWN;
 

@@ -39,6 +39,12 @@ if(WIN32)
         COMMAND
             ${CMAKE_COMMAND} -E copy $<TARGET_FILE:kengine-shared>
             $<TARGET_FILE_DIR:kengine-editor>/
+        COMMAND
+            ${CMAKE_COMMAND} -E copy $<TARGET_FILE:SDL3::SDL3-shared>
+            $<TARGET_FILE_DIR:kengine-editor>/
+        COMMAND
+            ${CMAKE_COMMAND} -E copy $<TARGET_FILE:SDL3_ttf::SDL3_ttf>
+            $<TARGET_FILE_DIR:kengine-editor>/
         COMMENT
             "Copying kengine-shared.dll into editor directory: [$<TARGET_FILE_DIR:kengine-editor>]"
     )
