@@ -6,7 +6,7 @@
 #include "Kengine/resources/font-material-resource.hxx"
 #include "Kengine/resources/gui-material-resource.hxx"
 #include "Kengine/system/system.hxx"
-#include "Kengine/units/rect.hxx"
+#include "Kengine/types/rect.hxx"
 
 #include "entt/entt.hpp"
 

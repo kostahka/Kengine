@@ -2,7 +2,7 @@
 
 #include "Kengine/audio/audio.hxx"
 #include "Kengine/components/component.hxx"
-#include "Kengine/units/vector.hxx"
+#include "Kengine/types/vector.hxx"
 
 namespace Kengine
 {

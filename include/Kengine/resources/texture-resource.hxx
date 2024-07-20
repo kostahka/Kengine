@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Kengine/graphics/texture-common.hxx"
-#include "Kengine/units/vector.hxx"
+#include "Kengine/types/vector.hxx"
 #include "resource.hxx"
 
 namespace Kengine

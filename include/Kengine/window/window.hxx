@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Kengine/configuration/configuration.hxx"
-#include "Kengine/units/vector.hxx"
+#include "Kengine/types/vector.hxx"
 
 namespace Kengine::window
 {
@@ -19,5 +19,5 @@ namespace Kengine::window
     E_DECLSPEC void set_input_focus();    // set input focus on window
     E_DECLSPEC void raise(); // raise window and set input focus on window
     E_DECLSPEC void warp_mouse(
-        float x, float y);   // set mouse cursor at position of window
+        float x, float y); // set mouse cursor at position of window
 } // namespace Kengine::window

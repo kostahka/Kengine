@@ -185,11 +185,13 @@ set(KENGINE_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/system/gui-system.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/system/physics-system.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/system/system.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/units/matrix.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/units/rect.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/units/transform.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/units/vector.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/units/vertex.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/types/any.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/types/keyed-archive.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/types/matrix.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/types/rect.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/types/transform.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/types/vector.hxx
+    ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/types/vertex.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/window/display.hxx
     ${CMAKE_CURRENT_LIST_DIR}/../include/Kengine/window/window.hxx
 )

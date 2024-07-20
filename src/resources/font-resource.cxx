@@ -5,7 +5,7 @@
 #include "../scene/scene-manager.hxx"
 #include "Kengine/imgui/imgui-edit.hxx"
 #include "Kengine/log/log.hxx"
-#include "Kengine/units/rect.hxx"
+#include "Kengine/types/rect.hxx"
 
 #include "imgui.h"
 

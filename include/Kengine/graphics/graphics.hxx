@@ -7,7 +7,7 @@
 #include "Kengine/resources/material-resource.hxx"
 #include "Kengine/resources/shader-resource.hxx"
 #include "Kengine/resources/sprite-material-resource.hxx"
-#include "Kengine/units/vector.hxx"
+#include "Kengine/types/vector.hxx"
 
 #include <memory>
 

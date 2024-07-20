@@ -4,8 +4,8 @@
 #include "Kengine/components/sprite-component.hxx"
 #include "Kengine/resources/shader-resource.hxx"
 #include "Kengine/scene/scene.hxx"
-#include "Kengine/units/matrix.hxx"
-#include "Kengine/units/vector.hxx"
+#include "Kengine/types/matrix.hxx"
+#include "Kengine/types/vector.hxx"
 
 namespace Kengine::graphics
 {

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Kengine/serialization/serialization.hxx"
-#include "Kengine/units/matrix.hxx"
-#include "Kengine/units/vector.hxx"
+#include "Kengine/types/matrix.hxx"
+#include "Kengine/types/vector.hxx"
 
 namespace Kengine::graphics
 {

@@ -6,7 +6,7 @@
 #include "Kengine/graphics/texture.hxx"
 #include "Kengine/graphics/vertex-array.hxx"
 #include "Kengine/resources/resource-manager.hxx"
-#include "Kengine/units/vertex.hxx"
+#include "Kengine/types/vertex.hxx"
 
 using namespace Kengine::graphics;
 
@@ -14,7 +14,7 @@ class demo_game : public Kengine::game
 {
 public:
     demo_game()
-        : Kengine::game(){};
+        : Kengine::game() {};
 
     ~demo_game() override;
     void on_start() override;

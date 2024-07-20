@@ -3,7 +3,7 @@
 #include "Kengine/components/component-info.hxx"
 #include "Kengine/components/component.hxx"
 #include "Kengine/resources/gui-material-resource.hxx"
-#include "Kengine/units/rect.hxx"
+#include "Kengine/types/rect.hxx"
 
 #include "entt/entt.hpp"
 

@@ -4,7 +4,7 @@
 #include "Kengine/resources/animation-resource.hxx"
 #include "Kengine/resources/res-ptr.hxx"
 #include "Kengine/string/string-id.hxx"
-#include "Kengine/units/rect.hxx"
+#include "Kengine/types/rect.hxx"
 
 #include <unordered_map>
 #include <vector>

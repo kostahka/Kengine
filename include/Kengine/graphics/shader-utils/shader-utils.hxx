@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Kengine/units/matrix.hxx"
-#include "Kengine/units/vector.hxx"
+#include "Kengine/types/matrix.hxx"
+#include "Kengine/types/vector.hxx"
 
 #include "glm/gtc/type_ptr.hpp"
 

@@ -3,8 +3,8 @@
 #include "Kengine/graphics/texture-common.hxx"
 #include "Kengine/resources/resource-manager.hxx"
 #include "Kengine/resources/texture-resource.hxx"
-#include "Kengine/units/rect.hxx"
-#include "Kengine/units/vector.hxx"
+#include "Kengine/types/rect.hxx"
+#include "Kengine/types/vector.hxx"
 #include "resource.hxx"
 
 #include <string>

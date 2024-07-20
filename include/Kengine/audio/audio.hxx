@@ -3,7 +3,7 @@
 #include "Kengine/audio/specs.hxx"
 #include "Kengine/resources/audio-resource.hxx"
 #include "Kengine/resources/res-ptr.hxx"
-#include "Kengine/units/vector.hxx"
+#include "Kengine/types/vector.hxx"
 
 #include <cstdint>
 #include <memory>

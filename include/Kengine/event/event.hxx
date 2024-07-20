@@ -2,7 +2,7 @@
 
 #include "Kengine/event/gui-event.hxx"
 #include "Kengine/io/input.hxx"
-#include "Kengine/units/vector.hxx"
+#include "Kengine/types/vector.hxx"
 #include <cstdint>
 
 namespace Kengine::event

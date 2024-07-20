@@ -2,7 +2,7 @@
 
 #include "Kengine/resources/resource.hxx"
 #include "Kengine/string/string-id.hxx"
-#include "Kengine/units/rect.hxx"
+#include "Kengine/types/rect.hxx"
 
 #include <string_view>
 #include <unordered_map>
@@ -36,7 +36,7 @@ namespace Kengine
         void unload_data() override;
 
         std::unordered_map<string_id, std::vector<rect>> animations{
-            {string_id(), { { 0, 0, 1, 1 } }}
+            { string_id(), { { 0, 0, 1, 1 } } }
         };
     };
 } // namespace Kengine

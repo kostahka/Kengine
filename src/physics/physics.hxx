@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Kengine/units/vector.hxx"
+#include "Kengine/types/vector.hxx"
 
 #include "box2d/b2_body.h"
 #include "box2d/b2_math.h"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Kengine/units/vector.hxx"
+#include "Kengine/types/vector.hxx"
 
 #include <SDL3/SDL_audio.h>
 
