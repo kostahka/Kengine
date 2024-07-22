@@ -95,7 +95,7 @@ void editor::render_imgui()
     // ImGui::ShowDemoWindow();
     {
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
-        ImGui::DockSpaceOverViewport(viewport);
+        ImGui::DockSpaceOverViewport(0, viewport);
 
         game_lib_file_browser.Display();
         base_assets_file_browser.Display();
