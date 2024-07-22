@@ -34,8 +34,8 @@ namespace Kengine::display
             return false;
         }
         {
-            int                     d_modes_count;
-            const SDL_DisplayMode** modes =
+            int                           d_modes_count;
+            const SDL_DisplayMode* const* modes =
                 SDL_GetFullscreenDisplayModes(primary, &d_modes_count);
             if (!modes)
             {
@@ -60,8 +60,6 @@ namespace Kengine::display
                     }
                 }
             }
-
-            SDL_free(modes);
         }
 
         return true;
