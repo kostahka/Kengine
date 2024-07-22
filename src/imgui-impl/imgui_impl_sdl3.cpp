@@ -133,7 +133,9 @@ static const char* ImGui_ImplSDL3_GetClipboardText(void*)
     ImGui_ImplSDL3_Data* bd = ImGui_ImplSDL3_GetBackendData();
     if (bd->ClipboardTextData)
         SDL_free(bd->ClipboardTextData);
-    bd->ClipboardTextData = SDL_GetClipboardText();
+    const char* sdl_clipboard_text = SDL_GetClipboardText();
+    bd->ClipboardTextData =
+        sdl_clipboard_text ? SDL_strdup(sdl_clipboard_text) : NULL;
     return bd->ClipboardTextData;
 }
 
@@ -641,8 +643,8 @@ static bool ImGui_ImplSDL3_Init(SDL_Window*   window,
         ImGuiBackendFlags_HasMouseCursors; // We can honor GetMouseCursor()
                                            // values (optional)
     io.BackendFlags |=
-        ImGuiBackendFlags_HasSetMousePos; // We can honor io.WantSetMousePos
-                                          // requests (optional, rarely used)
+        ImGuiBackendFlags_HasSetMousePos;  // We can honor io.WantSetMousePos
+                                           // requests (optional, rarely used)
     if (mouse_can_use_global_state)
         io.BackendFlags |=
             ImGuiBackendFlags_PlatformHasViewports; // We can create
@@ -805,7 +807,7 @@ static void ImGui_ImplSDL3_UpdateMouseData()
          (bd->Window == focused_window ||
           ImGui::FindViewportByPlatformHandle((void*)focused_window)));
  #else
-    SDL_Window* focused_window = bd->Window;
+    SDL_Window* focused_window        = bd->Window;
     const bool  is_app_focused =
         (SDL_GetWindowFlags(bd->Window) & SDL_WINDOW_INPUT_FOCUS) !=
         0; // SDL 2.0.3 and non-windowed systems: single-viewport only
@@ -941,9 +943,9 @@ static void ImGui_ImplSDL3_UpdateGamepads()
     MAP_BUTTON(ImGuiKey_GamepadStart, SDL_GAMEPAD_BUTTON_START);
     MAP_BUTTON(ImGuiKey_GamepadBack, SDL_GAMEPAD_BUTTON_BACK);
     MAP_BUTTON(ImGuiKey_GamepadFaceLeft,
-               SDL_GAMEPAD_BUTTON_WEST); // Xbox X, PS Square
+               SDL_GAMEPAD_BUTTON_WEST);  // Xbox X, PS Square
     MAP_BUTTON(ImGuiKey_GamepadFaceRight,
-               SDL_GAMEPAD_BUTTON_EAST); // Xbox B, PS Circle
+               SDL_GAMEPAD_BUTTON_EAST);  // Xbox B, PS Circle
     MAP_BUTTON(ImGuiKey_GamepadFaceUp,
                SDL_GAMEPAD_BUTTON_NORTH); // Xbox Y, PS Triangle
     MAP_BUTTON(ImGuiKey_GamepadFaceDown,
@@ -1182,7 +1184,7 @@ static void ImGui_ImplSDL3_DestroyWindow(ImGuiViewport* viewport)
             (ImGui_ImplSDL3_ViewportData*)viewport->PlatformUserData)
     {
         if (vd->GLContext && vd->WindowOwned)
-            SDL_GL_DeleteContext(vd->GLContext);
+            SDL_GL_DestroyContext(vd->GLContext);
         if (vd->Window && vd->WindowOwned)
             SDL_DestroyWindow(vd->Window);
         vd->GLContext = nullptr;

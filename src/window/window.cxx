@@ -110,12 +110,6 @@ namespace Kengine::window
         graphics::update_viewport();
     }
 
-    void set_input_focus()
-    {
-        if (window)
-            SDL_SetWindowInputFocus(window);
-    }
-
     void raise()
     {
         if (window)
@@ -299,7 +293,7 @@ namespace Kengine::window
         if (context)
         {
             graphics::shutdown();
-            SDL_GL_DeleteContext(context);
+            SDL_GL_DestroyContext(context);
             context = nullptr;
         }
 

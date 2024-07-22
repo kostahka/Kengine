@@ -305,7 +305,8 @@ namespace Kengine::audio
             {
                 mix_audio_format_fp(current_stream,
                                     current_buff,
-                                    one_shot_it->res->get_spec().fmt,
+                                    static_cast<SDL_AudioFormat>(
+                                        one_shot_it->res->get_spec().fmt),
                                     rest,
                                     one_shot_it->volume);
                 one_shot_list.erase(one_shot_it++);
@@ -315,7 +316,8 @@ namespace Kengine::audio
             {
                 mix_audio_format_fp(current_stream,
                                     current_buff,
-                                    one_shot_it->res->get_spec().fmt,
+                                    static_cast<SDL_AudioFormat>(
+                                        one_shot_it->res->get_spec().fmt),
                                     static_cast<uint32_t>(additional_amount),
                                     one_shot_it->volume);
                 one_shot_it->current_play_index +=
@@ -346,7 +348,8 @@ namespace Kengine::audio
                     {
                         mix_audio_format_fp(current_stream,
                                             current_buff,
-                                            audio_res->get_spec().fmt,
+                                            static_cast<SDL_AudioFormat>(
+                                                audio_res->get_spec().fmt),
                                             rest,
                                             cont_it->get_volume());
                         cont_it->current_play_index = 0;
@@ -362,7 +365,8 @@ namespace Kengine::audio
                         mix_audio_format_fp(
                             current_stream,
                             current_buff,
-                            audio_res->get_spec().fmt,
+                            static_cast<SDL_AudioFormat>(
+                                audio_res->get_spec().fmt),
                             static_cast<uint32_t>(additional_amount),
                             cont_it->get_volume());
                         cont_it->current_play_index += static_cast<uint32_t>(
@@ -434,14 +438,14 @@ namespace Kengine::audio
 
     spec get_current_out_spec()
     {
-        return { main_out_spec.format,
+        return { static_cast<format>(main_out_spec.format),
                  main_out_spec.channels,
                  main_out_spec.freq };
     }
 
     spec get_current_in_spec()
     {
-        return { main_in_spec.format,
+        return { static_cast<format>(main_in_spec.format),
                  main_in_spec.channels,
                  main_in_spec.freq };
     }

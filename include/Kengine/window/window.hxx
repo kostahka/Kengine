@@ -16,8 +16,7 @@ namespace Kengine::window
 
     E_DECLSPEC void set_size(ivec2&);     // set window size
     E_DECLSPEC void set_fullscreen(bool); // set fullscreen
-    E_DECLSPEC void set_input_focus();    // set input focus on window
     E_DECLSPEC void raise(); // raise window and set input focus on window
     E_DECLSPEC void warp_mouse(
-        float x, float y); // set mouse cursor at position of window
+        float x, float y);   // set mouse cursor at position of window
 } // namespace Kengine::window

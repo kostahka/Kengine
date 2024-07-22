@@ -161,8 +161,12 @@ namespace Kengine
             auto surface = SDL_CreateSurface(
                 texture_size, texture_size, SDL_PIXELFORMAT_BGRA8888);
 
+            auto pixel_format_details =
+                SDL_GetPixelFormatDetails(surface->format);
             SDL_SetSurfaceColorKey(
-                surface, SDL_TRUE, SDL_MapRGBA(surface->format, 0, 0, 0, 0));
+                surface,
+                SDL_TRUE,
+                SDL_MapRGBA(pixel_format_details, nullptr, 0, 0, 0, 0));
 
             SDL_Rect     dest{ 0, 0, 0, 0 };
             SDL_Surface* text;

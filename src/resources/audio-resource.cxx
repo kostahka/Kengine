@@ -104,7 +104,8 @@ namespace Kengine
                     device_spec.channels != spec.channels ||
                     device_spec.frequency != spec.frequency)
                 {
-                    SDL_AudioSpec device_spec_sdl{ device_spec.fmt,
+                    SDL_AudioSpec device_spec_sdl{ static_cast<SDL_AudioFormat>(
+                                                       device_spec.fmt),
                                                    device_spec.channels,
                                                    device_spec.frequency };
 
