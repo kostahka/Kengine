@@ -11,7 +11,6 @@ namespace Kengine::graphics
     const uint32_t g_int    = GL_INT;
     const uint32_t g_uint   = GL_UNSIGNED_INT;
     const uint32_t g_float  = GL_FLOAT;
-    const uint32_t g_double = GL_DOUBLE;
 
     raw_vertex_buffer::raw_vertex_buffer()
         : vbo(0)

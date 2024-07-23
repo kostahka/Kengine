@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <iostream>
 #include <vector>
+#include <concepts>
 
 namespace Kengine
 {

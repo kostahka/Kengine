@@ -36,8 +36,7 @@ namespace Kengine::graphics
                            type == g_ushort ||
                            type == g_int    ||
                            type == g_uint   ||
-                           type == g_float  ||
-                           type == g_double,
+                           type == g_float,
                            "This type is not supported for attribute pointer");
             // clang-format on
         };

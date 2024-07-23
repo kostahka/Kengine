@@ -61,9 +61,7 @@ namespace Kengine
         red,
         rg,
         rgb,
-        bgr,
         rgba,
-        bgra,
         depth,
         depth_stencil,
     };

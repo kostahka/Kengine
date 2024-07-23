@@ -91,9 +91,7 @@ namespace Kengine
             ENUM_TO_STR_CASE(red)
             ENUM_TO_STR_CASE(rg)
             ENUM_TO_STR_CASE(rgb)
-            ENUM_TO_STR_CASE(bgr)
             ENUM_TO_STR_CASE(rgba)
-            ENUM_TO_STR_CASE(bgra)
             ENUM_TO_STR_CASE(depth)
             ENUM_TO_STR_CASE(depth_stencil)
         }

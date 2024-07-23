@@ -1177,7 +1177,8 @@ inline std::uint32_t ImGui::FileBrowser::GetDrivesBitMask()
     return ret;
 }
 
-void ImGui::FileBrowser::SetDragDropTargetFunc(void (*dragDropTargetFunc)())
+inline void ImGui::FileBrowser::SetDragDropTargetFunc(
+    void (*dragDropTargetFunc)())
 {
     this->dragDropTargetFunc = dragDropTargetFunc;
 }

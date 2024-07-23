@@ -3,8 +3,6 @@ cmake_minimum_required(VERSION 3.15.7)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_UNITY_BUILD ON)
-
 project(Kengine VERSION 0.0.0)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -72,7 +70,7 @@ target_compile_definitions(box2d PRIVATE B2_SHARED)
 target_compile_definitions(box2d PRIVATE box2d_EXPORTS)
 
 # EFSW - cross-platform file watcher and notifier
-add_subdirectory(external/efsw)
+# add_subdirectory(external/efsw)
 
 # GLM - OpenGL Mathematics. C++ mathematics library for graphics software based
 # on the OpenGL Shading Language (GLSL) specifications

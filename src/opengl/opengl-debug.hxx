@@ -5,7 +5,7 @@
 namespace Kengine::opengl_debug
 {
     bool initialize(int gl_major_version, int gl_minor_version, int gl_profile);
-    void APIENTRY debug_message(GLenum        source,
+    void debug_message(GLenum        source,
                                 GLenum        type,
                                 GLuint        id,
                                 GLenum        severity,

@@ -33,7 +33,7 @@ namespace Kengine::opengl_debug
         return false;
     }
 
-    void APIENTRY debug_message(GLenum        source,
+    void debug_message(GLenum        source,
                                 GLenum        type,
                                 GLuint        id,
                                 GLenum        severity,

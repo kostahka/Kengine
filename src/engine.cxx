@@ -12,7 +12,6 @@
 #include <SDL3/SDL.h>
 
 #include "Kengine/configuration/configuration-file.hxx"
-#include "Kengine/file-last-modify-listener.hxx"
 #include "Kengine/graphics/framebuffer.hxx"
 #include "Kengine/graphics/graphics.hxx"
 #include "Kengine/log/log.hxx"
@@ -126,8 +125,6 @@ namespace Kengine
         start_time = render_time = update_time =
             std::chrono::high_resolution_clock::now();
 
-        file_last_modify_listener::get_instance()->start_files_watch();
-
 #ifdef KENGINE_IMGUI
         auto pf_imgui_render = e_game->get_imgui_render();
         if (pf_imgui_render)
@@ -138,8 +135,6 @@ namespace Kengine
 
         while (continue_loop)
         {
-            file_last_modify_listener::get_instance()
-                ->handle_file_modify_listeners();
             continue_loop = event::poll_events(e_game);
 
             current_time = std::chrono::high_resolution_clock::now();

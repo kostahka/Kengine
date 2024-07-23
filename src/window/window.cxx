@@ -270,7 +270,9 @@ namespace Kengine::window
                 return false;
             }
 
+#ifdef KENGINE_GL_GLAD
             glad_set_post_callback(pre_call_callback_gl);
+#endif
 
             if (gl_debug)
                 if (opengl_debug::initialize(

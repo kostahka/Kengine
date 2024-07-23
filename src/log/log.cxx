@@ -20,7 +20,7 @@ namespace Kengine::log
     {
 #ifdef __ANDROID__
         // Logger for app fatal
-        auto anroid_sink =
+        auto android_sink =
             std::make_shared<spdlog::sinks::android_sink_st>("kengine");
 
         fatal_logger =
@@ -31,9 +31,6 @@ namespace Kengine::log
         spdlog::register_logger(fatal_logger);
 
         // Debug logger
-        auto console_sink =
-            std::make_shared<spdlog::sinks::stdout_color_sink_st>();
-
         logger = std::make_shared<spdlog::logger>(logger_name, android_sink);
 
         logger->set_level(spdlog::level::trace);

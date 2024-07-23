@@ -12,7 +12,7 @@
 #endif
 
 #ifdef KENGINE_GL_GLES
- #include <GLES3/gl3.h>
+ #include <GLES3/gl32.h>
 #endif
 
 #ifdef KENGINE_GL_GLAD

@@ -294,9 +294,7 @@ namespace Kengine
         texture_format::red,
         texture_format::rg,
         texture_format::rgb,
-        texture_format::bgr,
         texture_format::rgba,
-        texture_format::bgra,
         texture_format::depth,
         texture_format::depth_stencil,
     };

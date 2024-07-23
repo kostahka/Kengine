@@ -29,7 +29,6 @@ set(KENGINE_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/event/custom-event.cxx
     ${CMAKE_CURRENT_LIST_DIR}/event/event.cxx
     ${CMAKE_CURRENT_LIST_DIR}/event/event.hxx
-    ${CMAKE_CURRENT_LIST_DIR}/file-last-modify-listener.cxx
     ${CMAKE_CURRENT_LIST_DIR}/game.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/b2GLDraw.cxx
     ${CMAKE_CURRENT_LIST_DIR}/graphics/camera.cxx
@@ -210,7 +209,6 @@ add_library(kengine-static-interface INTERFACE)
 target_link_libraries(
     kengine-private
     INTERFACE SDL3::SDL3-shared
-    INTERFACE efsw
     INTERFACE glad
     INTERFACE stb
     INTERFACE SDL3_ttf::SDL3_ttf

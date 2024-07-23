@@ -23,9 +23,7 @@ namespace Kengine::opengl
         {texture_format::red,            GL_RED            },
         { texture_format::rg,            GL_RG             },
         { texture_format::rgb,           GL_RGB            },
-        { texture_format::bgr,           GL_BGR            },
         { texture_format::rgba,          GL_RGBA           },
-        { texture_format::bgra,          GL_BGRA           },
         { texture_format::depth,         GL_DEPTH_COMPONENT},
         { texture_format::depth_stencil, GL_DEPTH_STENCIL  },
     };
@@ -34,9 +32,7 @@ namespace Kengine::opengl
         {GL_RED,                texture_format::red          },
         { GL_RG,                texture_format::rg           },
         { GL_RGB,               texture_format::rgb          },
-        { GL_BGR,               texture_format::bgr          },
         { GL_RGBA,              texture_format::rgba         },
-        { GL_BGRA,              texture_format::bgra         },
         { GL_DEPTH_COMPONENT16, texture_format::depth        },
         { GL_DEPTH_STENCIL,     texture_format::depth_stencil},
     };
@@ -92,15 +88,17 @@ namespace Kengine::opengl
          "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT"                                     },
         { GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT,
          "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT"                             },
-        { GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER,
-         "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER"                                    },
-        { GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER,
-         "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER"                                    },
         { GL_FRAMEBUFFER_UNSUPPORTED,                   "GL_FRAMEBUFFER_UNSUPPORTED"},
         { GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE,
          "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE"                                    },
+#ifndef __ANDROID__
         { GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS,
          "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS"                                  },
+        { GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER,
+                "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER"                                    },
+        { GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER,
+                "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER"                                    },
+#endif
     };
 
     bool initialize()
