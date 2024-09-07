@@ -1,0 +1,48 @@
+apply plugin: 'com.android.library'
+
+android {
+    namespace 'com.kostahka.kengine'
+    compileSdk 34
+    defaultConfig {
+        minSdkVersion 24
+        targetSdk 34
+        versionCode 1
+        versionName '1.0'
+    }
+    buildTypes {
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+        //    applicationVariants.all { variant ->
+        //        tasks["merge${variant.name.capitalize()}Assets"]
+        //            .dependsOn("externalNativeBuild${variant.name.capitalize()}")
+        //    }
+
+    sourceSets.main {
+        jniLibs.srcDir 'libs'
+    }
+
+    lint {
+        abortOnError false
+    }
+
+// libraryVariants.all { variant ->
+//     variant.outputs.each { output ->
+//         def outputFile = output.outputFile
+//         if (outputFile != null && outputFile.name.endsWith('.aar')) {
+//             def fileName = 'org.libsdl.app.aar'
+//             output.outputFile = new File(outputFile.parent, fileName)
+//         }
+//     }
+// }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+}

@@ -13,9 +13,21 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 endif()
 
 # Options for Kengine.
-option(KENGINE_EDITOR "Build kengine editor" ON)
-option(KENGINE_DEMO_GAME "Build demo game" ON)
-option(KENGINE_IMGUI "Integration with imgui" ON)
+if(ANDROID)
+    set(KENGINE_EDITOR
+        OFF
+        CACHE BOOL "" FORCE
+    )
+    set(KENGINE_IMGUI
+        OFF
+        CACHE BOOL "" FORCE
+    )
+    option(KENGINE_DEMO_GAME "Build demo game" OFF)
+else()
+    option(KENGINE_DEMO_GAME "Build demo game" ON)
+    option(KENGINE_EDITOR "Build kengine editor" ON)
+    option(KENGINE_IMGUI "Integration with imgui" ON)
+endif()
 
 if(ANDROID)
     set(KENGINE_EDITOR OFF)

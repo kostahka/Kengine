@@ -17,6 +17,9 @@ namespace Kengine
     void game::set_current_scene(string_id scene_id)
     {
         auto scene_link = scene_links.find(scene_id);
+        KENGINE_ASSERT_WARN(scene_link != scene_links.end(),
+                            "Can't find scene {}",
+                            scene_id.get_string());
         if (scene_link != scene_links.end())
         {
             auto temp_sc = scene_manager::load_scene(scene_link->second, this);

@@ -1,20 +1,39 @@
+cmake_minimum_required(VERSION 3.15.7)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+project(Kengine-demo VERSION 0.0.0)
+
 include(../cmake/Kengine.cmake)
 
-set(KENGINE_DEMO_GAME_SOURCES # cmake-format: sortable
-                              src/demo-game.cxx
+set(KENGINE_DEMO_GAME_SOURCES
+    # cmake-format: sortable
+    src/demo-game.cxx src/player-controller-component.cxx
+    src/player-controller-system.cxx
 )
 
-set(KENGINE_DEMO_GAME_HEADERS # cmake-format: sortable
-                              include/demo-game.hxx
+set(KENGINE_DEMO_GAME_HEADERS
+    # cmake-format: sortable
+    include/demo-game.hxx include/player-controller-component.hxx
+    include/player-controller-system.hxx
 )
 
-add_executable(
-    kengine-demo-static ${KENGINE_DEMO_GAME_SOURCES}
-                        ${KENGINE_DEMO_GAME_HEADERS}
-)
+if(ANDROID)
+    add_library(
+        kengine-demo-static ${KENGINE_DEMO_GAME_SOURCES}
+                            ${KENGINE_DEMO_GAME_HEADERS}
+    )
+else()
+    add_executable(
+        kengine-demo-static ${KENGINE_DEMO_GAME_SOURCES}
+                            ${KENGINE_DEMO_GAME_HEADERS}
+    )
+endif()
 
 developgame(
-    kengine-demo-dev ${KENGINE_DEMO_GAME_SOURCES} ${KENGINE_DEMO_GAME_HEADERS}
+    kengine-demo-dev "${KENGINE_DEMO_GAME_SOURCES}"
+    "${KENGINE_DEMO_GAME_HEADERS}"
 )
 
 target_include_directories(

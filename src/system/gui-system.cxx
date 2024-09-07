@@ -115,12 +115,11 @@ namespace Kengine
         sprite_ebo = std::make_shared<graphics::element_buffer>();
         sprite_ebo->bind();
 
+        static std::vector<uint32_t> sprite_indexes{ 0, 2, 1, 0, 3, 2 };
+        sprite_ebo->allocate_indexes(sprite_indexes.data(), 6, false);
+
         create_gui_vao();
         create_text_vao();
-
-        static std::vector<uint32_t> sprite_indexes{ 0, 2, 1, 0, 3, 2 };
-
-        sprite_ebo->allocate_indexes(sprite_indexes.data(), 6, false);
 
         sc.registry.on_construct<gui_component>()
             .connect<&gui_system::sort_sprites>(*this);

@@ -13,8 +13,7 @@ using namespace Kengine::graphics;
 class demo_game : public Kengine::game
 {
 public:
-    demo_game()
-        : Kengine::game() {};
+    demo_game();
 
     ~demo_game() override;
     void on_start() override;

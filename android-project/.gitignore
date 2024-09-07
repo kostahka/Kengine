@@ -1,5 +1,5 @@
 .gradle
 .idea
 local.properties
-app/build
-app/.cxx
+kengine/build
+kengine/.cxx

@@ -58,24 +58,20 @@
          Kengine::log::fatal_logger->critical(__VA_ARGS__);                    \
          Kengine::log::fatal_logger->dump_backtrace();                         \
      }
- #define KENGINE_ASSERT(EX, msg)                                               \
+ #define KENGINE_ASSERT(EX, ...)                                               \
      if (!(EX))                                                                \
      {                                                                         \
          Kengine::log::logger->critical(                                       \
-             "Assert fail at line {}, at file {}, message: {}",                \
-             __LINE__,                                                         \
-             __FILE__,                                                         \
-             (msg));                                                           \
+             "Assert fail at line {}, at file {}", __LINE__, __FILE__);        \
+         Kengine::log::logger->critical(__VA_ARGS__);                          \
          abort();                                                              \
      }
- #define KENGINE_ASSERT_WARN(EX, msg)                                          \
+ #define KENGINE_ASSERT_WARN(EX, ...)                                          \
      if (!(EX))                                                                \
      {                                                                         \
          Kengine::log::logger->warn(                                           \
-             "Assert fail at line {}, at file {}, message: {}",                \
-             __LINE__,                                                         \
-             __FILE__,                                                         \
-             (msg));                                                           \
+             "Assert fail at line {}, at file {}", __LINE__, __FILE__);        \
+         Kengine::log::logger->warn(__VA_ARGS__);                              \
      }
 #endif
 
