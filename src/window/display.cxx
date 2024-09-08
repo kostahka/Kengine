@@ -8,8 +8,10 @@
 
 namespace Kengine::display
 {
-    SDL_DisplayID     primary;
-    std::vector<mode> d_modes;
+    SDL_DisplayID          primary;
+    std::vector<mode>      d_modes;
+    mode                   desktop_d_mode;
+    const SDL_DisplayMode* sdl_desktop_d_mode = nullptr;
 
     bool mode::operator==(const mode& other) const
     {
@@ -33,6 +35,16 @@ namespace Kengine::display
                           SDL_GetError());
             return false;
         }
+
+        {
+            sdl_desktop_d_mode = SDL_GetDesktopDisplayMode(primary);
+
+            desktop_d_mode = { .w = sdl_desktop_d_mode->h,
+                               .h = sdl_desktop_d_mode->w,
+                               .refresh_rate =
+                                   sdl_desktop_d_mode->refresh_rate };
+        }
+
         {
             int                           d_modes_count;
             const SDL_DisplayMode* const* modes =
@@ -70,22 +82,27 @@ namespace Kengine::display
         if (d_modes.size() > 0)
             return d_modes.front();
         else
-            return { 0, 0, 0 };
+            return desktop_d_mode;
     }
 
     const SDL_DisplayMode* get_closest_display_mode(mode d_mode)
     {
-        auto sdl_mode = SDL_GetClosestFullscreenDisplayMode(
-            primary, d_mode.w, d_mode.h, d_mode.refresh_rate, SDL_TRUE);
-        if (!sdl_mode && !d_modes.empty())
+        if (d_modes.size() > 0)
         {
-            sdl_mode =
-                SDL_GetClosestFullscreenDisplayMode(primary,
-                                                    d_modes[0].w,
-                                                    d_modes[0].h,
-                                                    d_modes[0].refresh_rate,
-                                                    SDL_TRUE);
+            auto sdl_mode = SDL_GetClosestFullscreenDisplayMode(
+                primary, d_mode.w, d_mode.h, d_mode.refresh_rate, SDL_TRUE);
+            if (!sdl_mode && !d_modes.empty())
+            {
+                sdl_mode =
+                    SDL_GetClosestFullscreenDisplayMode(primary,
+                                                        d_modes[0].w,
+                                                        d_modes[0].h,
+                                                        d_modes[0].refresh_rate,
+                                                        SDL_TRUE);
+            }
+            return sdl_mode;
         }
-        return sdl_mode;
+
+        return nullptr;
     }
 } // namespace Kengine::display

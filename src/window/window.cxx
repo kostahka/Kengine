@@ -80,10 +80,7 @@ namespace Kengine::window
 
     ivec2 get_size()
     {
-        if (fullscreen)
-            return { fullscreen_mode.w, fullscreen_mode.h };
-        else
-            return size;
+        return size;
     }
 
     bool is_maximized()
@@ -131,9 +128,15 @@ namespace Kengine::window
             fullscreen_mode.w            = sdl_mode->w;
             fullscreen_mode.h            = sdl_mode->h;
             fullscreen_mode.refresh_rate = sdl_mode->refresh_rate;
+        }
 
-            if (context && fullscreen)
+        if (fullscreen)
+        {
+            size = { fullscreen_mode.w, fullscreen_mode.h };
+            if (context)
+            {
                 graphics::update_viewport();
+            }
         }
     }
 
@@ -172,7 +175,8 @@ namespace Kengine::window
                                           "refresh_rate",
                                           fullscreen_mode.refresh_rate);
 
-            Uint32 wnd_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
+            Uint32 wnd_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE |
+                               SDL_WINDOW_HIGH_PIXEL_DENSITY;
 
             if (fullscreen)
                 wnd_flags |= SDL_WINDOW_FULLSCREEN;
