@@ -5,50 +5,72 @@
 
 #include "Kengine/log/log.hxx"
 
+#include <algorithm>
 #include <cstdlib>
+#include <filesystem>
+#include <string>
 #include <unordered_map>
 
 namespace Kengine::file_manager
 {
-    std::unordered_map<std::ios_base::openmode, const char*> openmodes{
-        {std::ios_base::in,                                                "r" },
-        { std::ios_base::in | std::ios_base::binary,                       "rb"},
-        { std::ios_base::in | std::ios_base::out,                          "r+"},
-        { std::ios_base::in | std::ios_base::out | std::ios_base::binary,
-         "r+b"                                                                 },
+    std::u8string make_sdl_path(std::filesystem::path path)
+    {
+#ifdef _WIN32
+        static constexpr char8_t preferred_separator   = u8'\\';
+        static constexpr char8_t unpreferred_separator = u8'/';
+#else
+        static constexpr char8_t preferred_separator   = u8'/';
+        static constexpr char8_t unpreferred_separator = u8'\\';
+#endif
 
-        { std::ios_base::out,                                              "w" },
-        { std::ios_base::out | std::ios_base::trunc,                       "w" },
-        { std::ios_base::out | std::ios_base::binary,                      "wb"},
-        { std::ios_base::in | std::ios_base::out | std::ios_base::trunc,   "w+"},
+        std::u8string path_str = path.u8string();
+        std::replace(path_str.begin(),
+                     path_str.end(),
+                     unpreferred_separator,
+                     preferred_separator);
+
+        return path_str;
+    }
+
+    std::unordered_map<std::ios_base::openmode, const char*> openmodes{
+        { std::ios_base::in,                                               "r"  },
+        { std::ios_base::in | std::ios_base::binary,                       "rb" },
+        { std::ios_base::in | std::ios_base::out,                          "r+" },
+        { std::ios_base::in | std::ios_base::out | std::ios_base::binary,
+         "r+b"                                                                  },
+
+        { std::ios_base::out,                                              "w"  },
+        { std::ios_base::out | std::ios_base::trunc,                       "w"  },
+        { std::ios_base::out | std::ios_base::binary,                      "wb" },
+        { std::ios_base::in | std::ios_base::out | std::ios_base::trunc,   "w+" },
         { std::ios_base::in | std::ios_base::out | std::ios_base::trunc |
               std::ios_base::binary,
-         "w+b"                                                                 },
+         "w+b"                                                                  },
 
-        { std::ios_base::app,                                              "a" },
-        { std::ios_base::app | std::ios_base::out,                         "a" },
-        { std::ios_base::app | std::ios_base::binary,                      "ab"},
+        { std::ios_base::app,                                              "a"  },
+        { std::ios_base::app | std::ios_base::out,                         "a"  },
+        { std::ios_base::app | std::ios_base::binary,                      "ab" },
         { std::ios_base::app | std::ios_base::binary | std::ios_base::out,
-         "ab"                                                                  },
-        { std::ios_base::app | std::ios_base::in,                          "a+"},
-        { std::ios_base::app | std::ios_base::in | std::ios_base::out,     "a+"},
+         "ab"                                                                   },
+        { std::ios_base::app | std::ios_base::in,                          "a+" },
+        { std::ios_base::app | std::ios_base::in | std::ios_base::out,     "a+" },
         { std::ios_base::app | std::ios_base::in | std::ios_base::binary,
-         "a+b"                                                                 },
+         "a+b"                                                                  },
         { std::ios_base::app | std::ios_base::in | std::ios_base::out |
               std::ios_base::binary,
-         "a+b"                                                                 }
+         "a+b"                                                                  }
     };
 
     std::unordered_map<std::ios_base::seekdir, int> seekdirs{
-        {std::ios_base::beg,  SDL_IO_SEEK_SET},
-        { std::ios_base::end, SDL_IO_SEEK_END},
-        { std::ios_base::cur, SDL_IO_SEEK_CUR}
+        { std::ios_base::beg, SDL_IO_SEEK_SET },
+        { std::ios_base::end, SDL_IO_SEEK_END },
+        { std::ios_base::cur, SDL_IO_SEEK_CUR }
     };
 
     std::unordered_map<int, std::ios_base::seekdir> sdl_seekdirs{
-        {SDL_IO_SEEK_SET,  std::ios_base::beg},
-        { SDL_IO_SEEK_END, std::ios_base::end},
-        { SDL_IO_SEEK_CUR, std::ios_base::cur}
+        { SDL_IO_SEEK_SET, std::ios_base::beg },
+        { SDL_IO_SEEK_END, std::ios_base::end },
+        { SDL_IO_SEEK_CUR, std::ios_base::cur }
     };
 
     file_buffer::file_buffer()
@@ -77,6 +99,8 @@ namespace Kengine::file_manager
                                 std::ios_base::openmode mode,
                                 size_t                  abuf_size)
     {
+        std::u8string path_str = make_sdl_path(path);
+
         auto sdl_openmode_map = openmodes.find(mode);
         if (sdl_openmode_map == openmodes.end())
         {
@@ -84,12 +108,12 @@ namespace Kengine::file_manager
             return false;
         }
 
-        file = SDL_IOFromFile((char*)path.u8string().c_str(),
+        file = SDL_IOFromFile((const char*)path_str.c_str(),
                               sdl_openmode_map->second);
         if (!file)
         {
             KENGINE_ERROR("Failed to open file [{}], error: {}",
-                          path.string().c_str(),
+                          (const char*)path_str.c_str(),
                           SDL_GetError());
             return false;
         }
@@ -126,18 +150,20 @@ namespace Kengine::file_manager
             return false;
         }
 
-        KENGINE_INFO("Loaded file: {}", path.string().c_str());
+        KENGINE_INFO("Loaded file: {}", (const char*)path_str.c_str());
 
         return true;
     }
 
     bool file_buffer_impl::load(std::filesystem::path path)
     {
-        file = SDL_IOFromFile((char*)path.u8string().c_str(), "rb");
+        std::u8string path_str = make_sdl_path(path);
+
+        file = SDL_IOFromFile((const char*)path_str.c_str(), "rb");
         if (!file)
         {
             KENGINE_ERROR("Failed to open file [{}], error: {}",
-                          path.string().c_str(),
+                          (const char*)path_str.c_str(),
                           SDL_GetError());
             return false;
         }
@@ -167,7 +193,7 @@ namespace Kengine::file_manager
             return false;
         }
 
-        KENGINE_INFO("Loaded file: {}", path.string().c_str());
+        KENGINE_INFO("Loaded file: {}", (const char*)path_str.c_str());
 
         return true;
     }
@@ -390,7 +416,8 @@ namespace Kengine::file_manager
 
     bool file_exists(std::filesystem::path path)
     {
-        auto file = SDL_IOFromFile((char*)path.u8string().c_str(), "rb");
+        std::u8string path_str = make_sdl_path(path);
+        auto file = SDL_IOFromFile((const char*)path_str.c_str(), "rb");
         if (file)
         {
             SDL_CloseIO(file);
