@@ -27,7 +27,7 @@
          Kengine::log::fatal_logger->dump_backtrace();                         \
      }
  #define KENGINE_ASSERT(EX, ...)      (void)0
- #define KENGINE_ASSERT_WARN(EX, msg) (void)0
+ #define KENGINE_ASSERT_WARN(EX, ...) (void)0
 #else
  #define KENGINE_TRACE(...)                                                    \
      {                                                                         \

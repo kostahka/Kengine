@@ -16,7 +16,7 @@ namespace Kengine::opengl_debug
         {
             glEnable(GL_DEBUG_OUTPUT);
             glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-            glDebugMessageCallback(&Kengine::opengl_debug::debug_message,
+            glDebugMessageCallback(static_cast<GLDEBUGPROC>(&Kengine::opengl_debug::debug_message),
                                    nullptr);
             glDebugMessageControl(
                 GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
