@@ -29,8 +29,8 @@ jobs:
         
     - uses: ilammy/msvc-dev-cmd@v1
       with:
-        arch: ${{ matrix.platform.msvc-vcvars-arch }}
-        sdk: ${{ matrix.platform.msvc-vcvars-sdk }}
+        arch: ${{ matrix.msvc-vcvars-arch }}
+        sdk: ${{ matrix.msvc-vcvars-sdk }}
 
     - name: Cache SDL3
       uses: actions/cache@v4
