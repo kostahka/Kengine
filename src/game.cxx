@@ -4,6 +4,7 @@
 #include "Kengine/io/file-manager.hxx"
 #include "Kengine/scene/scene-manager.hxx"
 #include "Kengine/string/string-id.hxx"
+#include "Kengine/log/log.hxx"
 
 namespace Kengine
 {

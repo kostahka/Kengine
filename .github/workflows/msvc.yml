@@ -20,7 +20,7 @@ jobs:
           - { name: Windows (ARM),          flags: -A ARM, artifact: 'Kengine-VC-arm32' }
           - { name: Windows (ARM64),        flags: -A ARM64, artifact: 'Kengine-VC-arm64' }
     name: ${{ matrix.name }}
-    runs-on: windows-latest
+    runs-on: windows-2025
 
     steps:
     - uses: actions/checkout@v4

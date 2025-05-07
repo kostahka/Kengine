@@ -13,7 +13,7 @@ jobs:
         include:
           - { name: Windows (mingw32),              os: windows-latest, shell: 'msys2 {0}', msystem: mingw32, msys-env: mingw-w64-i686, artifact: 'Kengine-mingw32' }
           - { name: Windows (mingw64),              os: windows-latest, shell: 'msys2 {0}', msystem: mingw64, msys-env: mingw-w64-x86_64, artifact: 'Kengine-mingw64' }
-          - { name: Windows (clang32),              os: windows-latest, shell: 'msys2 {0}', msystem: clang32, msys-env: mingw-w64-clang-i686, artifact: 'Kengine-msys2-clang32' }
+#          - { name: Windows (clang32),              os: windows-latest, shell: 'msys2 {0}', msystem: clang32, msys-env: mingw-w64-clang-i686, artifact: 'Kengine-msys2-clang32' }
           - { name: Windows (clang64),              os: windows-latest, shell: 'msys2 {0}', msystem: clang64, msys-env: mingw-w64-clang-x86_64, artifact: 'Kengine-msys2-clang64' }
           - { name: Windows (ucrt64),               os: windows-latest, shell: 'msys2 {0}', msystem: ucrt64,  msys-env: mingw-w64-ucrt-x86_64, artifact: 'Kengine-msys2-ucrt64' }
 #          - { name: Ubuntu 20.04,                   os: ubuntu-20.04,   shell: sh, artifact: 'Kengine-ubuntu20.04' }
