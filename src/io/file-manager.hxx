@@ -64,7 +64,7 @@ namespace Kengine::file_manager
                             size_t        size,
                             SDL_IOStatus* status);
 
-        static int close(void* userdata);
+        static bool close(void* userdata);
 
         inline SDL_IOStream* get() const { return stream; }
 

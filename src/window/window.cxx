@@ -7,6 +7,7 @@
 #include "Kengine/configuration/configuration-file.hxx"
 #include "Kengine/log/log.hxx"
 #include "Kengine/window/display.hxx"
+#include "SDL3/SDL_video.h"
 #include "display.hxx"
 
 #ifdef __ANDROID__
@@ -103,7 +104,7 @@ namespace Kengine::window
     {
         fullscreen = is_fullscreen;
         if (window)
-            SDL_SetWindowFullscreen(window, (SDL_bool)is_fullscreen);
+            SDL_SetWindowFullscreen(window, is_fullscreen);
         graphics::update_viewport();
     }
 
@@ -115,19 +116,21 @@ namespace Kengine::window
 
     void update_window_fullscreen_mode()
     {
-        auto sdl_mode = display::get_closest_display_mode(fullscreen_mode);
-        if (sdl_mode)
+        SDL_DisplayMode sdl_mode{};
+        bool            sdl_mode_success =
+            display::get_closest_display_mode(fullscreen_mode, &sdl_mode);
+        if (sdl_mode_success)
         {
-            int failure = SDL_SetWindowFullscreenMode(window, sdl_mode);
+            int failure = SDL_SetWindowFullscreenMode(window, &sdl_mode);
             if (failure)
             {
                 KENGINE_ERROR("Can't change window fullscreen mode. Error: {}",
                               SDL_GetError());
             }
 
-            fullscreen_mode.w            = sdl_mode->w;
-            fullscreen_mode.h            = sdl_mode->h;
-            fullscreen_mode.refresh_rate = sdl_mode->refresh_rate;
+            fullscreen_mode.w            = sdl_mode.w;
+            fullscreen_mode.h            = sdl_mode.h;
+            fullscreen_mode.refresh_rate = sdl_mode.refresh_rate;
         }
 
         if (fullscreen)
@@ -236,12 +239,12 @@ namespace Kengine::window
                 int gl_minor_version_returned = gl_minor_version;
                 int gl_profile_returned       = gl_profile;
 
-                if (SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,
-                                        &gl_major_version_returned) ||
-                    SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,
-                                        &gl_minor_version_returned) ||
-                    SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
-                                        &gl_profile_returned))
+                if (!SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,
+                                         &gl_major_version_returned) ||
+                    !SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,
+                                         &gl_minor_version_returned) ||
+                    !SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
+                                         &gl_profile_returned))
                 {
                     KENGINE_FATAL("Failed to get GL versions. Error: {}",
                                   SDL_GetError());

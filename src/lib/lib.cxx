@@ -20,12 +20,13 @@ namespace Kengine
 
     void unload_lib(lib_handle handle)
     {
-        SDL_UnloadObject(handle);
+        SDL_UnloadObject(static_cast<SDL_SharedObject*>(handle));
     }
 
     function_ptr load_function(lib_handle handle, const char* func_name)
     {
-        SDL_FunctionPointer f_ptr = SDL_LoadFunction(handle, func_name);
+        SDL_FunctionPointer f_ptr =
+            SDL_LoadFunction(static_cast<SDL_SharedObject*>(handle), func_name);
         if (!f_ptr)
         {
             KENGINE_ERROR("Failed to load function {} from lib. Error: {}",

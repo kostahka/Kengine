@@ -3,7 +3,6 @@
 
 #include "../engine.hxx"
 #include "../window/window.hxx"
-#include "Kengine/engine.hxx"
 #include "Kengine/game.hxx"
 #include "Kengine/helpers/spin-lock.hxx"
 #include "Kengine/window/window.hxx"
@@ -72,7 +71,7 @@ namespace Kengine::event
                     }
                     event.g_type       = type::mouse_button_event;
                     event.mouse.button = static_cast<input::mouse::button>(
-                        SDL_BUTTON(sdl_event.button.button));
+                        sdl_event.button.button);
                     event.mouse.pressed =
                         sdl_event.type == SDL_EVENT_MOUSE_BUTTON_DOWN;
                     event.mouse.clicks = sdl_event.button.clicks;

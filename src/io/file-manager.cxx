@@ -526,16 +526,16 @@ namespace Kengine::file_manager
         return result;
     }
 
-    int sdl_io_stream::close(void* userdata)
+    bool sdl_io_stream::close(void* userdata)
     {
         sdl_io_stream* instance = reinterpret_cast<sdl_io_stream*>(userdata);
         instance->io.flush();
         instance->file->close();
         if (!instance->io.good())
         {
-            return -1;
+            return false;
         }
-        return 0;
+        return true;
     }
 
 } // namespace Kengine::file_manager

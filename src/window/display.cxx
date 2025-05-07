@@ -1,8 +1,8 @@
-#include "Kengine/window/display.hxx"
 #include "display.hxx"
 
 #include "Kengine/log/log.hxx"
-#include "window.hxx"
+
+#include "SDL3/SDL_video.h"
 
 #include <vector>
 
@@ -85,24 +85,30 @@ namespace Kengine::display
             return desktop_d_mode;
     }
 
-    const SDL_DisplayMode* get_closest_display_mode(mode d_mode)
+    bool get_closest_display_mode(mode d_mode, SDL_DisplayMode* sdl_mode)
     {
         if (d_modes.size() > 0)
         {
-            auto sdl_mode = SDL_GetClosestFullscreenDisplayMode(
-                primary, d_mode.w, d_mode.h, d_mode.refresh_rate, SDL_TRUE);
-            if (!sdl_mode && !d_modes.empty())
+            auto success =
+                SDL_GetClosestFullscreenDisplayMode(primary,
+                                                    d_mode.w,
+                                                    d_mode.h,
+                                                    d_mode.refresh_rate,
+                                                    true,
+                                                    sdl_mode);
+            if (!success && !d_modes.empty())
             {
-                sdl_mode =
+                success =
                     SDL_GetClosestFullscreenDisplayMode(primary,
                                                         d_modes[0].w,
                                                         d_modes[0].h,
                                                         d_modes[0].refresh_rate,
-                                                        SDL_TRUE);
+                                                        true,
+                                                        sdl_mode);
             }
-            return sdl_mode;
+            return success;
         }
 
-        return nullptr;
+        return false;
     }
 } // namespace Kengine::display

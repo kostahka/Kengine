@@ -25,7 +25,7 @@ namespace Kengine::input
             const Uint32 state = SDL_GetMouseState(&x, &y);
             for (int i = 0; i < buttons_count; i++)
             {
-                b_pressed[i] = state & SDL_BUTTON(i + 1);
+                b_pressed[i] = state & SDL_BUTTON_MASK(i + 1);
             }
         }
 
@@ -47,7 +47,7 @@ namespace Kengine::input
 
         void update()
         {
-            const Uint8* state = SDL_GetKeyboardState(nullptr);
+            const bool* state = SDL_GetKeyboardState(nullptr);
             for (int i = static_cast<int>(key::key_first); i < keys_count; i++)
             {
                 k_pressed[i] = state[i];

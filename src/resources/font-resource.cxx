@@ -135,7 +135,8 @@ namespace Kengine
             int      minx, maxx, miny, maxy, advance;
             for (auto ch = first_char; ch <= last_char; ++ch)
             {
-                TTF_GlyphMetrics32(f, ch, &minx, &maxx, &miny, &maxy, &advance);
+                TTF_GetGlyphMetrics(
+                    f, ch, &minx, &maxx, &miny, &maxy, &advance);
                 int w                   = maxx - minx;
                 int h                   = maxy - miny;
                 glyphs[ch - first_char] = { (float)minx / (float)font_size,
@@ -165,14 +166,14 @@ namespace Kengine
                 SDL_GetPixelFormatDetails(surface->format);
             SDL_SetSurfaceColorKey(
                 surface,
-                SDL_TRUE,
+                true,
                 SDL_MapRGBA(pixel_format_details, nullptr, 0, 0, 0, 0));
 
             SDL_Rect     dest{ 0, 0, 0, 0 };
             SDL_Surface* text;
             for (auto ch = first_char; ch <= last_char; ++ch)
             {
-                text = TTF_RenderGlyph32_Blended(
+                text = TTF_RenderGlyph_Blended(
                     f, ch, SDL_Color{ 255, 255, 255, 255 });
                 if (text)
                 {
