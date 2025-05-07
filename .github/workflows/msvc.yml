@@ -17,7 +17,7 @@ jobs:
           - { name: Windows static VCRT (x86), flags: -A Win32, artifact: 'Kengine-VC-static-VCRT-x86', msvc-vcvars-arch: "x64_x86" }
           - { name: Windows (clang-cl x64), flags: -T ClangCL -A x64, artifact: 'Kengine-clang-cl-x64', msvc-vcvars-arch: "x64" }
           - { name: Windows (clang-cl x86), flags: -T ClangCL -A Win32, artifact: 'Kengine-clang-cl-x86', msvc-vcvars-arch: "x64_x86" }
-          - { name: Windows (ARM),          flags: -A ARM, artifact: 'Kengine-VC-arm32', msvc-vcvars-arch: "x64_arm", msvc-vcvars-sdk: "10.0.22621.0" }
+          - { name: Windows (ARM),          flags: -A ARM, artifact: 'Kengine-VC-arm32', msvc-vcvars-arch: "x64_arm", msvc-vcvars-sdk: "10.0.26100.0" }
           - { name: Windows (ARM64),        flags: -A ARM64, artifact: 'Kengine-VC-arm64', msvc-vcvars-arch: "x64_arm64"}
     name: ${{ matrix.name }}
     runs-on: windows-2025
