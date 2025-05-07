@@ -15,5 +15,5 @@
 - OpenGL
 
 ## Requirements
-- [SDL3](http://libsdl.org/) v3.0.0+
+- [SDL3](http://libsdl.org/) v3.2.12
 - [Cmake](https://cmake.org) 3.5+
