@@ -581,9 +581,6 @@ inline void ImGui::FileBrowser::Display()
     float                 reserveHeight = GetFrameHeightWithSpacing();
     std::filesystem::path newPwd;
     bool                  setNewPwd = false;
-    if (!(flags_ & ImGuiFileBrowserFlags_SelectDirectory) &&
-        (flags_ & ImGuiFileBrowserFlags_EnterNewFilename))
-        reserveHeight += GetFrameHeightWithSpacing();
 
     {
         BeginChild("ch",
@@ -746,22 +743,6 @@ inline void ImGui::FileBrowser::Display()
     if (setNewPwd)
     {
         SetPwd(newPwd);
-    }
-
-    if (!(flags_ & ImGuiFileBrowserFlags_SelectDirectory) &&
-        (flags_ & ImGuiFileBrowserFlags_EnterNewFilename))
-    {
-        PushID(this);
-        ScopeGuard popTextID([] { PopID(); });
-
-        PushItemWidth(-1);
-        if (InputText("", inputNameBuf_->data(), inputNameBuf_->size()) &&
-            inputNameBuf_->at(0) != '\0')
-        {
-            selectedFilenames_ = { inputNameBuf_->data() };
-        }
-        focusOnInputText |= IsItemFocused();
-        PopItemWidth();
     }
 
     if (!focusOnInputText)
