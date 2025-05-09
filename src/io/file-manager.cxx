@@ -202,7 +202,7 @@ namespace Kengine::file_manager
     {
         if (file)
         {
-            if (0 != SDL_CloseIO(file))
+            if (!SDL_CloseIO(file))
             {
                 KENGINE_ERROR("Failed to close file.");
             }
