@@ -12,12 +12,14 @@ enum class file_type
 class assets_browser
 {
 public:
+    static constexpr const char* window_name = "Assets";
+
     assets_browser();
 
     void display();
 
     ImGui::FileBrowser assets_file_browser{
-        "Assets",
+        window_name,
         ImGuiFileBrowserFlags_Window | ImGuiFileBrowserFlags_CreateNewDir |
             ImGuiFileBrowserFlags_EnterNewFilename
     };

@@ -14,7 +14,7 @@ void game_properties_wnd::display()
     auto current_game = editor::instance->current_game;
 
     {
-        if (ImGui::Begin("Game properties"))
+        if (ImGui::Begin(window_name))
         {
             if (current_game)
             {

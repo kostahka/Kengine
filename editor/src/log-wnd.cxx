@@ -155,7 +155,7 @@ void log_wnd::display()
 {
     ImGui::PushID(this);
 
-    if (ImGui::Begin("Logs"))
+    if (ImGui::Begin(window_name))
     {
         ImGui::Checkbox("Auto-scroll", &enable_autoscrolling);
 

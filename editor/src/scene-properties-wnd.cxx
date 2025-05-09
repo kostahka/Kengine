@@ -12,7 +12,7 @@ void scene_properties_wnd::display()
     auto current_game = editor::instance->current_game;
 
     {
-        ImGui::Begin("Scene properties");
+        ImGui::Begin(window_name);
 
         if (current_game)
         {

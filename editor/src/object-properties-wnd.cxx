@@ -12,7 +12,7 @@ void object_properties_wnd::display()
     auto current_game = editor::instance->current_game;
 
     {
-        ImGui::Begin("Object properties");
+        ImGui::Begin(window_name);
 
         if (current_game)
         {

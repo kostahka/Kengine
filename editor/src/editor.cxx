@@ -1,5 +1,6 @@
 #include "editor.hxx"
 
+#include "Kengine/io/file-manager.hxx"
 #include "assets-browser.hxx"
 #include "game-properties-wnd.hxx"
 #include "game-wnd.hxx"
@@ -21,9 +22,9 @@
 
 #include "imgui-filebrowser/imfilebrowser.h"
 #include "imgui.h"
+#include "imgui_internal.h"
 
 #include <filesystem>
-#include <memory>
 
 static std::filesystem::path game_lib_path{ "" };
 static std::filesystem::path assets_base_path{ "" };
@@ -49,6 +50,9 @@ Kengine::configuration_file editor_config{ "kengine-editor" };
 
 editor* editor::instance = nullptr;
 
+static ImGuiID main_dockspace_id  = 1;
+static bool    layout_initialized = false;
+
 b2GLDraw                b2_debug_draw{};
 bool                    physics_debug_draw = false;
 bool                    is_gui_debug_draw  = false;
@@ -67,6 +71,15 @@ void editor::render_imgui()
                 game_lib_file_browser.Open();
             }
 
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Layout"))
+        {
+            if (ImGui::MenuItem("Default"))
+            {
+                layout_initialized = false;
+            }
             ImGui::EndMenu();
         }
 
@@ -95,19 +108,12 @@ void editor::render_imgui()
     // ImGui::ShowDemoWindow();
     {
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
-        ImGui::DockSpaceOverViewport(0, viewport);
+        ImGui::DockSpaceOverViewport(main_dockspace_id, viewport);
 
-        game_lib_file_browser.Display();
-        base_assets_file_browser.Display();
-
-        a_browser.display();
-        game_properties_window.display();
-        scene_properties_window.display();
-        scene_objects_window.display();
-        object_properties_window.display();
-        resource_window.display();
-        game_window.display();
-        log_window.display();
+        if (!layout_initialized)
+        {
+            build_layout();
+        }
 
         {
             ImGui::Begin("Properties");
@@ -163,6 +169,18 @@ void editor::render_imgui()
 
             ImGui::End();
         }
+
+        game_lib_file_browser.Display();
+        base_assets_file_browser.Display();
+
+        a_browser.display();
+        game_properties_window.display();
+        scene_properties_window.display();
+        scene_objects_window.display();
+        object_properties_window.display();
+        resource_window.display();
+        game_window.display();
+        log_window.display();
     }
 
     if (instance->game_imgui)
@@ -257,11 +275,53 @@ bool editor::load_game()
     return true;
 };
 
+void editor::build_layout()
+{
+    ImGui::DockBuilderRemoveNodeChildNodes(main_dockspace_id);
+
+    ImGuiID node1;
+    ImGuiID node2;
+    ImGui::DockBuilderSplitNode(
+        main_dockspace_id, ImGuiDir_Left, 0.8f, &node1, &node2);
+
+    ImGuiID node11;
+    ImGuiID node12;
+    ImGui::DockBuilderSplitNode(node1, ImGuiDir_Down, 0.3f, &node11, &node12);
+
+    ImGuiID node121;
+    ImGuiID node122;
+    ImGui::DockBuilderSplitNode(
+        node12, ImGuiDir_Left, 0.2f, &node121, &node122);
+
+    ImGuiID node111;
+    ImGuiID node112;
+    ImGui::DockBuilderSplitNode(
+        node11, ImGuiDir_Left, 0.5f, &node111, &node112);
+
+    ImGuiID node21;
+    ImGuiID node22;
+    ImGui::DockBuilderSplitNode(node2, ImGuiDir_Down, 0.4f, &node21, &node22);
+
+    ImGui::DockBuilderDockWindow(resource_window.window_name, node21);
+    ImGui::DockBuilderDockWindow(game_properties_window.window_name, node22);
+    ImGui::DockBuilderDockWindow(scene_properties_window.window_name, node22);
+    ImGui::DockBuilderDockWindow(object_properties_window.window_name, node22);
+    ImGui::DockBuilderDockWindow(a_browser.window_name, node111);
+    ImGui::DockBuilderDockWindow(log_window.window_name, node112);
+    ImGui::DockBuilderDockWindow(scene_objects_window.window_name, node121);
+    ImGui::DockBuilderDockWindow("Properties", node121);
+    ImGui::DockBuilderDockWindow(game_window.window_name, node122);
+
+    layout_initialized = true;
+}
+
 editor::editor()
 {
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
     editor_config.load();
+    layout_initialized = Kengine::file_manager::file_exists("imgui.ini");
+
     game_lib_path =
         editor_config.get_setting("game", "lib_path", std::filesystem::path());
     assets_base_path = editor_config.get_setting(

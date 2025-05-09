@@ -7,12 +7,14 @@
 #include "Kengine/resources/renderbuffer-resource.hxx"
 #include "Kengine/resources/texture-resource.hxx"
 #include "Kengine/scene/scene.hxx"
+#include "imgui.h"
 
 class editor : public Kengine::game
 {
 public:
     static editor* instance;
     static void    render_imgui();
+    static void    build_layout();
 
     editor();
 

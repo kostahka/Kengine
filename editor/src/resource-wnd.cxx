@@ -14,7 +14,7 @@ void resource_wnd::display()
     auto current_res = editor::instance->current_res;
 
     {
-        ImGui::Begin("Resource");
+        ImGui::Begin(window_name);
 
         if (current_res)
         {

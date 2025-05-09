@@ -91,6 +91,8 @@ private:
 class log_wnd
 {
 public:
+    static constexpr const char* window_name = "Logs";
+
     void initialize();
     void display();
 

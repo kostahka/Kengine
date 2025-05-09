@@ -5,6 +5,8 @@
 class scene_objects_wnd
 {
 public:
+    static constexpr const char* window_name = "Scene objects";
+    
     scene_objects_wnd();
 
     void display();

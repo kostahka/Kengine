@@ -13,7 +13,7 @@ void game_wnd::display()
     auto current_game = editor::instance->current_game;
 
     {
-        ImGui::Begin("Game");
+        ImGui::Begin(window_name);
 
         auto window_height = ImGui::GetWindowHeight();
         auto window_width  = ImGui::GetWindowWidth();

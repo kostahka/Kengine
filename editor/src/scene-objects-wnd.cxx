@@ -106,7 +106,7 @@ void scene_objects_wnd::display()
     auto current_game = editor::instance->current_game;
 
     {
-        if (ImGui::Begin("Scene objects"))
+        if (ImGui::Begin(window_name))
         {
             if (current_game)
             {
