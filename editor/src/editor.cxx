@@ -3,6 +3,7 @@
 #include "assets-browser.hxx"
 #include "game-properties-wnd.hxx"
 #include "game-wnd.hxx"
+#include "log-wnd.hxx"
 #include "object-properties-wnd.hxx"
 #include "resource-wnd.hxx"
 #include "scene-objects-wnd.hxx"
@@ -14,7 +15,6 @@
 #include "Kengine/graphics/graphics.hxx"
 #include "Kengine/graphics/gui-draw-debug.hxx"
 #include "Kengine/imgui/imgui.hxx"
-#include "Kengine/io/file-manager.hxx"
 #include "Kengine/log/log.hxx"
 #include "Kengine/scene/scene-manager.hxx"
 #include "Kengine/scene/scene.hxx"
@@ -22,9 +22,8 @@
 #include "imgui-filebrowser/imfilebrowser.h"
 #include "imgui.h"
 
-#include "box2d/box2d.h"
-
 #include <filesystem>
+#include <memory>
 
 static std::filesystem::path game_lib_path{ "" };
 static std::filesystem::path assets_base_path{ "" };
@@ -44,6 +43,7 @@ scene_objects_wnd     scene_objects_window{};
 object_properties_wnd object_properties_window{};
 resource_wnd          resource_window{};
 game_wnd              game_window{};
+log_wnd               log_window{};
 
 Kengine::configuration_file editor_config{ "kengine-editor" };
 
@@ -107,6 +107,7 @@ void editor::render_imgui()
         object_properties_window.display();
         resource_window.display();
         game_window.display();
+        log_window.display();
 
         {
             ImGui::Begin("Properties");
@@ -273,6 +274,8 @@ editor::editor()
     }
 
     edit_camera.set_projection(1, -100, 100);
+
+    log_window.initialize();
 };
 
 editor::~editor()

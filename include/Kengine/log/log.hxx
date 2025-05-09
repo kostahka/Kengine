@@ -2,8 +2,8 @@
 
 #include "spdlog/spdlog.h"
 
-#include <cstdlib>
 #include <memory>
+#include <ostream>
 
 #if defined(NDEBUG) && !defined(ENGINE_DEV)
  #define KENGINE_TRACE(...) (void)0

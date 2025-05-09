@@ -4,6 +4,7 @@ set(KENGINE_EDITOR_SOURCES
     src/editor.cxx
     src/game-properties-wnd.cxx
     src/game-wnd.cxx
+    src/log-wnd.cxx
     src/object-properties-wnd.cxx
     src/resource-wnd.cxx
     src/scene-objects-wnd.cxx
@@ -17,6 +18,7 @@ set(KENGINE_EDITOR_HEADERS
     include/game-properties-wnd.hxx
     include/game-wnd.hxx
     include/imgui-filebrowser/imfilebrowser.h
+    include/log-wnd.hxx
     include/object-properties-wnd.hxx
     include/resource-wnd.hxx
     include/scene-objects-wnd.hxx

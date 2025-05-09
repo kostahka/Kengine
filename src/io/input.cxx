@@ -1,5 +1,8 @@
 #include "Kengine/io/input.hxx"
 #include "Kengine/engine.hxx"
+#include "SDL3/SDL_clipboard.h"
+#include "SDL3/SDL_error.h"
+#include "SDL3/SDL_stdinc.h"
 #include "imgui.h"
 
 #include <array>
@@ -7,6 +10,7 @@
 #include <SDL3/SDL_keyboard.h>
 #include <SDL3/SDL_mouse.h>
 #include <SDL3/SDL_touch.h>
+#include <string>
 
 namespace Kengine::input
 {
@@ -86,4 +90,32 @@ namespace Kengine::input
         //    return false;
         //}
     } // namespace touch
+
+    namespace clipboard
+    {
+        bool set_text(const char* text)
+        {
+            if(SDL_SetClipboardText(text))
+            {
+                return true;
+            }
+
+            KENGINE_ERROR("Failed to set clipboard text. Error: {}", SDL_GetError());
+            return false;
+        }
+
+        std::string get_text()
+        {
+            char* text = SDL_GetClipboardText();
+            if(!text)
+            {
+                KENGINE_ERROR("Failed to get clipboard text. Error: {}", SDL_GetError());
+                return {};
+            }
+            
+            std::string result(text);
+            SDL_free(text);
+            return result;
+        }
+    } // namespace clipboard
 } // namespace Kengine::input

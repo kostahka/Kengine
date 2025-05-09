@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <string>
 
 namespace Kengine::input
 {
@@ -292,5 +293,11 @@ namespace Kengine::input
     {
         // bool get_touch_pos(int64_t touch_id, int64_t finger_id, float* x,
         // float* y);
+    }
+
+    namespace clipboard
+    {
+        E_DECLSPEC bool set_text(const char* text);
+        E_DECLSPEC std::string get_text();
     }
 } // namespace Kengine::input

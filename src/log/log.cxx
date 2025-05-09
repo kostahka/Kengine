@@ -1,5 +1,6 @@
 #include "Kengine/log/log.hxx"
 #include "log.hxx"
+#include <memory>
 
 #ifdef __ANDROID__
  #include "spdlog/sinks/android_sink.h"
@@ -16,11 +17,18 @@ namespace Kengine::log
     std::shared_ptr<spdlog::logger> logger{ nullptr };
     std::shared_ptr<spdlog::logger> fatal_logger{ nullptr };
 
+#ifdef __ANDROID__
+    static std::shared_ptr<spdlog::sinks::android_sink_st> android_sink{};
+#else
+    static std::shared_ptr<spdlog::sinks::basic_file_sink_st>   file_sink{};
+    static std::shared_ptr<spdlog::sinks::stdout_color_sink_st> console_sink{};
+#endif
+
     bool initialize()
     {
 #ifdef __ANDROID__
         // Logger for app fatal
-        auto android_sink =
+        android_sink =
             std::make_shared<spdlog::sinks::android_sink_st>("kengine");
 
         fatal_logger =
@@ -39,7 +47,7 @@ namespace Kengine::log
         spdlog::register_logger(logger);
 #else
         // Logger for app fatal
-        auto file_sink =
+        file_sink =
             std::make_shared<spdlog::sinks::basic_file_sink_st>("kengine.log");
 
         fatal_logger =
@@ -50,8 +58,7 @@ namespace Kengine::log
         spdlog::register_logger(fatal_logger);
 
         // Debug logger
-        auto console_sink =
-            std::make_shared<spdlog::sinks::stdout_color_sink_st>();
+        console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_st>();
 
         logger = std::make_shared<spdlog::logger>(logger_name, console_sink);
 

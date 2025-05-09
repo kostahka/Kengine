@@ -41,16 +41,16 @@ void player_controller_system::on_event(
             switch (g_event.keyboard.key)
             {
                 case keyboard::key::key_a:
-                    move_delta.x = -1;
+                    move_delta.x += -1;
                     break;
                 case keyboard::key::key_d:
-                    move_delta.x = 1;
+                    move_delta.x += 1;
                     break;
                 case keyboard::key::key_w:
-                    move_delta.y = 1;
+                    move_delta.y += 1;
                     break;
                 case keyboard::key::key_s:
-                    move_delta.y = -1;
+                    move_delta.y += -1;
                     break;
 
                 default:
