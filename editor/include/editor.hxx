@@ -7,7 +7,7 @@
 #include "Kengine/resources/renderbuffer-resource.hxx"
 #include "Kengine/resources/texture-resource.hxx"
 #include "Kengine/scene/scene.hxx"
-#include "imgui.h"
+#include <efsw/efsw.hpp>
 
 class editor : public Kengine::game
 {
@@ -37,7 +37,6 @@ public:
 
     game*               current_game = nullptr;
     Kengine::lib_handle game_lib     = nullptr;
-    bool                need_reload  = false;
     on_imgui_render*    game_imgui   = nullptr;
 
     Kengine::res_ptr<Kengine::texture_resource>      game_texture_res = nullptr;
@@ -60,4 +59,18 @@ public:
     Kengine::graphics::camera edit_camera;
     Kengine::vec2             edit_camera_pos{ 0, 0 };
     float                     edit_camera_angle{ 0 };
+
+    class game_lib_file : public efsw::FileWatchListener
+    {
+    public:
+        void handleFileAction(efsw::WatchID      watchid,
+                              const std::string& dir,
+                              const std::string& filename,
+                              efsw::Action       action,
+                              std::string        oldFilename = "") override;
+
+        bool need_reload = false;
+        efsw::WatchID watch_id = 0;
+        std::string file_name;
+    } game_lib_file;
 };

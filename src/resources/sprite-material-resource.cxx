@@ -11,7 +11,6 @@ namespace Kengine
     sprite_material_resource::sprite_material_resource(std::string_view name)
         : material_resource(graphics::sprite_shader, name)
     {
-        KENGINE_INFO("Take sprite_shader");
         resource::r_type = resource_type::sprite_material;
     }
 

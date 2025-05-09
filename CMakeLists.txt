@@ -82,7 +82,7 @@ target_compile_definitions(box2d PRIVATE B2_SHARED)
 target_compile_definitions(box2d PRIVATE box2d_EXPORTS)
 
 # EFSW - cross-platform file watcher and notifier
-# add_subdirectory(external/efsw)
+add_subdirectory(external/efsw)
 
 # GLM - OpenGL Mathematics. C++ mathematics library for graphics software based
 # on the OpenGL Shading Language (GLSL) specifications

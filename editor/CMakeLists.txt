@@ -34,6 +34,7 @@ target_include_directories(
 )
 
 target_link_libraries(kengine-editor PRIVATE Kengine::kengine-shared)
+target_link_libraries(kengine-editor PRIVATE efsw)
 
 if(WIN32)
     add_custom_target(

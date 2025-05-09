@@ -2,6 +2,7 @@
 
 #include "Kengine/io/file-manager.hxx"
 #include "assets-browser.hxx"
+#include "efsw/efsw.hpp"
 #include "game-properties-wnd.hxx"
 #include "game-wnd.hxx"
 #include "log-wnd.hxx"
@@ -60,7 +61,25 @@ Kengine::gui_draw_debug gui_debug_draw{};
 
 Kengine::ivec2 editor::game_viewport_size{ 800, 600 };
 
+static efsw::FileWatcher file_watcher{};
+
+void editor::game_lib_file::handleFileAction(efsw::WatchID      watchid,
+                                             const std::string& dir,
+                                             const std::string& filename,
+                                             efsw::Action       action,
+                                             std::string        oldFilename)
+{
+    if (action != efsw::Action::Delete)
+    {
+        if (filename == file_name)
+        {
+            need_reload = true;
+        }
+    }
+}
+
 void editor::render_imgui()
+
 {
     if (ImGui::BeginMainMenuBar())
     {
@@ -101,7 +120,7 @@ void editor::render_imgui()
 
         a_browser.assets_file_browser.SetPwd(assets_base_path);
 
-        instance->need_reload = true;
+        instance->game_lib_file.need_reload = true;
         base_assets_file_browser.ClearSelected();
     }
 
@@ -191,10 +210,13 @@ bool editor::load_game()
 {
     if (current_game)
     {
+        KENGINE_INFO("Unloading game library");
         delete current_game;
         Kengine::unload_lib(game_lib);
         game_lib = nullptr;
     }
+
+    file_watcher.removeWatch(game_lib_file.watch_id);
 
     using namespace std::filesystem;
     if (exists(temp_lib_path))
@@ -222,6 +244,7 @@ bool editor::load_game()
         return false;
     }
 
+    KENGINE_INFO("Loading game library: {}", game_lib_path.string().c_str());
     game_lib = Kengine::load_lib(temp_lib_path.string().c_str());
 
     if (game_lib == nullptr)
@@ -271,6 +294,12 @@ bool editor::load_game()
 
     current_game->on_start();
     Kengine::graphics::pop_framebuffer();
+
+    std::filesystem::path game_lib_dir      = game_lib_path.parent_path();
+    std::filesystem::path game_lib_filename = game_lib_path.filename();
+
+    game_lib_file.file_name = game_lib_filename.string();
+    file_watcher.addWatch(game_lib_dir.string(), &game_lib_file);
 
     return true;
 };
@@ -330,7 +359,7 @@ editor::editor()
     if (!game_lib_path.empty())
     {
         a_browser.assets_file_browser.SetPwd(assets_base_path);
-        need_reload = true;
+        game_lib_file.need_reload = true;
     }
 
     edit_camera.set_projection(1, -100, 100);
@@ -414,6 +443,8 @@ void editor::on_start()
     b2_debug_draw.Create();
     b2_debug_draw.SetFlags(b2Draw::e_shapeBit);
     gui_debug_draw.create();
+
+    file_watcher.watch();
 }
 
 void editor::on_event(const Kengine::event::game_event& event)
@@ -447,11 +478,11 @@ void editor::on_update(int delta_ms)
         scene_update_valid = true;
     }
 
-    if (need_reload)
+    if (game_lib_file.need_reload)
     {
         get_current_scene().clear_resources();
         load_game();
-        need_reload = false;
+        game_lib_file.need_reload = false;
     }
 }
 
