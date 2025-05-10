@@ -9,6 +9,7 @@ set(KENGINE_EDITOR_SOURCES
     src/resource-wnd.cxx
     src/scene-objects-wnd.cxx
     src/scene-properties-wnd.cxx
+    src/toolbar-wnd.cxx
 )
 
 set(KENGINE_EDITOR_HEADERS
@@ -23,6 +24,7 @@ set(KENGINE_EDITOR_HEADERS
     include/resource-wnd.hxx
     include/scene-objects-wnd.hxx
     include/scene-properties-wnd.hxx
+    include/toolbar-wnd.hxx
 )
 
 add_executable(

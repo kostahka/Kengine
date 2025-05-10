@@ -24,6 +24,7 @@
 #include "imgui-filebrowser/imfilebrowser.h"
 #include "imgui.h"
 #include "imgui_internal.h"
+#include "toolbar-wnd.hxx"
 
 #include <filesystem>
 
@@ -46,6 +47,7 @@ object_properties_wnd object_properties_window{};
 resource_wnd          resource_window{};
 game_wnd              game_window{};
 log_wnd               log_window{};
+toolbar_wnd           toolbar_window{};
 
 Kengine::configuration_file editor_config{ "kengine-editor" };
 
@@ -55,8 +57,6 @@ static ImGuiID main_dockspace_id  = 1;
 static bool    layout_initialized = false;
 
 b2GLDraw                b2_debug_draw{};
-bool                    physics_debug_draw = false;
-bool                    is_gui_debug_draw  = false;
 Kengine::gui_draw_debug gui_debug_draw{};
 
 Kengine::ivec2 editor::game_viewport_size{ 800, 600 };
@@ -134,61 +134,6 @@ void editor::render_imgui()
             build_layout();
         }
 
-        {
-            ImGui::Begin("Properties");
-            bool properties_changed = false;
-
-            properties_changed |=
-                ImGui::Checkbox("GUI debug draw", &is_gui_debug_draw);
-            properties_changed |=
-                ImGui::Checkbox("Physics debug draw", &physics_debug_draw);
-
-            auto b2_debug_draw_flags = b2_debug_draw.GetFlags();
-            bool b2_debug_shape      = b2_debug_draw_flags & b2Draw::e_shapeBit;
-            bool b2_debug_aabb       = b2_debug_draw_flags & b2Draw::e_aabbBit;
-            bool b2_debug_center_of_mass =
-                b2_debug_draw_flags & b2Draw::e_centerOfMassBit;
-            bool b2_debug_joint = b2_debug_draw_flags & b2Draw::e_jointBit;
-            bool b2_debug_pair  = b2_debug_draw_flags & b2Draw::e_pairBit;
-
-            if (ImGui::Checkbox("Draw physics shapes", &b2_debug_shape))
-            {
-                b2_debug_draw.SetFlags(b2_debug_draw_flags ^
-                                       b2Draw::e_shapeBit);
-                properties_changed = true;
-            }
-            if (ImGui::Checkbox("Draw physics aabb", &b2_debug_aabb))
-            {
-                b2_debug_draw.SetFlags(b2_debug_draw_flags ^ b2Draw::e_aabbBit);
-                properties_changed = true;
-            }
-            if (ImGui::Checkbox("Draw physics center of mass",
-                                &b2_debug_center_of_mass))
-            {
-                b2_debug_draw.SetFlags(b2_debug_draw_flags ^
-                                       b2Draw::e_centerOfMassBit);
-                properties_changed = true;
-            }
-            if (ImGui::Checkbox("Draw physics joints", &b2_debug_joint))
-            {
-                b2_debug_draw.SetFlags(b2_debug_draw_flags ^
-                                       b2Draw::e_jointBit);
-                properties_changed = true;
-            }
-            if (ImGui::Checkbox("Draw physics pairs", &b2_debug_pair))
-            {
-                b2_debug_draw.SetFlags(b2_debug_draw_flags ^ b2Draw::e_pairBit);
-                properties_changed = true;
-            }
-
-            if (properties_changed)
-            {
-                editor::instance->invalid_scene_render();
-            }
-
-            ImGui::End();
-        }
-
         game_lib_file_browser.Display();
         base_assets_file_browser.Display();
 
@@ -200,6 +145,17 @@ void editor::render_imgui()
         resource_window.display();
         game_window.display();
         log_window.display();
+
+        {
+            auto b2_debug_draw_flags = b2_debug_draw.GetFlags();
+            toolbar_window.display(b2_debug_draw_flags);
+
+            if (toolbar_window.is_render_properties_changed())
+            {
+                b2_debug_draw.SetFlags(b2_debug_draw_flags);
+                editor::instance->invalid_scene_render();
+            }
+        }
     }
 
     if (instance->game_imgui)
@@ -322,6 +278,11 @@ void editor::build_layout()
     ImGui::DockBuilderSplitNode(
         node12, ImGuiDir_Left, 0.2f, &node121, &node122);
 
+    ImGuiID node1221;
+    ImGuiID node1222;
+    ImGui::DockBuilderSplitNode(
+        node122, ImGuiDir_Down, 0.8f, &node1221, &node1222);
+
     ImGuiID node111;
     ImGuiID node112;
     ImGui::DockBuilderSplitNode(
@@ -338,8 +299,8 @@ void editor::build_layout()
     ImGui::DockBuilderDockWindow(a_browser.window_name, node111);
     ImGui::DockBuilderDockWindow(log_window.window_name, node112);
     ImGui::DockBuilderDockWindow(scene_objects_window.window_name, node121);
-    ImGui::DockBuilderDockWindow("Properties", node121);
-    ImGui::DockBuilderDockWindow(game_window.window_name, node122);
+    ImGui::DockBuilderDockWindow(toolbar_window.window_name, node1222);
+    ImGui::DockBuilderDockWindow(game_window.window_name, node1221);
 
     layout_initialized = true;
 }
@@ -503,14 +464,14 @@ void editor::on_render(int delta_ms)
 
         current_game->on_render(delta_ms);
         current_game->get_current_scene().on_render(delta_ms);
-        if (physics_debug_draw)
+        if (toolbar_window.physics_debug_draw)
         {
             current_game->get_current_scene().get_world().SetDebugDraw(
                 &b2_debug_draw);
             current_game->get_current_scene().get_world().DebugDraw();
             b2_debug_draw.Draw();
         }
-        if (is_gui_debug_draw)
+        if (toolbar_window.physics_debug_draw)
         {
             gui_debug_draw.draw(current_game->get_current_scene());
         }
