@@ -1,5 +1,7 @@
 #pragma once
 
+#include "toolbar-wnd.hxx"
+
 #include "Kengine/game.hxx"
 #include "Kengine/graphics/camera.hxx"
 #include "Kengine/graphics/framebuffer.hxx"
@@ -8,6 +10,13 @@
 #include "Kengine/resources/texture-resource.hxx"
 #include "Kengine/scene/scene.hxx"
 #include <efsw/efsw.hpp>
+#include <memory>
+
+enum class editor_game_mode
+{
+    play_mode,
+    edit_mode
+};
 
 class editor : public Kengine::game
 {
@@ -24,8 +33,8 @@ public:
     void on_update(int delta_ms) override;
     void on_render(int delta_ms) override;
 
-    void set_game_scene(Kengine::string_id);
-    void set_game_scene(std::filesystem::path);
+    void set_game_scene(Kengine::string_id, bool recreate_camera = true);
+    void set_game_scene(std::filesystem::path, bool recreate_camera = true);
 
     void set_scene_camera(entt::entity);
 
@@ -46,7 +55,6 @@ public:
         nullptr;
     Kengine::graphics::framebuffer game_framebuffer;
 
-    bool play_mode          = false;
     bool scene_render_valid = true;
     bool scene_update_valid = true;
 
@@ -69,8 +77,21 @@ public:
                               efsw::Action       action,
                               std::string        oldFilename = "") override;
 
-        bool need_reload = false;
-        efsw::WatchID watch_id = 0;
-        std::string file_name;
+        bool          need_reload = false;
+        efsw::WatchID watch_id    = 0;
+        std::string   file_name;
     } game_lib_file;
+
+    class game_mode_info : public toolbar_game_state_listener
+    {
+    public:
+        void game_state_changed(toolbar_game_state old_state,
+                                toolbar_game_state new_state) override final;
+
+        editor_game_mode mode              = editor_game_mode::edit_mode;
+        bool             need_reload_scene = false;
+    };
+
+    std::shared_ptr<game_mode_info> game_mode =
+        std::make_shared<game_mode_info>();
 };

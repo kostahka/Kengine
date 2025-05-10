@@ -9,7 +9,7 @@ public:
     
     game_wnd();
 
-    void display();
+    void display(bool active = false);
 
 private:
 };

@@ -63,6 +63,27 @@ Kengine::ivec2 editor::game_viewport_size{ 800, 600 };
 
 static efsw::FileWatcher file_watcher{};
 
+void editor::game_mode_info::game_state_changed(toolbar_game_state old_state,
+                                                toolbar_game_state new_state)
+{
+    if (old_state != new_state)
+    {
+        switch (new_state)
+        {
+            case toolbar_game_state::play:
+                mode = editor_game_mode::play_mode;
+                break;
+            case toolbar_game_state::paused:
+                mode = editor_game_mode::edit_mode;
+                break;
+            case toolbar_game_state::stopped:
+                mode              = editor_game_mode::edit_mode;
+                need_reload_scene = true;
+                break;
+        }
+    }
+}
+
 void editor::game_lib_file::handleFileAction(efsw::WatchID      watchid,
                                              const std::string& dir,
                                              const std::string& filename,
@@ -143,7 +164,8 @@ void editor::render_imgui()
         scene_objects_window.display();
         object_properties_window.display();
         resource_window.display();
-        game_window.display();
+        game_window.display(editor::instance->game_mode->mode ==
+                            editor_game_mode::play_mode);
         log_window.display();
 
         {
@@ -347,12 +369,15 @@ editor::~editor()
     b2_debug_draw.Destroy();
 }
 
-void editor::set_game_scene(Kengine::string_id sc_link)
+void editor::set_game_scene(Kengine::string_id sc_link, bool recreate_camera)
 {
-    edit_camera = Kengine::graphics::camera();
-    edit_camera.set_projection(1, -100, 100);
-    edit_camera_pos   = { 0, 0 };
-    edit_camera_angle = 0;
+    if (recreate_camera)
+    {
+        edit_camera = Kengine::graphics::camera();
+        edit_camera.set_projection(1, -100, 100);
+        edit_camera_pos   = { 0, 0 };
+        edit_camera_angle = 0;
+    }
 
     get_current_scene().clear_resources();
     current_game->set_current_scene(sc_link);
@@ -360,12 +385,15 @@ void editor::set_game_scene(Kengine::string_id sc_link)
     current_game->get_current_scene().set_camera(&edit_camera);
 }
 
-void editor::set_game_scene(std::filesystem::path sc_path)
+void editor::set_game_scene(std::filesystem::path sc_path, bool recreate_camera)
 {
-    edit_camera = Kengine::graphics::camera();
-    edit_camera.set_projection(1, -100, 100);
-    edit_camera_pos   = { 0, 0 };
-    edit_camera_angle = 0;
+    if (recreate_camera)
+    {
+        edit_camera = Kengine::graphics::camera();
+        edit_camera.set_projection(1, -100, 100);
+        edit_camera_pos   = { 0, 0 };
+        edit_camera_angle = 0;
+    }
 
     get_current_scene().clear_resources();
     current_game->set_current_scene(sc_path);
@@ -406,6 +434,8 @@ void editor::on_start()
     gui_debug_draw.create();
 
     file_watcher.watch();
+
+    toolbar_window.set_game_state_listener(game_mode);
 }
 
 void editor::on_event(const Kengine::event::game_event& event)
@@ -431,12 +461,19 @@ void editor::on_update(int delta_ms)
 
     edit_camera.view = edit_camera_view;
 
-    if ((play_mode || !scene_update_valid) && current_game)
+    if (!(game_mode->mode == editor_game_mode::play_mode) &&
+        !scene_update_valid && current_game)
+    {
+        current_game->on_update(0);
+        current_game->get_current_scene().on_update(0);
+
+        scene_update_valid = true;
+    }
+
+    if ((game_mode->mode == editor_game_mode::play_mode) && current_game)
     {
         current_game->on_update(delta_ms);
         current_game->get_current_scene().on_update(delta_ms);
-
-        scene_update_valid = true;
     }
 
     if (game_lib_file.need_reload)
@@ -445,12 +482,18 @@ void editor::on_update(int delta_ms)
         load_game();
         game_lib_file.need_reload = false;
     }
+
+    if (game_mode->need_reload_scene && current_game)
+    {
+        set_game_scene(current_game->get_current_scene_id(), false);
+        game_mode->need_reload_scene = false;
+    }
 }
 
 void editor::on_render(int delta_ms)
 {
-    if (current_game &&
-        (play_mode || (!scene_render_valid && scene_update_valid)))
+    if (current_game && ((game_mode->mode == editor_game_mode::play_mode) ||
+                         (!scene_render_valid && scene_update_valid)))
     {
         game_framebuffer_res->set_clear_color(
             current_game->get_current_scene().clear_color);
@@ -462,8 +505,18 @@ void editor::on_render(int delta_ms)
             edit_camera.calculate_projection();
         }
 
-        current_game->on_render(delta_ms);
-        current_game->get_current_scene().on_render(delta_ms);
+        if (game_mode->mode == editor_game_mode::play_mode)
+        {
+            current_game->on_render(delta_ms);
+            current_game->get_current_scene().on_render(delta_ms);
+        }
+        else
+        {
+            current_game->on_render(0);
+            current_game->get_current_scene().on_render(0);
+            scene_render_valid = true;
+        }
+
         if (toolbar_window.physics_debug_draw)
         {
             current_game->get_current_scene().get_world().SetDebugDraw(
@@ -476,8 +529,6 @@ void editor::on_render(int delta_ms)
             gui_debug_draw.draw(current_game->get_current_scene());
         }
         Kengine::graphics::pop_framebuffer();
-
-        scene_render_valid = true;
     }
 }
 

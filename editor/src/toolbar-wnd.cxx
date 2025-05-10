@@ -84,7 +84,7 @@ void toolbar_wnd::display(uint32_t& b2_debug_draw_flags)
 
             ImGui::SetCursorPosX(buttons_pos_x);
 
-            const auto play_btn_color = play_mode == game_play_mode::play
+            const auto play_btn_color = game_state == toolbar_game_state::play
                                             ? ImGuiCol_ButtonActive
                                             : ImGuiCol_Button;
             ImGui::PushStyleColor(ImGuiCol_Button,
@@ -92,32 +92,47 @@ void toolbar_wnd::display(uint32_t& b2_debug_draw_flags)
 
             if (ImGui::Button(play_btn_text))
             {
-                play_mode = game_play_mode::play;
+                if (listener)
+                {
+                    listener->game_state_changed(game_state,
+                                                 toolbar_game_state::play);
+                }
+                game_state = toolbar_game_state::play;
             }
             ImGui::PopStyleColor();
 
             ImGui::SameLine();
 
-            const auto pause_btn_color = play_mode == game_play_mode::paused
-                                             ? ImGuiCol_ButtonActive
-                                             : ImGuiCol_Button;
+            const auto pause_btn_color =
+                game_state == toolbar_game_state::paused ? ImGuiCol_ButtonActive
+                                                         : ImGuiCol_Button;
             ImGui::PushStyleColor(ImGuiCol_Button,
                                   ImGui::GetStyle().Colors[pause_btn_color]);
 
-            ImGui::BeginDisabled(play_mode != game_play_mode::play);
+            ImGui::BeginDisabled(game_state != toolbar_game_state::play);
             if (ImGui::Button(pause_btn_text))
             {
-                play_mode = game_play_mode::paused;
+                if (listener)
+                {
+                    listener->game_state_changed(game_state,
+                                                 toolbar_game_state::paused);
+                }
+                game_state = toolbar_game_state::paused;
             }
             ImGui::EndDisabled();
             ImGui::PopStyleColor();
 
             ImGui::SameLine();
 
-            ImGui::BeginDisabled(play_mode == game_play_mode::stopped);
+            ImGui::BeginDisabled(game_state == toolbar_game_state::stopped);
             if (ImGui::Button(stop_btn_text))
             {
-                play_mode = game_play_mode::stopped;
+                if (listener)
+                {
+                    listener->game_state_changed(game_state,
+                                                 toolbar_game_state::stopped);
+                }
+                game_state = toolbar_game_state::stopped;
             }
             ImGui::EndDisabled();
 

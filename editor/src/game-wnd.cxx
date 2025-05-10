@@ -6,7 +6,7 @@
 
 game_wnd::game_wnd() {}
 
-void game_wnd::display()
+void game_wnd::display(bool active)
 {
     ImGui::PushID(this);
 
@@ -26,12 +26,19 @@ void game_wnd::display()
         ImGui::SetCursorPosX((window_width - game_image_width) / 2);
         ImGui::SetCursorPosY((window_height - game_image_height) / 2);
 
+        ImGui::PushStyleColor(ImGuiCol_Border,
+                              active ? ImVec4(1, 1, 0, 1) : ImVec4(0, 0, 0, 0));
+        ImGui::PushStyleVar(ImGuiStyleVar_ImageBorderSize, 2.0f);
+
         ImGui::Image(
             (ImTextureID) static_cast<long long>(
                 editor::instance->game_framebuffer.get_color_texture_id()),
             { game_image_width, game_image_height },
             { 0, 1 },
             { 1, 0 });
+
+        ImGui::PopStyleVar();
+        ImGui::PopStyleColor();
 
         if (ImGui::IsWindowHovered())
         {
