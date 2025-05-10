@@ -99,23 +99,26 @@ void imgui_logger_sink::sink_it_(
                                      ? level_color_it->second
                                      : format_tags::color_reset;
 
-    new_line.substring_ranges.push_back({
+    sink_line_content::color_data_ranges range1{
         .substring_begin = 0,
         .substring_end   = color_range_start,
         .format_tag      = format_tags::color_reset,
-    });
-
-    new_line.substring_ranges.push_back({
+    };
+    sink_line_content::color_data_ranges range2{
         .substring_begin = color_range_start,
         .substring_end   = color_range_end,
         .format_tag      = level_format,
-    });
+    };
 
-    new_line.substring_ranges.push_back({
+    sink_line_content::color_data_ranges range3{
         .substring_begin = color_range_end,
         .substring_end   = line_end,
         .format_tag      = format_tags::color_reset,
-    });
+    };
+
+    new_line.substring_ranges.push_back(range1);
+    new_line.substring_ranges.push_back(range2);
+    new_line.substring_ranges.push_back(range3);
 
     if (filter_passing)
     {
@@ -233,9 +236,9 @@ void log_wnd::display()
             (log_level_filter_width + ImGui::GetStyle().WindowPadding.x);
 
         static const char* log_filter_text = "Log filter:";
-        static auto log_filter_text_width = ImGui::CalcTextSize(log_filter_text).x +
-                                     ImGui::GetStyle().FramePadding.x * 2 +
-                                     ImGui::GetFrameHeight();
+        static auto        log_filter_text_width =
+            ImGui::CalcTextSize(log_filter_text).x +
+            ImGui::GetStyle().FramePadding.x * 2 + ImGui::GetFrameHeight();
 
         // Filter out messages on display
         ImGui::Text("%s", log_filter_text);
